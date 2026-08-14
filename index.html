@@ -384,6 +384,82 @@ input{font-family:inherit}
 #tv-tabs #tv-off:hover{background:rgba(201,111,74,.2)}
 #tv-text{font-size:13.5px;line-height:1.5;font-weight:700;min-height:20px}
 
+/* ====== celular ====== */
+#btn-phone{position:fixed;bottom:118px;right:14px;z-index:20;width:52px;height:52px;border-radius:17px;font-size:24px;display:grid;place-items:center;transition:transform .25s}
+#btn-phone:hover{transform:translateY(-2px)}
+#phonebadge{position:absolute;top:-6px;right:-6px;min-width:19px;height:19px;border-radius:99px;background:#e35d5d;color:#fff;font-size:11px;font-weight:800;display:none;place-items:center;padding:0 5px;box-shadow:0 2px 8px rgba(227,93,93,.5)}
+#phonebadge.on{display:grid}
+#phoneov{position:fixed;inset:0;z-index:66;background:rgba(23,21,34,.45);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center}
+#phoneov.on{display:flex;animation:fadein .3s}
+#phone{width:380px;max-width:94vw;height:min(640px,88vh);border-radius:40px;background:linear-gradient(160deg,#33303c,#191622);padding:14px 11px 12px;box-shadow:0 30px 80px rgba(0,0,0,.55),inset 0 0 0 2px rgba(255,255,255,.09);display:flex;flex-direction:column}
+#phone .notch{width:104px;height:18px;background:#0d0b12;border-radius:12px;margin:0 auto 9px;flex-shrink:0}
+#phone-inner{flex:1;min-height:0;border-radius:28px;overflow:hidden;display:flex;flex-direction:column;background:var(--glass)}
+#pn-head{padding:12px 14px;display:flex;align-items:center;gap:9px;border-bottom:1px solid rgba(110,96,88,.14);flex-shrink:0}
+#pn-back{width:30px;height:30px;border-radius:10px;font-size:14px;background:rgba(255,255,255,.45)}
+#pn-face{font-size:20px}
+#pn-title{font-family:'Fraunces',serif;font-weight:700;font-size:16px}
+#pn-close{margin-left:auto;width:30px;height:30px;border-radius:10px;font-size:13px;background:rgba(255,255,255,.45)}
+#pn-career{font-size:10.5px;font-weight:800;color:var(--ink2);padding:7px 14px 0;flex-shrink:0}
+#pn-threads{flex:1;overflow-y:auto;min-height:0}
+#pn-thread{flex:1;display:none;flex-direction:column;min-height:0}
+#pn-thread.on{display:flex}
+.thr{display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid rgba(110,96,88,.1);cursor:pointer;transition:background .2s;width:100%;text-align:left}
+.thr:hover{background:rgba(255,255,255,.45)}
+.thr .tf{width:42px;height:42px;border-radius:14px;background:linear-gradient(150deg,#f0e0c8,#e2c9a8);display:grid;place-items:center;font-size:22px;flex-shrink:0}
+.thr .tn{font-weight:800;font-size:13.5px}
+.thr .tp{font-size:11px;color:var(--ink2);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:185px}
+.thr .tb{margin-left:auto;min-width:19px;height:19px;border-radius:99px;background:var(--terra);color:#fff;font-size:10.5px;font-weight:800;display:grid;place-items:center;padding:0 5px;flex-shrink:0}
+#sms-msgs{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;min-height:0}
+#sms-msgs::-webkit-scrollbar{width:4px}
+#sms-msgs::-webkit-scrollbar-thumb{background:rgba(110,96,88,.25);border-radius:99px}
+.sms{max-width:84%;padding:8px 12px;border-radius:15px;font-size:12.5px;line-height:1.45;animation:bubin .3s}
+.sms.me{align-self:flex-end;background:linear-gradient(135deg,var(--paris),var(--paris2));color:#fff;border-bottom-right-radius:4px}
+.sms.them{align-self:flex-start;background:rgba(255,255,255,.78);border:1px solid rgba(255,255,255,.7);border-bottom-left-radius:4px;font-weight:700}
+.sms .tools{display:flex;gap:6px;margin-top:5px}
+.sms .tools button{font-size:11px;padding:2px 8px;border-radius:8px;background:rgba(74,111,165,.1);font-weight:700}
+.sms .pttxt{display:none;margin-top:5px;padding-top:5px;border-top:1px dashed rgba(110,96,88,.3);font-size:11px;color:var(--ink2);font-style:italic;font-weight:600}
+.sms .pttxt.show{display:block}
+#sms-sugg{display:flex;flex-wrap:wrap;gap:6px;padding:6px 12px 0;flex-shrink:0}
+#sms-inbar{padding:9px 10px 11px;display:flex;gap:7px;border-top:1px solid rgba(110,96,88,.14);flex-shrink:0}
+#sms-input{flex:1;border:1.5px solid rgba(110,96,88,.22);border-radius:12px;padding:8px 12px;font-size:12.5px;background:rgba(255,255,255,.75);outline:none;color:var(--ink)}
+#sms-input:focus{border-color:var(--paris)}
+#sms-send{width:38px;height:38px;border-radius:12px;font-size:15px;display:grid;place-items:center;background:linear-gradient(135deg,var(--terra),var(--terra2));color:#fff;flex-shrink:0}
+
+/* ====== carreiras ====== */
+.jobcard{display:flex;gap:11px;align-items:center;padding:12px 13px;border-radius:13px;background:rgba(255,255,255,.62);border:1.5px solid rgba(255,255,255,.7);margin-bottom:9px}
+.jobcard.cur{border-color:var(--gold);background:rgba(217,164,65,.14)}
+.jobcard .je{font-size:26px}
+.jobcard .jt1{font-weight:800;font-size:13.5px}
+.jobcard .jp1{font-size:11px;color:var(--ink2);font-weight:700}
+.jobcard button{margin-left:auto;padding:7px 13px;border-radius:10px;font-size:12px;font-weight:800;background:linear-gradient(135deg,var(--terra),var(--terra2));color:#fff;flex-shrink:0}
+.jobcard button:disabled{background:rgba(110,96,88,.28);cursor:default}
+#jt-prog{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+#jt-bar{flex:1;height:9px;background:rgba(90,70,50,.14);border-radius:99px;overflow:hidden}
+#jt-fill{height:100%;width:0;background:linear-gradient(90deg,var(--paris),#8ab0e0);border-radius:99px;transition:width .4s}
+#jt-score{font-size:12px;font-weight:800;color:var(--terra)}
+#jt-prompt{font-size:14px;line-height:1.55;padding:12px 14px;border-radius:12px;background:rgba(255,255,255,.62);border:1px solid rgba(255,255,255,.7);margin-bottom:10px}
+#jt-timer{height:5px;background:rgba(90,70,50,.14);border-radius:99px;overflow:hidden;margin-bottom:10px;display:none}
+#jt-timer.on{display:block}
+#jt-tfill{height:100%;width:100%;background:linear-gradient(90deg,var(--green),#a8d08a)}
+.jt-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.jt-it{display:flex;align-items:center;gap:8px;padding:9px 11px;border-radius:12px;background:rgba(255,255,255,.62);border:1.5px solid rgba(255,255,255,.7);font-size:12.5px;font-weight:700;text-align:left;transition:all .15s}
+.jt-it:hover{background:rgba(74,111,165,.12)}
+.jt-it.sel{border-color:var(--paris);background:rgba(74,111,165,.16)}
+.jt-it.good{background:rgba(127,174,106,.28);border-color:var(--green)}
+.jt-it.bad{background:rgba(207,90,74,.18);border-color:#cf5a4a}
+.jt-it .ji{font-size:20px}
+#jt-fb{display:none;margin-top:10px;padding:9px 12px;border-radius:12px;font-size:12.5px;line-height:1.45;text-align:center;font-weight:700}
+#jt-fb.ok{display:block;background:rgba(127,174,106,.22);color:#3f6b32;animation:bubin .25s}
+#jt-fb.no{display:block;background:rgba(207,90,74,.16);color:#a04432;animation:bubin .25s}
+#jt-go{display:block;margin:10px auto 0;padding:8px 22px;border-radius:11px;font-weight:800;font-size:13px;background:linear-gradient(135deg,var(--terra),var(--terra2));color:#fff}
+#jt-go:disabled{background:rgba(110,96,88,.28);cursor:default}
+
+/* ====== petit test ====== */
+#pt-input{width:100%;border:1.5px solid rgba(110,96,88,.22);border-radius:12px;padding:9px 12px;font-size:13.5px;background:rgba(255,255,255,.78);outline:none;min-height:64px;resize:none;font-family:inherit;color:var(--ink)}
+#pt-input:focus{border-color:var(--paris)}
+#btn-test{font-size:12px;font-weight:800;padding:6px 12px;border-radius:10px;background:linear-gradient(135deg,var(--paris),var(--paris2));color:#fff;display:flex;align-items:center;gap:6px;box-shadow:0 3px 10px rgba(74,111,165,.35)}
+#g-career{font-size:11px;font-weight:800;color:var(--ink2);padding:4px 12px 0}
+
 /* ====== mobile ====== */
 @media (max-width:760px){
   #tl{min-width:180px;padding:9px 12px;transform:scale(.92);transform-origin:top left}
@@ -412,6 +488,7 @@ input{font-family:inherit}
   <button id="btn-gear" class="glass">⚙️</button>
 </div>
 <div id="gearmenu" class="glass">
+  <div id="g-career" style="display:none"></div>
   <button id="g-music">🎵 Música da vitrola</button>
   <button id="g-reset">🌱 Recomeçar do zero</button>
 </div>
@@ -476,7 +553,7 @@ input{font-family:inherit}
 
 <!-- carnet -->
 <div id="carnet" class="glass">
-  <div id="carnet-head"><b>📖 Carnet de mots</b><button id="btn-defi">🎯 Réviser<span id="defibadge"></span></button><button id="carnet-close" style="font-size:15px;width:34px;height:34px;border-radius:12px;background:rgba(255,255,255,.45)">✕</button></div>
+  <div id="carnet-head"><b>📖 Carnet de mots</b><button id="btn-test" style="display:none">🎓 Petit test</button><button id="btn-defi">🎯 Réviser<span id="defibadge"></span></button><button id="carnet-close" style="font-size:15px;width:34px;height:34px;border-radius:12px;background:rgba(255,255,255,.45)">✕</button></div>
   <div id="carnet-list"></div>
 </div>
 
@@ -541,6 +618,7 @@ input{font-family:inherit}
     <button data-ch="meteo">🌦 Météo</button>
     <button data-ch="cuisine">🍳 Cuisine</button>
     <button data-ch="musique">🎵 Musique</button>
+    <button data-ch="cine" id="tvtab-cine" style="display:none">🎬 Ciné</button>
     <button id="tv-off" title="desligar e levantar">⏻</button>
   </div>
   <div id="tv-text"><i>La télé s'allume… choisis une chaîne.</i></div>
@@ -559,6 +637,63 @@ input{font-family:inherit}
   <div class="cv-stool" style="left:12%"></div>
   <div class="cv-stool" style="left:34%"></div>
   <button id="cafe-back" class="glass">← Rentrer à l'appart</button>
+</div>
+
+<!-- celular -->
+<button id="btn-phone" class="glass" title="ton téléphone">📱<span id="phonebadge"></span></button>
+<div id="phoneov">
+  <div id="phone">
+    <div class="notch"></div>
+    <div id="phone-inner">
+      <div id="pn-head">
+        <button id="pn-back" style="display:none">←</button>
+        <span id="pn-face" style="display:none"></span>
+        <span id="pn-title">Messages</span>
+        <button id="pn-close">✕</button>
+      </div>
+      <div id="pn-career" style="display:none"></div>
+      <div id="pn-threads"></div>
+      <div id="pn-thread">
+        <div id="sms-msgs"></div>
+        <div id="sms-sugg"></div>
+        <div id="sms-inbar">
+          <input id="sms-input" type="text" placeholder="Écris en français..." maxlength="240" autocomplete="off">
+          <button id="sms-send">➤</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- vagas de emprego -->
+<div id="jobsmodal" class="glass modal">
+  <div class="modal-head"><b>💼 Trouver un boulot</b><button id="jobs-close" class="modal-x">✕</button></div>
+  <div class="modal-body" id="jobs-list"></div>
+</div>
+
+<!-- turno de trabalho -->
+<div id="jtmodal" class="glass modal">
+  <div class="modal-head"><b id="jt-title">💼 Au boulot</b><button id="jt-close" class="modal-x">✕</button></div>
+  <div class="modal-body">
+    <div id="jt-prog"><div id="jt-bar"><div id="jt-fill"></div></div><span id="jt-score"></span></div>
+    <div id="jt-timer"><div id="jt-tfill"></div></div>
+    <div id="jt-prompt"></div>
+    <div id="jt-area"></div>
+    <div id="jt-fb"></div>
+    <div id="jt-end" style="display:none;text-align:center;padding:12px 0"></div>
+  </div>
+</div>
+
+<!-- petit test de nível -->
+<div id="testmodal" class="glass modal">
+  <div class="modal-head"><b id="pt-head">🎓 Petit test</b><button id="test-close" class="modal-x">✕</button></div>
+  <div class="modal-body">
+    <div id="defi-toplike" style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><div id="pt-bar" style="flex:1;height:10px;background:rgba(90,70,50,.14);border-radius:99px;overflow:hidden"><div id="pt-fill" style="height:100%;width:0;background:linear-gradient(90deg,var(--paris),#8ab0e0);border-radius:99px;transition:width .4s"></div></div><span id="pt-count" style="font-size:12px;font-weight:800;color:var(--ink2)"></span></div>
+    <div id="pt-q"></div>
+    <div id="pt-area"></div>
+    <div id="pt-fb"></div>
+    <div id="pt-end" style="display:none;text-align:center;padding:12px 0"></div>
+  </div>
 </div>
 
 <!-- toast -->
@@ -607,7 +742,12 @@ const S={
   argent:20, streak:0, lastPlay:null,
   purchases:[], stock:0, track:0, volume:80,
   daily:{day:0,list:[],done:{}},
-  workUntil:0, cafeMission:0, leaDay:0
+  workUntil:0, cafeMission:0, leaDay:0,
+  phone:{threads:{camille:[],hugo:[],lea:[],patron:[]},unread:{camille:0,hugo:0,lea:0,patron:0},day:0,count:0,greetDay:0},
+  career:{id:null,level:1,turns:0,perf:[]},
+  certs:[], pendingTest:null,
+  events:{day:0,count:0,cool:{}},
+  lastReal:0
 };
 function srsNew(now){ return {added:now,due:now+DAY_MS,interval_d:1,ease:2.5}; }
 function normWord(w,now){
@@ -638,6 +778,19 @@ function applySaveData(d){
   if(typeof d.workUntil==='number') S.workUntil=d.workUntil;
   if(typeof d.cafeMission==='number') S.cafeMission=d.cafeMission;
   if(typeof d.leaDay==='number') S.leaDay=d.leaDay;
+  /* v3: novos campos, sempre com default (save antigo carrega limpo) */
+  if(d.phone&&d.phone.threads){
+    for(const k of ['camille','hugo','lea','patron']){
+      if(Array.isArray(d.phone.threads[k])) S.phone.threads[k]=d.phone.threads[k].slice(-12);
+      if(d.phone.unread&&typeof d.phone.unread[k]==='number') S.phone.unread[k]=d.phone.unread[k];
+    }
+    S.phone.day=d.phone.day||0; S.phone.count=d.phone.count||0; S.phone.greetDay=d.phone.greetDay||0;
+  }
+  if(d.career&&typeof d.career==='object') S.career={id:d.career.id||null,level:clamp(d.career.level||1,1,3),turns:d.career.turns||0,perf:Array.isArray(d.career.perf)?d.career.perf.slice(-10):[]};
+  if(Array.isArray(d.certs)) S.certs=d.certs.slice();
+  if(typeof d.pendingTest==='string') S.pendingTest=d.pendingTest;
+  if(d.events&&typeof d.events==='object') S.events={day:d.events.day||0,count:d.events.count||0,cool:(d.events.cool&&typeof d.events.cool==='object')?d.events.cool:{}};
+  if(typeof d.lastReal==='number') S.lastReal=d.lastReal;
   const now=Date.now();
   S.player.words=(S.player.words||[]).filter(w=>w&&w.fr).map(w=>normWord(w,now));
   if(!Array.isArray(S.player.memories)) S.player.memories=[];
@@ -661,6 +814,7 @@ function loadSave(){
 function save(){
   try{
     S.pos={x:+player.g.position.x.toFixed(2),z:+player.g.position.z.toFixed(2)};
+    S.lastReal=Date.now();
     localStorage.setItem(SAVE_KEY,JSON.stringify(S));
   }catch(e){}
 }
@@ -748,10 +902,20 @@ function lofiChord(t){
   bg.gain.linearRampToValueAtTime(0.0001,t+2.5);
   b.connect(bg).connect(lofi.gain); b.start(t); b.stop(t+2.7);
 }
+const CHORDS3=[[57,60,64,66],[50,53,57,62],[52,56,59,62],[57,60,64,69]]; /* jazz manouche — desbloqueia no A2 */
+function availTracks(){
+  const t=[CHORDS];
+  if(typeof S!=='undefined'){
+    if(S.purchases.includes('disque')) t.push(CHORDS2);
+    if(Array.isArray(S.certs)&&S.certs.includes('A2')) t.push(CHORDS3);
+  }
+  return t;
+}
 function lofiStart(){
   const c=ac(); if(!c||lofi.on) return;
   lofi.on=true; lofi.step=0;
-  lofi.chords=(S.track===1&&S.purchases.includes('disque'))?CHORDS2:CHORDS;
+  const tr=availTracks();
+  lofi.chords=tr[S.track%tr.length];
   lofi.gain=c.createGain(); lofi.gain.gain.value=lofiVol(); lofi.gain.connect(c.destination);
   const len=2*c.sampleRate, buf=c.createBuffer(1,len,c.sampleRate), d=buf.getChannelData(0);
   for(let i=0;i<len;i++) d[i]=(Math.random()*2-1)*0.5;
@@ -1436,7 +1600,8 @@ let lapScreenMat=null;
   room.add(laptop);
 }
 reg(laptop,{id:'laptop',fr:"l'ordinateur",pt:'o notebook',approach:{x:0.15,z:1.0},actions:[
-  {emoji:'💼',fr:'Travailler',pt:'responder um e-mail',run:()=>actWork()},
+  {emoji:'💼',fr:'Travailler',pt:'fazer um turno',run:()=>actWork()},
+  {emoji:'🔎',fr:'Trouver un boulot',pt:'ver as vagas',run:()=>openJobs()},
   {emoji:'🛒',fr:'Faire les courses',pt:'comprar no mercado',run:()=>openMarche()}
 ]});
 
@@ -1882,12 +2047,12 @@ function tickCamera(dt){
   camera.lookAt(cam.target);
 }
 addEventListener('wheel',e=>{
-  if(chatOpen&&e.target.closest&&e.target.closest('#chat')) return;
+  if(e.target.closest&&e.target.closest('#chat,#phoneov,.modal,#carnet')) return;
   cam.dist=clamp(cam.dist+e.deltaY*0.008,7,19);
 },{passive:true});
 const keys={};
 addEventListener('keydown',e=>{
-  if(e.target.tagName==='INPUT') return;
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA') return;
   keys[e.key.toLowerCase()]=true;
 });
 addEventListener('keyup',e=>{ keys[e.key.toLowerCase()]=false; });
@@ -2031,6 +2196,10 @@ function openRadial(x,y,def,root){
     acts=[{emoji:'🎯',fr:'Le Défi !',pt:'treino de palavras',run:()=>{ purrSound(72); openDefi(); }},...def.actions];
   if(def.id==='porte'&&leaWaiting)
     acts=[{emoji:'👋',fr:'Ouvrir à Léa',pt:'abrir pra vizinha',run:()=>openLea()},...def.actions];
+  if(def.id==='camille'&&S.pendingTest)
+    acts=[{emoji:'🎓',fr:'Petit test !',pt:'prova de nível '+S.pendingTest,run:()=>openTest()},...def.actions];
+  if(def.id==='vase_ev')
+    acts=def.actions;
   const n=acts.length;
   const R=78;
   acts.forEach((a,i)=>{
@@ -2085,6 +2254,7 @@ canvas.addEventListener('pointerup',e=>{
   ac();
   if(radialOpen){ closeRadial(); return; }
   if(chatOpen) return;
+  if(JT.active||PTEST.active||phoneOpen) return;
   mouse.x=(e.clientX/innerWidth)*2-1;
   mouse.y=-(e.clientY/innerHeight)*2+1;
   ray.setFromCamera(mouse,camera);
@@ -2141,6 +2311,11 @@ function updateHUD(){
   const db=$('defibadge');
   if(dueCount>0){ db.textContent=dueCount; db.classList.add('on'); }
   else db.classList.remove('on');
+  /* v3 */
+  $('btn-test').style.display=S.pendingTest?'':'none';
+  const un=Object.values(S.phone.unread).reduce((a,b)=>a+b,0);
+  const pb=$('phonebadge');
+  if(un>0){ pb.textContent=un; pb.classList.add('on'); } else pb.classList.remove('on');
 }
 function payMoney(n){
   S.argent=Math.max(0,S.argent+n);
@@ -2152,12 +2327,11 @@ function bump(need,amt){
 }
 function gainXP(n){
   S.player.xp+=n;
-  /* sobe de nível localmente se passar do teto (a API pode confirmar depois) */
+  /* v3: cruzou o teto do nível? o badge só sobe passando no Petit test */
   const idx=LV.findIndex(e=>e[0]===S.player.level);
-  if(idx>=0&&idx+1<LV.length&&S.player.xp>=LV[idx+1][1]){
-    S.player.level=LV[idx+1][0];
-    toast('🎉 Nível <b>'+S.player.level+'</b> alcançado!');
-    chime();
+  if(idx>=0&&idx+1<LV.length&&S.player.xp>=LV[idx+1][1]&&!S.pendingTest){
+    S.pendingTest=LV[idx+1][0];
+    proposeTest();
   }
   updateHUD();
   save();
@@ -2310,10 +2484,12 @@ function actMusic(){
     toast('🎵 A vitrola parou.');
     $('volpanel').classList.remove('on');
   }else{
-    if(S.purchases.includes('disque')) S.track=(S.track+1)%2;
+    const tr=availTracks();
+    if(tr.length>1) S.track=(S.track+1)%tr.length;
     lofiStart(); S.music=true;
     burst(1.55,1.1,1.75,0xc9749e,10,0.4,1.2);
-    toast(S.track===1?'🎶 <i>Face B… le nouveau disque.</i>':'🎶 <i>Un petit air de Paris...</i>');
+    const tnames=['🎶 <i>Un petit air de Paris...</i>','🎶 <i>Face B… le nouveau disque.</i>','🎻 <i>Jazz manouche… ça swingue !</i>'];
+    toast(tnames[Math.min(S.track,tnames.length-1)]);
     bump('humeur',8);
     showVolPanel();
   }
@@ -2374,26 +2550,35 @@ function actWave(){
 }
 
 /* ========== La Vie: aplicação contínua ========== */
+let rainF=0, blackF=0;
 function tickVie(dt){
   const vt=vieTarget();
   vieCur=lerp(vieCur,vt,Math.min(1,dt*0.8));
-  if(Math.abs(vieCur-vieShown)>0.0015){
-    vieShown=vieCur;
-    applyVie(vieCur);
-    updateSky(vieCur);
-    updateFlowers(vieCur);
-    sun.color.copy(sunCold).lerp(sunWarm,vieCur);
-    sun.intensity=0.65+0.75*vieCur;
-    amb.intensity=0.5+0.3*vieCur;
-    amb.color.setHex(0xbfc4d8).lerp(new THREE.Color(0xf5e0c8),vieCur);
-    hemi.intensity=0.3+0.25*vieCur;
-    for(const l of lampLights) l.intensity=0.25+1.0*vieCur;
-    dustMat.opacity=0.10+0.5*vieCur;
-    sunDisc.material.opacity=vieCur*0.95;
-    sunHalo.material.opacity=vieCur*0.3;
-    const bg=new THREE.Color(0x1c1a28).lerp(new THREE.Color(0x2b2136),vieCur);
+  /* v3: chuva escurece o céu, queda de luz apaga as lâmpadas */
+  const rT=(typeof EV!=='undefined'&&EV.rainUntil>gameNow())?1:0;
+  const bT=(typeof EV!=='undefined'&&EV.outUntil>performance.now())?1:0;
+  rainF=lerp(rainF,rT,Math.min(1,dt*1.1));
+  blackF=lerp(blackF,bT,Math.min(1,dt*2.2));
+  const key=vieCur+rainF*7+blackF*29;
+  if(Math.abs(key-vieShown)>0.0015){
+    vieShown=key;
+    const v=vieCur, vs=v*(1-0.6*rainF);
+    applyVie(v);
+    updateSky(vs);
+    updateFlowers(v);
+    sun.color.copy(sunCold).lerp(sunWarm,vs);
+    sun.intensity=(0.65+0.75*vs)*(1-0.75*blackF);
+    amb.intensity=(0.5+0.3*v)*(1-0.65*blackF);
+    amb.color.setHex(0xbfc4d8).lerp(new THREE.Color(0xf5e0c8),vs);
+    hemi.intensity=(0.3+0.25*v)*(1-0.6*blackF);
+    for(const l of lampLights) l.intensity=(0.25+1.0*v)*(1-blackF);
+    dustMat.opacity=(0.10+0.5*v)*(1-blackF);
+    sunDisc.material.opacity=vs*0.95*(1-rainF);
+    sunHalo.material.opacity=vs*0.3;
+    const bg=new THREE.Color(0x1c1a28).lerp(new THREE.Color(0x2b2136),vs);
+    if(blackF>0.02) bg.multiplyScalar(1-0.55*blackF);
     scene.background=bg; scene.fog.color=bg;
-    renderer.toneMappingExposure=1.02+0.22*vieCur;
+    renderer.toneMappingExposure=(1.02+0.22*vs)*(1-0.3*blackF);
   }
 }
 /* ========== chat (Camille, Hugo, Léa) ========== */
@@ -2618,8 +2803,10 @@ async function apiAction(payload){
     return await res.json();
   }finally{ clearTimeout(to); }
 }
-async function apiChat(npc,userText){
-  const history=(npc==='camille')?S.chat.slice(-12):npcHist[npc].slice(-12);
+async function apiChat(npc,userText,channel){
+  const history=(channel==='sms')
+    ?S.phone.threads[npc].slice(-8).map(m=>({role:m.who==='me'?'user':'assistant',content:m.fr}))
+    :(npc==='camille')?S.chat.slice(-12):npcHist[npc].slice(-12);
   const body={
     action:'chat',
     npc,
@@ -2627,6 +2814,7 @@ async function apiChat(npc,userText){
     player:playerInfo(),
     history
   };
+  if(channel) body.channel=channel;
   const ctl=new AbortController();
   const to=setTimeout(()=>ctl.abort(),25000);
   try{
@@ -2749,7 +2937,11 @@ function applyCamille(userText,data,npc='camille'){
     setTimeout(()=>m.style.transform='scale(1)',350);
   }
   if(typeof data.xp_gain==='number') gainXP(clamp(Math.round(data.xp_gain),0,25));
-  if(data.level_estimate&&LV.some(e=>e[0]===data.level_estimate)) S.player.level=data.level_estimate;
+  /* v3: level_estimate não sobe mais o badge direto — vira convite pro Petit test */
+  if(data.level_estimate&&LV.some(e=>e[0]===data.level_estimate)&&!S.pendingTest){
+    const ci=LV.findIndex(e=>e[0]===S.player.level), ei=LV.findIndex(e=>e[0]===data.level_estimate);
+    if(ei>ci){ S.pendingTest=LV[Math.min(ci+1,LV.length-1)][0]; proposeTest(); }
+  }
   if(Array.isArray(data.memory_notes)){
     for(const n of data.memory_notes){
       if(typeof n==='string'&&n.trim()){
@@ -3095,7 +3287,7 @@ $('btn-defi').addEventListener('click',()=>{ blip(600); openDefi(); });
 const DAILY_POOL=[
   {id:'camille',txt:'💬 Parle avec Camille',xp:14},
   {id:'review',txt:'🎯 Fais un Défi',xp:18},
-  {id:'work',txt:'💼 Travaille une fois',xp:12},
+  {id:'work',txt:'💼 Fais un service au boulot',xp:12},
   {id:'hugo',txt:'☕ Un café avec Hugo',xp:14},
   {id:'buy',txt:'🛒 Achète quelque chose',xp:10},
   {id:'mirror',txt:'🪞 Une séance de miroir',xp:16}
@@ -3181,14 +3373,15 @@ function endWork(){
   standUp();
 }
 function actWork(){
-  if(gameNow()<S.workUntil){ toast('💼 E-mail respondido por agora. Volta daqui a pouco.'); return; }
+  if(gameNow()<S.workUntil){ toast('💼 Serviço feito por agora. Volta daqui a pouco.'); return; }
   if(S.needs.energie<25){ toast('😴 Sem energia pra trabalhar. Um café antes?'); return; }
-  /* anda até a cadeira da mesa, senta, o laptop acende e só então o e-mail abre */
+  if(S.career.id==='bar'){ startBarShift(); return; }
+  /* anda até a cadeira da mesa, senta, o laptop acende e só então o turno abre */
   goTo(0.5,3.0,()=>{
     sitAt(0.58,2.54,Math.atan2(1.0-0.58,1.2-2.54),0.12);
     setLaptop(true);
     blip(720);
-    setTimeout(openWorkEmail,700);
+    setTimeout(()=>{ if(S.career.id) startJobTurn(false); else openWorkEmail(); },700);
   });
 }
 async function openWorkEmail(){
@@ -3412,6 +3605,27 @@ function drawTVMusique(ms){
   g.fillText('♪ radio lo-fi de Paris',14,26);
   tvTex.needsUpdate=true;
 }
+/* canal Ciné (desbloqueia passando no Petit test do A1) */
+const TV_CINE=[
+  {titre:'Le Chat de Montmartre',segs:[{fr:'Un chat noir',pt:'Um gato preto'},{fr:'se promène sur les toits',pt:'passeia pelos telhados'},{fr:'et trouve un ami.',pt:'e encontra um amigo.'}],words:[{fr:'un toit',pt:'um telhado'}]},
+  {titre:'La Boulangère',segs:[{fr:'Chaque matin,',pt:'Toda manhã,'},{fr:'elle ouvre sa boulangerie',pt:'ela abre a padaria dela'},{fr:'et la rue sent bon.',pt:'e a rua fica cheirosa.'}],words:[{fr:'une boulangerie',pt:'uma padaria'}]},
+  {titre:'Vélo sous la pluie',segs:[{fr:'Il pleut sur Paris,',pt:'Chove em Paris,'},{fr:'mais il pédale quand même',pt:'mas ele pedala mesmo assim'},{fr:'pour voir son amoureuse.',pt:'pra ver a namorada.'}],words:[{fr:'un vélo',pt:'uma bicicleta'}]},
+  {titre:'Le Dernier Métro',segs:[{fr:'Elle court dans la gare',pt:'Ela corre na estação'},{fr:'pour attraper',pt:'pra pegar'},{fr:'le dernier métro de la nuit.',pt:'o último metrô da noite.'}],words:[{fr:'le métro',pt:'o metrô'}]},
+  {titre:'Un été à Nice',segs:[{fr:'Deux amis partent en vacances',pt:'Dois amigos saem de férias'},{fr:'au bord de la mer,',pt:'à beira-mar,'},{fr:'sans argent mais heureux.',pt:'sem dinheiro mas felizes.'}],words:[{fr:'les vacances',pt:'as férias'}]},
+  {titre:'La Petite Librairie',segs:[{fr:'Dans une petite librairie,',pt:'Numa livrariazinha,'},{fr:'chaque livre raconte',pt:'cada livro conta'},{fr:'un secret du quartier.',pt:'um segredo do bairro.'}],words:[{fr:'un livre',pt:'um livro'}]}
+];
+function drawTVCine(ms){
+  const g=tvCtx;
+  tvScreenBase(g,'#1a2438','#0c1220');
+  g.textAlign='center';
+  g.font='64px serif';
+  g.fillText('🎬',192,104+Math.sin(ms/500)*4);
+  g.fillStyle='#f3d9a8'; g.font="900 22px Fraunces,serif";
+  g.fillText(TV.data&&TV.data.cine?TV.data.cine.titre:'',192,158);
+  g.font="800 13px Nunito,sans-serif"; g.fillStyle='rgba(243,217,168,.6)';
+  g.fillText('CINÉ · RÊVE TV',192,212);
+  tvTex.needsUpdate=true;
+}
 let tvDrawT=0;
 function tickTV(dt){
   if(TV.mode==='off') return;
@@ -3422,6 +3636,7 @@ function tickTV(dt){
   else if(TV.mode==='meteo') drawTVMeteo(ms);
   else if(TV.mode==='cuisine') drawTVCuisine(ms);
   else if(TV.mode==='musique') drawTVMusique(ms);
+  else if(TV.mode==='cine') drawTVCine(ms);
 }
 function tvShowSegs(segs){
   const box=$('tv-text'); box.innerHTML='';
@@ -3482,6 +3697,12 @@ function tvTune(ch){
     if(!lofi.on) lofiStart();
     $('tv-text').innerHTML='🎶 <i>Radio lo-fi de Paris… laisse-toi porter.</i>';
     chipRow($('tv-chips'),[{fr:'la musique',pt:'a música'},{fr:'une chanson',pt:'uma canção'}]);
+  }else if(ch==='cine'){
+    const c=TV_CINE[Math.floor(Math.random()*TV_CINE.length)];
+    TV.data={cine:c};
+    tvShowSegs([{fr:'Ce soir :',pt:'Hoje à noite:'},{fr:c.titre+'.',pt:''},...c.segs]);
+    speak('Ce soir, '+c.titre+'. '+c.segs.map(s=>s.fr).join(' '));
+    chipRow($('tv-chips'),c.words);
   }
   if(ch!=='musique'&&lofi.on&&!S.music) lofiStop();
   blip(700); save();
@@ -3502,7 +3723,8 @@ $('tv-off').addEventListener('click',()=>tvOff(false));
 /* ========== café du coin + léa ========== */
 let inCafe=false, leaWaiting=false, leaTimer=20;
 function actCafeOut(){
-  if(S.argent<5){ toast('☕ O café custa 5€ e a carteira tá vazia. Um e-mail de trabalho resolve.'); return; }
+  if(EV.rainUntil>gameNow()){ toast('🌧️ <i>Il pleut !</i> Melhor esperar a chuva passar pra sair.'); return; }
+  if(S.argent<5){ toast('☕ O café custa 5€ e a carteira tá vazia. Um servicinho no laptop resolve.'); return; }
   payMoney(-5);
   inCafe=true;
   $('cafeov').classList.add('on');
@@ -3515,10 +3737,12 @@ function actCafeOut(){
   save();
 }
 $('cafe-back').addEventListener('click',()=>{
+  const wasShift=JT.active&&JT.bar;
   inCafe=false;
   $('cafeov').classList.remove('on');
   closeChat();
   blip(520);
+  if(!wasShift) phoneFlagCafe(); /* Camille manda mensagem um tempinho depois */
 });
 function tickLea(dt){
   if(leaWaiting&&S.leaDay!==S.dia){ leaWaiting=false; }
@@ -3766,6 +3990,1111 @@ function restoreChat(){
 setInterval(save,30000);
 addEventListener('beforeunload',save);
 
+/* ================================================================
+   v3 · helpers compartilhados
+   ================================================================ */
+function segSpans(container,segs,fallbackText){
+  container.innerHTML='';
+  const ok=Array.isArray(segs)&&segs.length&&segs.every(s=>s&&typeof s.fr==='string');
+  if(ok){
+    segs.forEach((s,i)=>{
+      const sp=document.createElement('span');
+      sp.className='seg'; sp.textContent=s.fr;
+      sp.dataset.fr=s.fr; sp.dataset.pt=s.pt||'';
+      sp.addEventListener('mouseenter',()=>showSegtip(sp));
+      sp.addEventListener('mouseleave',hideSegtip);
+      container.appendChild(sp);
+      if(i<segs.length-1) container.appendChild(document.createTextNode(' '));
+    });
+  }else container.textContent=fallbackText||'';
+}
+function smsSound(){ blip(1040,0.07,'sine',0.05); setTimeout(()=>blip(1560,0.09,'sine',0.045),110); }
+function meowSound(){
+  const c=ac(); if(!c) return;
+  const o=c.createOscillator(), g=c.createGain();
+  o.type='sawtooth';
+  o.frequency.setValueAtTime(520,c.currentTime);
+  o.frequency.linearRampToValueAtTime(760,c.currentTime+0.12);
+  o.frequency.exponentialRampToValueAtTime(340,c.currentTime+0.42);
+  const f=c.createBiquadFilter(); f.type='lowpass'; f.frequency.value=1400;
+  env(g,c.currentTime,0.03,0.42,0.06);
+  o.connect(f).connect(g).connect(c.destination); o.start(); o.stop(c.currentTime+0.5);
+}
+function fanfare(){
+  const c=ac(); if(!c) return;
+  [523.25,659.25,783.99,1046.5,783.99,1046.5].forEach((f,i)=>{
+    const o=c.createOscillator(), g=c.createGain();
+    o.type='triangle'; o.frequency.value=f;
+    env(g,c.currentTime+i*0.14,0.01,0.5,0.09);
+    o.connect(g).connect(c.destination); o.start(c.currentTime+i*0.14); o.stop(c.currentTime+i*0.14+0.7);
+  });
+}
+
+/* ================================================================
+   v3 · BLOCO 1 — CELULAR 📱
+   ================================================================ */
+const PHONE_NPCS={
+  camille:{name:'Camille',face:'👩‍🦰'},
+  hugo:{name:'Hugo',face:'🧑‍🍳'},
+  lea:{name:'Léa',face:'👱‍♀️'},
+  patron:{name:'Patron',face:'🧑‍💼'}
+};
+const SMS_POOL={
+  bonjour:[
+    {fr:'Bonjour ! Bien dormi ? Le café est chaud 😊',pt:'Bom dia! Dormiu bem? O café tá quente 😊'},
+    {fr:'Coucou ! Il fait beau ce matin, regarde par la fenêtre !',pt:'Oi! Tá bonito lá fora hoje, olha pela janela!'},
+    {fr:"Bonjour bonjour ! On parle un peu français aujourd'hui ?",pt:'Bom dia, bom dia! A gente fala um pouco de francês hoje?'},
+    {fr:"Salut toi ! J'ai acheté des croissants 🥐",pt:'Oi você! Comprei croissants 🥐'},
+    {fr:'Bonjour ! Minou a dormi sur ton canapé toute la nuit…',pt:'Bom dia! O Minou dormiu no seu sofá a noite toda…'},
+    {fr:'Coucou ! Prêt pour une belle journée à Paris ?',pt:'Oi! Pronto pra um dia bonito em Paris?'}
+  ],
+  apres_cafe:[
+    {fr:"Alors, ce café ? Hugo t'a raconté ses histoires ? 😄",pt:'E aí, o café? O Hugo te contou as histórias dele? 😄'},
+    {fr:"Tu m'as ramené un croissant ? Non ? Bon… je pardonne.",pt:'Você me trouxe um croissant? Não? Tá… eu perdoo.'},
+    {fr:"Le Café du coin, c'est le meilleur du quartier, non ?",pt:'O Café du coin é o melhor do bairro, né?'},
+    {fr:"J'espère que tu as commandé en français ! Je suis fière de toi.",pt:'Espero que você tenha pedido em francês! Tô orgulhosa de você.'}
+  ],
+  absence:[
+    {fr:'Tu es où ?? Ça fait des jours ! Paris te manque pas ? 🥺',pt:'Cadê você?? Faz dias! Não tá com saudade de Paris? 🥺'},
+    {fr:"Coucou… l'appart est trop calme sans toi. Reviens !",pt:'Oi… o apê tá quieto demais sem você. Volta!'},
+    {fr:'Minou dort sur ton lit et moi je parle toute seule. Reviens vite !',pt:'O Minou dorme na sua cama e eu falo sozinha. Volta logo!'}
+  ],
+  invitation:[
+    {fr:"Coucou, c'est Léa ! Un thé chez moi un de ces jours ?",pt:'Oi, é a Léa! Um chá lá em casa um dia desses?'},
+    {fr:"Salut ! Si tu entends de la musique, c'est chez moi 😅",pt:'Oi! Se você ouvir música, é lá de casa 😅'},
+    {fr:'Hello voisin ! Il paraît que tu apprends le français, bravo !',pt:'Olá vizinho! Soube que você tá aprendendo francês, parabéns!'},
+    {fr:"Léa ici ! J'ai fait trop de gâteau… tu m'aides ? 🍰",pt:'Léa aqui! Fiz bolo demais… me ajuda? 🍰'}
+  ],
+  patron_bravo:[
+    {fr:"Beau travail aujourd'hui. Continuez comme ça !",pt:'Belo trabalho hoje. Continue assim!'},
+    {fr:'Les clients sont contents. Merci pour le service !',pt:'Os clientes estão contentes. Obrigado pelo serviço!'},
+    {fr:'Bien joué. Demain, même énergie !',pt:'Mandou bem. Amanhã, mesma energia!'},
+    {fr:'Pas mal du tout. On progresse, hein !',pt:'Nada mal. Estamos evoluindo, hein!'}
+  ],
+  patron_tache:[
+    {fr:'Petit rappel : demain on commence à 9 h.',pt:'Lembrete: amanhã começamos às 9h.'},
+    {fr:"N'oubliez pas de vérifier le planning de la semaine.",pt:'Não esquece de conferir a agenda da semana.'},
+    {fr:'Un client a laissé un bon avis sur vous. Continuez !',pt:'Um cliente deixou uma avaliação boa sobre você. Continue!'},
+    {fr:'Le service de demain sera chargé. Reposez-vous bien !',pt:'O expediente de amanhã vai ser cheio. Descanse bem!'}
+  ],
+  test:[
+    {fr:"J'ai préparé un petit test pour toi ! 🎓 Quand tu te sens prêt, viens me voir.",pt:'Preparei um testinho pra você! 🎓 Quando se sentir pronto, vem falar comigo.'}
+  ]
+};
+let phoneOpen=false, curThread=null, phCafeAt=0, phPatronAt=0, leaSmsDay=0;
+function phoneFlagCafe(){ phCafeAt=gameNow()+40; }
+function phoneFlagPatron(){ phPatronAt=gameNow()+25; }
+function timeOfDay(){ const h=S.min/60; return h<12?'matin':h<19?'après-midi':'soir'; }
+function threadTail(npc){ return S.phone.threads[npc].slice(-4).map(m=>m.fr); }
+async function phoneArrive(npc,trigger){
+  if(S.phone.day!==S.dia){ S.phone.day=S.dia; S.phone.count=0; }
+  if(trigger!=='test'&&S.phone.count>=4) return; /* nunca spam */
+  let msg=null;
+  try{
+    const data=await apiAction({action:'phone_message',npc,context:{time_of_day:timeOfDay(),trigger,thread_tail:threadTail(npc)}});
+    if(data&&typeof data.text_fr==='string') msg={fr:data.text_fr,pt:data.text_pt||'',segments:data.segments};
+  }catch(e){}
+  if(!msg){
+    const pool=SMS_POOL[trigger]||SMS_POOL.bonjour;
+    const p=pool[Math.floor(Math.random()*pool.length)];
+    msg={fr:p.fr,pt:p.pt};
+  }
+  pushSms(npc,{who:'them',fr:msg.fr,pt:msg.pt,segments:msg.segments},true);
+  S.phone.count++;
+  save();
+}
+function pushSms(npc,m){
+  S.phone.threads[npc].push({who:m.who,fr:m.fr,pt:m.pt||'',segments:Array.isArray(m.segments)?m.segments:undefined});
+  S.phone.threads[npc]=S.phone.threads[npc].slice(-12);
+  if(m.who==='them'){
+    if(phoneOpen&&curThread===npc) renderThread(npc);
+    else{
+      S.phone.unread[npc]=(S.phone.unread[npc]||0)+1;
+      smsSound();
+      toast('📱 Message de <b>'+PHONE_NPCS[npc].name+'</b>');
+      if(phoneOpen) renderThreads();
+    }
+  }else if(phoneOpen&&curThread===npc) renderThread(npc);
+  updateHUD();
+}
+function openPhone(){
+  phoneOpen=true;
+  $('phoneov').classList.add('on');
+  showThreads();
+  blip(700);
+}
+function closePhone(){ phoneOpen=false; curThread=null; $('phoneov').classList.remove('on'); blip(480); }
+function showThreads(){
+  curThread=null;
+  $('pn-back').style.display='none';
+  $('pn-face').style.display='none';
+  $('pn-title').textContent='Messages';
+  $('pn-thread').classList.remove('on');
+  $('pn-threads').style.display='';
+  const gc=$('pn-career');
+  if(S.career.id){
+    gc.style.display='';
+    gc.textContent='💼 '+CAREERS[S.career.id].fr+' · '+JOB_LEVELS[S.career.level-1];
+  }else gc.style.display='none';
+  renderThreads();
+}
+function renderThreads(){
+  const box=$('pn-threads'); box.innerHTML='';
+  const ids=['camille','hugo','lea'];
+  if(S.career.id) ids.push('patron');
+  for(const id of ids){
+    const th=S.phone.threads[id];
+    const b=document.createElement('button');
+    b.className='thr';
+    const tf=document.createElement('span'); tf.className='tf'; tf.textContent=PHONE_NPCS[id].face;
+    const mid=document.createElement('div');
+    const tn=document.createElement('div'); tn.className='tn'; tn.textContent=PHONE_NPCS[id].name;
+    const tp=document.createElement('div'); tp.className='tp';
+    tp.textContent=th.length?((th[th.length-1].who==='me'?'Toi : ':'')+th[th.length-1].fr):'—';
+    mid.appendChild(tn); mid.appendChild(tp);
+    b.appendChild(tf); b.appendChild(mid);
+    if(S.phone.unread[id]>0){
+      const tb=document.createElement('span'); tb.className='tb'; tb.textContent=S.phone.unread[id];
+      b.appendChild(tb);
+    }
+    b.addEventListener('click',()=>openThread(id));
+    box.appendChild(b);
+  }
+}
+function openThread(npc){
+  curThread=npc;
+  S.phone.unread[npc]=0;
+  $('pn-back').style.display='';
+  $('pn-face').style.display=''; $('pn-face').textContent=PHONE_NPCS[npc].face;
+  $('pn-title').textContent=PHONE_NPCS[npc].name;
+  $('pn-career').style.display='none';
+  $('pn-threads').style.display='none';
+  $('pn-thread').classList.add('on');
+  renderThread(npc);
+  renderSmsSugg([]);
+  updateHUD(); save();
+  blip(620);
+}
+function renderThread(npc){
+  const box=$('sms-msgs'); box.innerHTML='';
+  for(const m of S.phone.threads[npc]){
+    const d=document.createElement('div');
+    d.className='sms '+(m.who==='me'?'me':'them');
+    if(m.who==='them'){
+      const t=document.createElement('div');
+      segSpans(t,m.segments,m.fr);
+      d.appendChild(t);
+      const tools=document.createElement('div'); tools.className='tools';
+      const bs=document.createElement('button'); bs.textContent='🔊';
+      bs.addEventListener('click',()=>{ speak(m.fr); blip(700); });
+      tools.appendChild(bs);
+      d.appendChild(tools);
+      if(m.pt){
+        const be=document.createElement('button'); be.textContent='👁 pt';
+        const pv=document.createElement('div'); pv.className='pttxt'; pv.textContent=m.pt;
+        be.addEventListener('click',()=>{ pv.classList.toggle('show'); blip(600); });
+        tools.appendChild(be);
+        d.appendChild(pv);
+      }
+    }else d.textContent=m.fr;
+    box.appendChild(d);
+  }
+  box.scrollTop=box.scrollHeight;
+}
+function renderSmsSugg(list){
+  const box=$('sms-sugg'); box.innerHTML='';
+  for(const s of (list||[])){
+    if(!s||!s.fr) continue;
+    const b=document.createElement('button');
+    b.className='sugchip'; b.textContent=s.fr; b.title=s.pt||'';
+    b.addEventListener('click',()=>{ $('sms-input').value=s.fr; $('sms-input').focus(); blip(620); });
+    box.appendChild(b);
+  }
+}
+let smsSending=false;
+async function sendSms(){
+  const inp=$('sms-input');
+  const v=inp.value.trim();
+  if(!v||smsSending||!curThread) return;
+  const npc=curThread;
+  inp.value=''; smsSending=true;
+  pushSms(npc,{who:'me',fr:v});
+  renderSmsSugg([]);
+  blip(640,0.06,'sine',0.06);
+  let data;
+  try{
+    data=await apiChat(npc,v,'sms');
+  }catch(e){
+    await new Promise(r=>setTimeout(r,600+Math.random()*500));
+    if(npc==='patron') data={reply_fr:'Bien reçu, merci ! À demain au boulot.',reply_pt:'Recebido, obrigado! Até amanhã no trabalho.',xp_gain:5};
+    else data=offlineReply(false,npc);
+    $('offlinebadge').classList.add('on');
+  }
+  smsSending=false;
+  pushSms(npc,{who:'them',fr:data.reply_fr,pt:data.reply_pt,segments:data.segments});
+  speak(data.reply_fr);
+  if(typeof data.xp_gain==='number') gainXP(clamp(Math.round(data.xp_gain),0,20));
+  bump('social',6); bump('confiance',3);
+  renderSmsSugg(Array.isArray(data.suggested_replies)?data.suggested_replies.slice(0,3):[]);
+  save();
+}
+$('btn-phone').addEventListener('click',()=>{ ac(); openPhone(); });
+$('pn-close').addEventListener('click',closePhone);
+$('pn-back').addEventListener('click',()=>{ showThreads(); blip(520); });
+$('sms-send').addEventListener('click',sendSms);
+$('sms-input').addEventListener('keydown',e=>{ if(e.key==='Enter') sendSms(); });
+$('phoneov').addEventListener('click',e=>{ if(e.target===$('phoneov')) closePhone(); });
+let phTimer=6;
+function tickPhone(dt){
+  phTimer-=dt; if(phTimer>0) return;
+  phTimer=7;
+  if(!S.introDone) return;
+  if(S.phone.day!==S.dia){ S.phone.day=S.dia; S.phone.count=0; }
+  if(phCafeAt&&gameNow()>=phCafeAt){ phCafeAt=0; phoneArrive('camille','apres_cafe'); return; }
+  if(phPatronAt&&gameNow()>=phPatronAt){ phPatronAt=0; phoneArrive('patron',Math.random()<0.6?'patron_bravo':'patron_tache'); return; }
+  if(S.phone.count>=4) return;
+  const h=S.min/60;
+  if(S.phone.greetDay!==S.dia&&h>=8.4&&h<12){
+    S.phone.greetDay=S.dia;
+    phoneArrive('camille','bonjour');
+    return;
+  }
+  if(leaSmsDay!==S.dia&&h>=14&&h<20&&Math.random()<0.05){
+    leaSmsDay=S.dia;
+    phoneArrive('lea','invitation');
+  }
+}
+
+/* ================================================================
+   v3 · BLOCO 2 — CARREIRAS 💼
+   ================================================================ */
+const CAREERS={
+  menage:{emoji:'🧹',fr:"Agent d'entretien",pt:'limpeza',lo:20,hi:45},
+  compta:{emoji:'🧮',fr:'Assistant comptable',pt:'assistente de contabilidade',lo:22,hi:48},
+  bar:{emoji:'🍸',fr:'Serveur au bar',pt:'atendente de bar',lo:18,hi:42},
+  dev:{emoji:'💻',fr:'Développeur web',pt:'desenvolvedor de sistemas',lo:26,hi:55}
+};
+const JOB_LEVELS=['Débutant','Confirmé','Expert'];
+const JOB_MULT=[1,1.6,2.4];
+function openJobs(){
+  const list=$('jobs-list'); list.innerHTML='';
+  for(const id of Object.keys(CAREERS)){
+    const c=CAREERS[id];
+    const row=document.createElement('div'); row.className='jobcard'+(S.career.id===id?' cur':'');
+    const je=document.createElement('span'); je.className='je'; je.textContent=c.emoji;
+    const mid=document.createElement('div');
+    const t=document.createElement('div'); t.className='jt1'; t.textContent=c.fr;
+    const p=document.createElement('div'); p.className='jp1';
+    p.textContent=c.pt+' · '+c.lo+'-'+c.hi+'€ / service';
+    mid.appendChild(t); mid.appendChild(p);
+    const b=document.createElement('button');
+    if(S.career.id===id){ b.textContent=JOB_LEVELS[S.career.level-1]+' ✓'; b.disabled=true; }
+    else{
+      b.textContent=S.career.id?'Changer':'Postuler';
+      b.addEventListener('click',()=>chooseJob(id));
+    }
+    row.appendChild(je); row.appendChild(mid); row.appendChild(b);
+    list.appendChild(row);
+  }
+  $('jobsmodal').classList.add('open');
+  blip(660);
+}
+function chooseJob(id){
+  const first=!S.career.id;
+  S.career={id,level:1,turns:0,perf:[]};
+  $('jobsmodal').classList.remove('open');
+  chime();
+  toast('💼 <b>'+CAREERS[id].fr+'</b> · '+(first?'Contratado! Você começa como Débutant.':'Boulot novo. Recomeça do nível Débutant.'),3600);
+  save();
+}
+$('jobs-close').addEventListener('click',()=>{ $('jobsmodal').classList.remove('open'); blip(480); });
+$('btn-gear').addEventListener('click',()=>{
+  const gc=$('g-career');
+  if(S.career.id){ gc.style.display=''; gc.textContent='💼 '+CAREERS[S.career.id].fr+' · '+JOB_LEVELS[S.career.level-1]; }
+  else gc.style.display='none';
+});
+
+/* números em francês (0-999) — o terror útil da contabilidade */
+const FR_UNITS=['zéro','un','deux','trois','quatre','cinq','six','sept','huit','neuf','dix','onze','douze','treize','quatorze','quinze','seize','dix-sept','dix-huit','dix-neuf'];
+const FR_TENS={20:'vingt',30:'trente',40:'quarante',50:'cinquante',60:'soixante'};
+function frNum(n){
+  n=Math.round(n);
+  if(n<0) return ''+n;
+  if(n<20) return FR_UNITS[n];
+  if(n<70){
+    const t=Math.floor(n/10)*10, u=n%10;
+    if(u===0) return FR_TENS[t];
+    if(u===1) return FR_TENS[t]+' et un';
+    return FR_TENS[t]+'-'+FR_UNITS[u];
+  }
+  if(n<80){
+    const u=n-60;
+    if(u===11) return 'soixante et onze';
+    return 'soixante-'+FR_UNITS[u];
+  }
+  if(n<100){
+    const u=n-80;
+    if(u===0) return 'quatre-vingts';
+    return 'quatre-vingt-'+FR_UNITS[u];
+  }
+  const h=Math.floor(n/100), r=n%100;
+  const hs=(h===1)?'cent':FR_UNITS[h]+' cent'+(r===0?'s':'');
+  return r===0?hs:hs+' '+frNum(r);
+}
+const CHORES=[
+  {fr:'ranger les livres',pt:'arrumar os livros',ic:'📚'},
+  {fr:'laver la vaisselle',pt:'lavar a louça',ic:'🍽️'},
+  {fr:'balayer le sol',pt:'varrer o chão',ic:'🧹'},
+  {fr:'sortir la poubelle',pt:'levar o lixo pra fora',ic:'🗑️'},
+  {fr:'arroser la plante',pt:'regar a planta',ic:'🪴'},
+  {fr:'faire le lit',pt:'fazer a cama',ic:'🛏️'},
+  {fr:'nettoyer la fenêtre',pt:'limpar a janela',ic:'🪟'},
+  {fr:'essuyer la table',pt:'passar pano na mesa',ic:'🧽'},
+  {fr:"passer l'aspirateur",pt:'passar o aspirador',ic:'🌀'},
+  {fr:'plier les vêtements',pt:'dobrar as roupas',ic:'👕'}
+];
+const BAR_MENU=[
+  {id:'cafe',fr:'un café',pt:'um café',ic:'☕'},
+  {id:'allonge',fr:'un café allongé',pt:'um café allongé (mais fraco)',ic:'🫖'},
+  {id:'croissant',fr:'un croissant',pt:'um croissant',ic:'🥐'},
+  {id:'the',fr:'un thé',pt:'um chá',ic:'🍵'},
+  {id:'jus',fr:"un jus d'orange",pt:'um suco de laranja',ic:'🧃'},
+  {id:'eau',fr:"une bouteille d'eau",pt:'uma garrafa de água',ic:'💧'},
+  {id:'tartine',fr:'une tartine beurrée',pt:'uma torrada com manteiga',ic:'🍞'},
+  {id:'chocolat',fr:'un chocolat chaud',pt:'um chocolate quente',ic:'🍫'}
+];
+const DEV_POOL=[
+  {prompt_fr:'Le bouton « Envoyer » ne marche pas sur mon site.',prompt_pt:'O botão "Enviar" não funciona no meu site.',
+   segs:[{fr:'Le bouton « Envoyer »',pt:'O botão "Enviar"'},{fr:'ne marche pas',pt:'não funciona'},{fr:'sur mon site.',pt:'no meu site.'}],
+   opts:[{fr:"Je corrige ça aujourd'hui, merci du signalement.",ok:true},{fr:"J'aime bien ce bouton.",ok:false,why:'"Gosto desse botão" não resolve o chamado.'},{fr:'Redémarrez votre frigo.',ok:false,why:'Reiniciar a geladeira não conserta site nenhum.'}],
+   why:'A resposta certa assume o conserto e agradece o aviso.',words:[{fr:'un bouton',pt:'um botão'},{fr:'ça ne marche pas',pt:'isso não funciona'}]},
+  {prompt_fr:'Mon site est très lent depuis hier.',prompt_pt:'Meu site está muito lento desde ontem.',
+   segs:[{fr:'Mon site',pt:'Meu site'},{fr:'est très lent',pt:'está muito lento'},{fr:'depuis hier.',pt:'desde ontem.'}],
+   opts:[{fr:'Je vais optimiser les images, ce sera plus rapide.',ok:true},{fr:'Achetez un ordinateur neuf.',ok:false,why:'O problema é no site, não no computador do cliente.'},{fr:"C'est normal, internet est fatigué.",ok:false,why:'"A internet está cansada" não existe.'}],
+   why:'Otimizar as imagens ataca a causa da lentidão.',words:[{fr:'lent',pt:'lento'},{fr:'depuis hier',pt:'desde ontem'}]},
+  {prompt_fr:"J'ai oublié mon mot de passe, je ne peux plus entrer.",prompt_pt:'Esqueci minha senha, não consigo mais entrar.',
+   segs:[{fr:"J'ai oublié",pt:'Eu esqueci'},{fr:'mon mot de passe,',pt:'minha senha,'},{fr:'je ne peux plus entrer.',pt:'não consigo mais entrar.'}],
+   opts:[{fr:'Cliquez sur « mot de passe oublié », je vous envoie un lien.',ok:true},{fr:'Donnez-moi votre mot de passe.',ok:false,why:'Nunca se pede a senha do cliente. Nunca.'},{fr:'Créez un nouveau site.',ok:false,why:'Criar outro site por causa de uma senha é demais.'}],
+   why:'O fluxo "esqueci a senha" existe justamente pra isso.',words:[{fr:'un mot de passe',pt:'uma senha'}]},
+  {prompt_fr:'La page contact affiche une erreur 404.',prompt_pt:'A página de contato mostra um erro 404.',
+   segs:[{fr:'La page contact',pt:'A página de contato'},{fr:'affiche une erreur 404.',pt:'mostra um erro 404.'}],
+   opts:[{fr:"La page a changé d'adresse, je corrige le lien.",ok:true},{fr:"C'est votre faute.",ok:false,why:'Culpar o cliente nunca é a resposta.'},{fr:'404, c\'est mon numéro préféré.',ok:false,why:'Piada não fecha ticket.'}],
+   why:'404 = link quebrado; corrigir o endereço resolve.',words:[{fr:'une page',pt:'uma página'},{fr:'un lien',pt:'um link'}]},
+  {prompt_fr:'Le logo est trop petit sur mobile.',prompt_pt:'O logo está pequeno demais no celular.',
+   segs:[{fr:'Le logo',pt:'O logo'},{fr:'est trop petit',pt:'está pequeno demais'},{fr:'sur mobile.',pt:'no celular.'}],
+   opts:[{fr:"Je l'agrandis et je vous montre une version demain.",ok:true},{fr:'Les petits logos portent bonheur.',ok:false,why:'Superstição não é suporte técnico.'},{fr:'Supprimez le logo.',ok:false,why:'Apagar o logo é o oposto do que o cliente pediu.'}],
+   why:'Aumentar e mostrar uma prévia atende o pedido.',words:[{fr:'trop petit',pt:'pequeno demais'},{fr:'demain',pt:'amanhã'}]},
+  {prompt_fr:"Le formulaire n'envoie pas les messages des clients.",prompt_pt:'O formulário não envia as mensagens dos clientes.',
+   segs:[{fr:'Le formulaire',pt:'O formulário'},{fr:"n'envoie pas",pt:'não envia'},{fr:'les messages des clients.',pt:'as mensagens dos clientes.'}],
+   opts:[{fr:"Je teste le formulaire et je le répare aujourd'hui.",ok:true},{fr:'Envoyez un pigeon voyageur.',ok:false,why:'Pombo-correio não substitui formulário.'},{fr:'Le formulaire est timide.',ok:false,why:'Formulário tímido não existe; existe bug.'}],
+   why:'Testar e consertar hoje: direto ao ponto.',words:[{fr:'un formulaire',pt:'um formulário'},{fr:'envoyer',pt:'enviar'}]}
+];
+function localJobTask(career,level){
+  if(career==='menage'){
+    const k=Math.min(2+level,5);
+    const seq=[...CHORES].sort(()=>Math.random()-0.5).slice(0,k);
+    const conn=["D'abord,",'puis','ensuite','après,','enfin,'];
+    const connPt=['Primeiro,','depois','em seguida','aí,','por fim,'];
+    const segs=[{fr:'La salle est en désordre !',pt:'A sala está uma bagunça!'}];
+    seq.forEach((c,i)=>{
+      segs.push({fr:conn[Math.min(i,conn.length-1)],pt:connPt[Math.min(i,connPt.length-1)]});
+      segs.push({fr:(i===0?'tu dois ':'')+c.fr+(i<seq.length-1?',':'.'),pt:(i===0?'você deve ':'')+c.pt});
+    });
+    const say=segs.map(s=>s.fr).join(' ');
+    return {kind:'order',segs,prompt_fr:say,prompt_pt:'',say,steps:seq,
+      why_pt:'A ordem era: '+seq.map(c=>c.pt).join(' → ')+'.',
+      words:[{fr:seq[0].fr.split(' ')[0],pt:seq[0].pt.split(' ')[0]},{fr:seq[1].fr,pt:seq[1].pt}]};
+  }
+  if(career==='compta'){
+    const variant=Math.floor(Math.random()*3);
+    if(variant===0){
+      const n=level===1?Math.floor(rand(60,100)):level===2?Math.floor(rand(70,200)):Math.floor(rand(100,1000));
+      const w=frNum(n)+' euros';
+      const wrong=new Set();
+      let guard=0;
+      while(wrong.size<2&&guard++<40){
+        const d=[n-20,n+20,n-10,n+10,n-2,n+2,n+100,n-100][Math.floor(Math.random()*8)];
+        if(d>0&&d!==n) wrong.add(d);
+      }
+      const opts=[{label:n+' €',ok:true},...[...wrong].map(v=>({label:v+' €',ok:false}))].sort(()=>Math.random()-0.5);
+      return {kind:'choice',segs:[{fr:'Le client paie',pt:'O cliente paga'},{fr:'« '+w+' ».',pt:'(o valor, em francês)'},{fr:"C'est combien ?",pt:'Quanto é?'}],
+        prompt_fr:'Le client paie « '+w+' ». C\'est combien ?',prompt_pt:'',say:'Le client paie '+w+'. C\'est combien ?',
+        opts,why_pt:'« '+w+' » = '+n+' €.',words:[{fr:frNum(n),pt:''+n}]};
+    }
+    if(variant===1){
+      const a=Math.floor(rand(11,60)),b=Math.floor(rand(11,60));
+      const t=a+b;
+      const opts=[{label:t+' €',ok:true},{label:(t+10)+' €',ok:false},{label:(t-9)+' €',ok:false}].sort(()=>Math.random()-0.5);
+      return {kind:'choice',
+        segs:[{fr:'Facture A :',pt:'Fatura A:'},{fr:frNum(a)+' euros.',pt:a+' €'},{fr:'Facture B :',pt:'Fatura B:'},{fr:frNum(b)+' euros.',pt:b+' €'},{fr:'Le total ?',pt:'O total?'}],
+        prompt_fr:'Facture A : '+frNum(a)+' euros. Facture B : '+frNum(b)+' euros. Le total ?',prompt_pt:'',
+        say:'Facture A, '+frNum(a)+' euros. Facture B, '+frNum(b)+' euros. Le total ?',
+        opts,why_pt:a+' + '+b+' = '+t+' €.',words:[{fr:'une facture',pt:'uma fatura'},{fr:'le total',pt:'o total'}]};
+    }
+    const q=Math.floor(rand(2,5)), p=Math.floor(rand(2,6));
+    const right=q*p, shown=right+(Math.random()<0.5?-1:1)*Math.floor(rand(1,4));
+    const opts=[
+      {label:"Non, c'est "+right+' €',ok:true},
+      {label:"Oui, c'est bon",ok:false},
+      {label:"Non, c'est "+(right+7)+' €',ok:false}
+    ].sort(()=>Math.random()-0.5);
+    return {kind:'choice',
+      segs:[{fr:'La note dit :',pt:'A nota diz:'},{fr:frNum(q)+' cafés à '+frNum(p)+' euros,',pt:q+' cafés a '+p+' €,'},{fr:'total '+frNum(shown)+' euros.',pt:'total '+shown+' €.'},{fr:"C'est correct ?",pt:'Está certo?'}],
+      prompt_fr:'La note dit : '+q+' cafés à '+p+' euros, total '+shown+' euros. C\'est correct ?',prompt_pt:'',
+      say:'La note dit : '+frNum(q)+' cafés à '+frNum(p)+' euros, total '+frNum(shown)+' euros. C\'est correct ?',
+      opts,why_pt:q+' × '+p+' = '+right+' €, mas a nota mostrava '+shown+' €.',words:[{fr:'la note',pt:'a conta'}]};
+  }
+  if(career==='bar'){
+    const k=level===1?1+Math.round(Math.random()):level===2?2:3;
+    const order=[...BAR_MENU].sort(()=>Math.random()-0.5).slice(0,k);
+    const listFr=order.map(o=>o.fr).join(' et ');
+    const segs=[{fr:'Bonjour !',pt:'Bom dia!'},{fr:'Je voudrais',pt:'Eu queria'},
+      ...order.map((o,i)=>({fr:o.fr+(i<order.length-1?' et':','),pt:o.pt})),
+      {fr:"s'il vous plaît.",pt:'por favor.'}];
+    return {kind:'pick',segs,prompt_fr:'Bonjour ! Je voudrais '+listFr+", s'il vous plaît.",prompt_pt:'',
+      say:'Bonjour ! Je voudrais '+listFr+", s'il vous plaît.",
+      menu:BAR_MENU.map(m=>({fr:m.fr,pt:m.pt,ic:m.ic,ok:order.some(o=>o.id===m.id)})),
+      why_pt:'O pedido era: '+order.map(o=>o.pt).join(' + ')+'.',
+      words:[{fr:order[0].fr,pt:order[0].pt}]};
+  }
+  const t=DEV_POOL[Math.floor(Math.random()*DEV_POOL.length)];
+  return {kind:'choice',segs:t.segs,prompt_fr:t.prompt_fr,prompt_pt:t.prompt_pt,say:t.prompt_fr,
+    opts:t.opts.map(o=>({label:o.fr,ok:o.ok,why:o.why})),why_pt:t.why,words:t.words};
+}
+function normalizeJobTask(d){
+  if(!d||!Array.isArray(d.items)||!d.items.length) return null;
+  const segs=Array.isArray(d.segments)?d.segments:null;
+  const base={segs,prompt_fr:d.prompt_fr||'',prompt_pt:d.prompt_pt||'',say:d.prompt_fr||'',why_pt:d.why_pt||'',words:[]};
+  if(d.kind==='order'){
+    return Object.assign(base,{kind:'order',steps:d.items.map(it=>({fr:String(it.fr||''),pt:it.pt||'',ic:'🧹'}))});
+  }
+  if(d.kind==='pick'||d.kind==='bar'){
+    const menu=d.items.map(it=>({fr:String(it.fr||''),pt:it.pt||'',ic:'🍽️',ok:!!it.correct}));
+    if(!menu.some(m=>m.ok)) return null;
+    return Object.assign(base,{kind:'pick',menu});
+  }
+  if(!d.items.some(it=>it&&it.correct)) return null;
+  return Object.assign(base,{kind:'choice',opts:d.items.map(it=>({label:String(it.fr||''),ok:!!it.correct}))});
+}
+const JT={active:false,bar:false,round:0,total:5,hits:0,words:[],timer:null};
+function startBarShift(){
+  bump('energie',-25); S.workUntil=gameNow()+120;
+  inCafe=true;
+  $('cafeov').classList.add('on');
+  setTimeout(()=>beginTurn(true),650);
+}
+function startJobTurn(){
+  bump('energie',-25); S.workUntil=gameNow()+120;
+  beginTurn(false);
+}
+function beginTurn(bar){
+  JT.active=true; JT.bar=bar; JT.round=0; JT.hits=0; JT.words=[];
+  $('jt-title').textContent=CAREERS[S.career.id].emoji+' '+CAREERS[S.career.id].fr+' · '+JOB_LEVELS[S.career.level-1];
+  $('jt-end').style.display='none';
+  $('jt-prompt').style.display='';
+  $('jt-area').style.display='';
+  $('jtmodal').classList.add('open');
+  blip(660);
+  nextJobRound();
+}
+function jtStopTimer(){ if(JT.timer){ clearInterval(JT.timer); JT.timer=null; } $('jt-timer').classList.remove('on'); }
+async function nextJobRound(){
+  jtStopTimer();
+  if(!JT.active) return;
+  if(JT.round>=JT.total){ endJobTurn(); return; }
+  $('jt-fill').style.width=Math.round(JT.round/JT.total*100)+'%';
+  $('jt-score').textContent=JT.hits+' ✓';
+  const fb=$('jt-fb'); fb.className=''; fb.textContent='';
+  $('jt-prompt').innerHTML='<i style="color:var(--ink2)">…</i>';
+  $('jt-area').innerHTML='';
+  let task=null;
+  try{
+    const data=await apiAction({action:'job_task',career:S.career.id,job_level:S.career.level});
+    task=normalizeJobTask(data);
+  }catch(e){}
+  if(!task) task=localJobTask(S.career.id,S.career.level);
+  if(!JT.active) return;
+  renderJobRound(task);
+}
+function renderJobRound(task){
+  segSpans($('jt-prompt'),task.segs,task.prompt_fr);
+  const spk=document.createElement('button');
+  spk.className='defi-spk'; spk.textContent='🔊'; spk.style.cssText='margin-left:8px;font-size:13px;padding:2px 9px';
+  spk.addEventListener('click',()=>{ speak(task.say||task.prompt_fr); blip(700); });
+  $('jt-prompt').appendChild(spk);
+  speak(task.say||task.prompt_fr);
+  if(Array.isArray(task.words)) JT.words.push(...task.words);
+  const area=$('jt-area');
+  if(task.kind==='order') renderOrder(task,area);
+  else if(task.kind==='pick') renderPick(task,area);
+  else renderChoice(task,area);
+}
+function renderOrder(task,area){
+  const grid=document.createElement('div'); grid.className='jt-grid';
+  let idx=0, errors=0, done=false;
+  [...task.steps].sort(()=>Math.random()-0.5).forEach(st=>{
+    const b=document.createElement('button');
+    b.className='jt-it';
+    const ji=document.createElement('span'); ji.className='ji'; ji.textContent=st.ic||'🧹';
+    const tx=document.createElement('span'); tx.textContent=st.fr;
+    b.title=st.pt||'';
+    b.appendChild(ji); b.appendChild(tx);
+    b.addEventListener('click',()=>{
+      if(done||b.classList.contains('good')) return;
+      if(task.steps[idx].fr===st.fr){
+        b.classList.add('good'); idx++;
+        blip(680+idx*60,0.07,'sine',0.06);
+        if(idx>=task.steps.length){ done=true; jobResolve(errors===0,task); }
+      }else{
+        errors++; b.classList.add('bad'); thud();
+        setTimeout(()=>b.classList.remove('bad'),500);
+      }
+    });
+    grid.appendChild(b);
+  });
+  area.appendChild(grid);
+}
+function renderChoice(task,area){
+  let done=false;
+  task.opts.forEach(o=>{
+    const b=document.createElement('button');
+    b.className='rev-opt'; b.textContent=o.label;
+    b.addEventListener('click',()=>{
+      if(done) return; done=true;
+      const ok=!!o.ok;
+      b.classList.add(ok?'good':'bad');
+      if(!ok) [...area.children].forEach(x=>{ if(task.opts.some(oo=>oo.ok&&oo.label===x.textContent)) x.classList.add('good'); });
+      jobResolve(ok,task,o.why);
+    });
+    area.appendChild(b);
+  });
+}
+function renderPick(task,area){
+  const need=task.menu.filter(m=>m.ok).length;
+  const grid=document.createElement('div'); grid.className='jt-grid';
+  const go=document.createElement('button'); go.id='jt-go'; go.textContent='Servir !'; go.disabled=true;
+  let done=false;
+  const sel=new Set();
+  task.menu.forEach(m=>{
+    const b=document.createElement('button');
+    b.className='jt-it';
+    const ji=document.createElement('span'); ji.className='ji'; ji.textContent=m.ic||'🍽️';
+    const tx=document.createElement('span'); tx.textContent=m.fr;
+    b.title=m.pt||'';
+    b.appendChild(ji); b.appendChild(tx);
+    b.dataset.ok=m.ok?'1':'';
+    b.dataset.fr=m.fr;
+    b.addEventListener('click',()=>{
+      if(done) return;
+      if(sel.has(m.fr)){ sel.delete(m.fr); b.classList.remove('sel'); }
+      else{ sel.add(m.fr); b.classList.add('sel'); }
+      go.disabled=sel.size===0;
+      blip(620,0.05,'sine',0.05);
+    });
+    grid.appendChild(b);
+  });
+  go.addEventListener('click',()=>{
+    if(done) return; done=true;
+    jtStopTimer();
+    let ok=sel.size===need;
+    for(const b of grid.children){
+      const want=b.dataset.ok==='1', has=sel.has(b.dataset.fr);
+      if(want) b.classList.add('good');
+      if(want!==has){ ok=false; if(has) b.classList.add('bad'); }
+    }
+    jobResolve(ok,task);
+  });
+  area.appendChild(grid); area.appendChild(go);
+  /* tempo generoso */
+  const total=22+need*8;
+  let left=total;
+  $('jt-timer').classList.add('on');
+  $('jt-tfill').style.width='100%';
+  JT.timer=setInterval(()=>{
+    left-=0.1;
+    $('jt-tfill').style.width=Math.max(0,left/total*100)+'%';
+    if(left<=0&&!done){ done=true; jtStopTimer(); jobResolve(false,task); }
+  },100);
+}
+function jobResolve(ok,task,optWhy){
+  jtStopTimer();
+  if(!JT.active) return;
+  const fb=$('jt-fb');
+  if(ok){
+    JT.hits++;
+    fb.className='ok'; fb.textContent='✅ Parfait !';
+    blip(880,0.12,'sine',0.1);
+  }else{
+    fb.className='no';
+    fb.textContent='✏️ '+(optWhy||task.why_pt||'Quase. Presta atenção na próxima.');
+    thud();
+  }
+  JT.round++;
+  setTimeout(nextJobRound,ok?900:2400);
+}
+function endJobTurn(){
+  JT.active=false;
+  jtStopTimer();
+  const c=CAREERS[S.career.id];
+  const mult=JOB_MULT[S.career.level-1];
+  const pay=Math.round((c.lo+(c.hi-c.lo)*(JT.hits/JT.total))*mult);
+  payMoney(pay);
+  gainXP(6+JT.hits*3);
+  const pct=Math.round(JT.hits/JT.total*100);
+  S.career.perf.push(pct); S.career.perf=S.career.perf.slice(-10);
+  S.career.turns++;
+  let promo=false;
+  if(S.career.level<3&&S.career.turns%5===0){
+    const last5=S.career.perf.slice(-5);
+    const avg=last5.reduce((a,b)=>a+b,0)/last5.length;
+    if(avg>=70){ S.career.level++; promo=true; }
+  }
+  dailyHit('work');
+  phoneFlagPatron();
+  chime();
+  $('jt-prompt').style.display='none';
+  $('jt-area').style.display='none';
+  $('jt-fb').className=''; $('jt-fb').textContent='';
+  $('jt-fill').style.width='100%';
+  $('jt-score').textContent=JT.hits+' ✓';
+  const end=$('jt-end');
+  end.style.display='';
+  end.innerHTML='<div style="font-family:Fraunces,serif;font-size:30px;font-weight:900;color:var(--terra)"></div><div style="font-size:13px;font-weight:800;color:var(--ink2);margin-top:6px"></div><div id="jt-endchips" class="wchips" style="justify-content:center;margin-top:10px"></div><button id="jt-fin" style="margin-top:14px;padding:10px 28px;border-radius:12px;font-size:14px;font-weight:800;background:linear-gradient(135deg,var(--terra),var(--terra2));color:#fff">Merci !</button>';
+  end.children[0].textContent='💶 +'+pay+'€';
+  end.children[1].innerHTML=JT.hits+' / '+JT.total+' acertos'+(promo?' · <b style="color:var(--gold)">PROMOTION ! Agora você é '+JOB_LEVELS[S.career.level-1]+'</b>':'');
+  const seen=new Set();
+  chipRow($('jt-endchips'),JT.words.filter(w=>w&&w.fr&&!seen.has(w.fr)&&seen.add(w.fr)));
+  if(promo){ confettiRain(); fanfare(); }
+  end.querySelector('#jt-fin').addEventListener('click',closeJobTurn);
+  save(); updateHUD();
+}
+function closeJobTurn(){
+  const wasActive=JT.active;
+  JT.active=false; jtStopTimer();
+  $('jtmodal').classList.remove('open');
+  if(JT.bar){ inCafe=false; $('cafeov').classList.remove('on'); }
+  else{ setLaptop(false); standUp(); }
+  blip(520);
+  if(wasActive) toast('💼 Serviço interrompido. A energia já foi, hein.');
+}
+$('jt-close').addEventListener('click',closeJobTurn);
+
+/* ================================================================
+   v3 · BLOCO 3 — EVENTOS ALEATÓRIOS 🎲 ("dia vivo")
+   ================================================================ */
+const EV={rainUntil:0,outUntil:0,rainSnd:null,rainGrp:null,candles:null,candleLights:[],vase:null,neighSnd:null};
+/* chuva: gotas fora da janela */
+{
+  const n=90;
+  const geo=new THREE.BufferGeometry();
+  const pos=new Float32Array(n*3);
+  for(let i=0;i<n;i++){ pos[i*3]=rand(-2.1,2.1); pos[i*3+1]=rand(0.6,3.2); pos[i*3+2]=rand(-4.5,-4.15); }
+  geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  const mat=new THREE.PointsMaterial({color:0xaac4e0,size:0.035,transparent:true,opacity:0.7,depthWrite:false});
+  EV.rainGrp=new THREE.Points(geo,mat);
+  EV.rainGrp.visible=false;
+  scene.add(EV.rainGrp);
+}
+function tickRain(dt){
+  if(!EV.rainGrp.visible) return;
+  const p=EV.rainGrp.geometry.attributes.position;
+  for(let i=0;i<p.count;i++){
+    let y=p.getY(i)-dt*3.2;
+    if(y<0.55) y=3.2;
+    p.setY(i,y);
+  }
+  p.needsUpdate=true;
+}
+function rainSoundStart(){
+  const c=ac(); if(!c||EV.rainSnd) return;
+  const len=2*c.sampleRate, buf=c.createBuffer(1,len,c.sampleRate), d=buf.getChannelData(0);
+  for(let i=0;i<len;i++) d[i]=(Math.random()*2-1);
+  const src=c.createBufferSource(); src.buffer=buf; src.loop=true;
+  const f=c.createBiquadFilter(); f.type='bandpass'; f.frequency.value=900; f.Q.value=0.4;
+  const g=c.createGain(); g.gain.value=0.0001;
+  src.connect(f).connect(g).connect(c.destination); src.start();
+  g.gain.setTargetAtTime(0.035,c.currentTime,1.2);
+  EV.rainSnd={src,g};
+}
+function rainSoundStop(){
+  if(!EV.rainSnd||!AC) return;
+  const s=EV.rainSnd; EV.rainSnd=null;
+  s.g.gain.setTargetAtTime(0.0001,AC.currentTime,0.8);
+  setTimeout(()=>{ try{s.src.stop();}catch(e){} },2500);
+}
+/* velas da queda de luz */
+{
+  EV.candles=new THREE.Group();
+  const spots=[[1.5,0.8,1.7],[-0.95,0.42,1.35],[4.44,1.0,-0.2]];
+  for(const s of spots){
+    const g=new THREE.Group();
+    g.add(cyl(0.03,0.035,0.1,Mfix(0xf5efdf,{roughness:0.6}),0,0.05,0,8));
+    g.add(sph(0.02,Mfix(0xffc27a,{emissive:0xff9a3a,emissiveIntensity:2}),0,0.13,0,6,5));
+    g.position.set(s[0],s[1],s[2]);
+    EV.candles.add(g);
+    const pl=new THREE.PointLight(0xffb168,0,2.6,2);
+    pl.position.set(s[0],s[1]+0.2,s[2]);
+    EV.candleLights.push(pl); scene.add(pl);
+  }
+  EV.candles.visible=false;
+  scene.add(EV.candles);
+}
+let evTimer=30, camExcl=null;
+function anyUiBusy(){
+  return chatOpen||radialOpen||phoneOpen||tvWatching||inCafe||JT.active||PTEST.active||DEFI.active||!!document.querySelector('.modal.open');
+}
+function tickEvents(dt){
+  tickRain(dt);
+  if(EV.outUntil&&performance.now()>EV.outUntil){
+    EV.outUntil=0;
+    EV.candles.visible=false;
+    for(const l of EV.candleLights) l.intensity=0;
+    toast('💡 La lumière est revenue !');
+    blip(760);
+  }
+  if(EV.rainUntil&&gameNow()>EV.rainUntil+2){
+    EV.rainUntil=0;
+    EV.rainGrp.visible=false;
+    rainSoundStop();
+    toast("🌤️ La pluie s'arrête… ça sent bon dehors.");
+  }
+  if(!S.introDone) return;
+  evTimer-=dt; if(evTimer>0) return;
+  evTimer=22;
+  if(anyUiBusy()) return;
+  if(S.events.day!==S.dia){ S.events.day=S.dia; S.events.count=0; }
+  if(S.events.count>=2) return;
+  if(Math.random()>0.28) return;
+  const all=['pluie','vase','panne','nouvelle','colis','voisin'];
+  const ok=all.filter(id=>!(S.events.cool[id]>=S.dia-1));
+  if(!ok.length) return;
+  runEvent(ok[Math.floor(Math.random()*ok.length)]);
+}
+function runEvent(id){
+  S.events.count++; S.events.cool[id]=S.dia; save();
+  if(id==='pluie') evPluie();
+  else if(id==='vase') evVase();
+  else if(id==='panne') evPanne();
+  else if(id==='nouvelle') evNouvelle();
+  else if(id==='colis') evColis();
+  else evVoisin();
+}
+function evPluie(){
+  EV.rainUntil=gameNow()+80;
+  EV.rainGrp.visible=true;
+  rainSoundStart();
+  toast("🌧️ <b>Il pleut sur Paris…</b> Camille: « J'adore ce bruit. » · +2 XP",4200);
+  gainXP(2);
+}
+function evVase(){
+  if(EV.vase) return;
+  meowSound(); thud();
+  const v=new THREE.Group();
+  const pot=cyl(0.09,0.07,0.2,Mfix(0x5e93c9,{roughness:0.5}),0,0.05,0,10);
+  pot.rotation.z=Math.PI/2*0.9;
+  v.add(pot);
+  v.position.set(2.2,0.04,1.1);
+  scene.add(v);
+  reg(v,{id:'vase_ev',fr:'le vase renversé',pt:'o vaso derrubado',approach:{x:2.2,z:0.55},actions:[
+    {emoji:'🧹',fr:'Ranger',pt:'arrumar a bagunça',run:()=>{
+      burst(2.2,0.4,1.1,0x8ab0e0,12,0.5,1.2);
+      scene.remove(v);
+      const ix=INTER.indexOf(v); if(ix>=0) INTER.splice(ix,1);
+      EV.vase=null;
+      bump('humeur',8);
+      gainXP(3);
+      showPhrase('🧹 on apprend','Je range le vase. Minou, sois sage !','Eu arrumo o vaso. Minou, comporta-se!','Voilà !');
+      if(!S.player.words.some(w=>w.fr==='ranger')) flyWord({fr:'ranger',pt:'arrumar, guardar'});
+      save();
+    }}
+  ]});
+  EV.vase=v;
+  minouAI.state='sit'; minouAI.t=3;
+  minou.position.set(2.6,0,1.0);
+  toast('🐱 <i>Crash !</i> Minou derrubou o vaso… clica nele pra <b>ranger</b>. · +2 XP',4400);
+  gainXP(2);
+}
+function evPanne(){
+  EV.outUntil=performance.now()+40000;
+  EV.candles.visible=true;
+  for(const l of EV.candleLights) l.intensity=1.1;
+  blip(220,0.3,'sine',0.06);
+  toast("🕯️ <b>Panne de courant !</b> Camille acende as velas: « C'est romantique, non ? » · +2 XP",4400);
+  gainXP(2);
+}
+function evNouvelle(){
+  if(!camExcl){
+    camExcl=bubbleSprite('❗');
+    camExcl.position.y=1.75;
+    camille.g.add(camExcl);
+  }
+  camExcl.material.opacity=1;
+  blip(760); setTimeout(()=>blip(920),120);
+  toast('💬 <b>Camille tá eufórica!</b> Ela tem uma novidade pra contar.',3400);
+  setTimeout(()=>{
+    if(camExcl) camExcl.material.opacity=0;
+    openChat('camille');
+    sendToCamille('(événement: raconte ta nouvelle avec enthousiasme)',true);
+  },2600);
+  gainXP(2);
+}
+function evColis(){
+  thud(); setTimeout(thud,260); setTimeout(thud,520);
+  toast('🚪 <i>Toc toc…</i> tem uma encomenda na porta!');
+  const croiss=Math.random()<0.5;
+  setTimeout(()=>{
+    if(croiss) S.stock+=2; else bump('humeur',10);
+    burst(-4.2,1.0,-0.55,0xf3c94e,14,0.5,1.4);
+    const note=croiss
+      ?{segs:[{fr:'Pour toi,',pt:'Pra você,'},{fr:'des croissants tout chauds.',pt:'croissants quentinhos.'},{fr:'Bon appétit !',pt:'Bom apetite!'},{fr:'— Hugo',pt:'— Hugo'}],fr:'Pour toi, des croissants tout chauds. Bon appétit ! — Hugo',hint:'(2 croissants a mais no frigo)',word:{fr:'un colis',pt:'uma encomenda'}}
+      :{segs:[{fr:'Une petite fleur',pt:'Uma florzinha'},{fr:'pour ton appartement.',pt:'pro seu apartamento.'},{fr:'Bonne journée !',pt:'Bom dia pra você!'},{fr:'— Léa',pt:'— Léa'}],fr:'Une petite fleur pour ton appartement. Bonne journée ! — Léa',hint:'(+Humeur: uma flor nova)',word:{fr:'une fleur',pt:'uma flor'}};
+    showPhrase('📦 un colis à la porte','','','Merci !');
+    segSpans($('ph-fr'),note.segs,note.fr);
+    $('ph-pt').textContent=note.hint;
+    speak(note.fr);
+    if(!S.player.words.some(w=>w.fr===note.word.fr)) flyWord(note.word);
+    gainXP(3); save();
+  },1000);
+}
+function evVoisin(){
+  if(EV.neighSnd) return;
+  const c=ac();
+  if(c){
+    const o=c.createOscillator(), o2=c.createOscillator(), g=c.createGain(), f=c.createBiquadFilter();
+    o.type='sawtooth'; o.frequency.value=98; o2.type='square'; o2.frequency.value=147;
+    f.type='lowpass'; f.frequency.value=180;
+    g.gain.value=0.03;
+    o.connect(f); o2.connect(f); f.connect(g).connect(c.destination);
+    o.start(); o2.start();
+    EV.neighSnd={stop(){ try{o.stop();o2.stop();}catch(e){} }};
+    setTimeout(()=>{ if(EV.neighSnd){ EV.neighSnd.stop(); EV.neighSnd=null; } },26000);
+  }
+  toast('🎵 <i>Boum boum…</i> o vizinho de cima exagerou no som. Camille revira os olhos.',3600);
+  setTimeout(()=>{
+    showPhrase('🔊 le voisin bruyant',"Moins fort, s'il vous plaît !",'Mais baixo, por favor!','Frapper au mur 👊',()=>{
+      thud(); setTimeout(thud,200);
+      if(EV.neighSnd){ EV.neighSnd.stop(); EV.neighSnd=null; }
+      toast('😌 Silêncio de novo. Camille: « Merci, héros du 5e ! » · +3 XP');
+      gainXP(3);
+      bump('humeur',6);
+    });
+  },1600);
+}
+
+/* ================================================================
+   v3 · BLOCO 4 — PETIT TEST 🎓 + certificados
+   ================================================================ */
+const SITUATIONS={
+  A1:[
+    {pt:'Peça um café e pergunte o preço',keys:['café','combien','prix','coûte'],model:"Un café, s'il vous plaît. C'est combien ?"},
+    {pt:'Cumprimente e diga seu nome',keys:['bonjour','salut','appelle','suis'],model:"Bonjour ! Je m'appelle Léo."},
+    {pt:'Diga que você mora em Paris',keys:['habite','paris','vis'],model:"J'habite à Paris."},
+    {pt:'Pergunte como a pessoa está',keys:['comment','ça','va','vas'],model:'Comment ça va ?'},
+    {pt:'Diga que você não entende e peça pra repetir',keys:['comprends','pas','répéter','répétez'],model:'Je ne comprends pas. Vous pouvez répéter ?'},
+    {pt:'Agradeça e se despeça',keys:['merci','au revoir','bientôt'],model:'Merci beaucoup ! Au revoir !'},
+    {pt:'Pergunte onde é o banheiro',keys:['où','toilettes'],model:'Où sont les toilettes ?'},
+    {pt:'Peça um croissant, por favor',keys:['croissant','voudrais','plaît'],model:"Je voudrais un croissant, s'il vous plaît."}
+  ],
+  A2:[
+    {pt:'Pergunte que horas são',keys:['quelle','heure'],model:'Quelle heure est-il ?'},
+    {pt:'Convide alguém pra jantar amanhã',keys:['dîner','demain','veux','ensemble','on'],model:'On dîne ensemble demain ?'},
+    {pt:'Diga que ontem você trabalhou muito',keys:['hier','travaillé','beaucoup'],model:"Hier, j'ai beaucoup travaillé."},
+    {pt:'Pergunte se pode pagar com cartão',keys:['payer','carte','peux'],model:'Je peux payer par carte ?'},
+    {pt:'Diga que está aprendendo francês aos poucos',keys:['apprends','français','petit'],model:"J'apprends le français petit à petit."},
+    {pt:'Peça pra pessoa falar mais devagar',keys:['parler','lentement','plus','doucement'],model:'Vous pouvez parler plus lentement ?'},
+    {pt:'Diga que semana que vem você vai ao mercado',keys:['semaine','prochaine','marché','vais'],model:'La semaine prochaine, je vais au marché.'},
+    {pt:'Diga que gosta muito deste bairro',keys:['quartier','plaît','aime'],model:'Ce quartier me plaît beaucoup.'}
+  ],
+  B1:[
+    {pt:'Diga que acabou de terminar o trabalho e está cansado',keys:['viens','finir','travail','fatigué'],model:'Je viens de finir mon travail, je suis fatigué.'},
+    {pt:'Diga que, se pudesse, viajaria pelo sul da França',keys:['si','pouvais','voyagerais','sud'],model:'Si je pouvais, je voyagerais dans le sud de la France.'},
+    {pt:'Explique que o filme foi melhor do que você esperava',keys:['film','mieux','meilleur','pensais','attendais'],model:'Le film était meilleur que je pensais.'},
+    {pt:'Diga que parece que vai chover hoje à noite',keys:['dirait','pleuvoir','soir','va'],model:"On dirait qu'il va pleuvoir ce soir."},
+    {pt:'Conte que você conheceu seus vizinhos ontem',keys:['rencontré','voisins','hier','connu'],model:"Hier, j'ai rencontré mes voisins."},
+    {pt:'Diga que prefere o metrô porque é mais rápido',keys:['préfère','métro','rapide','parce'],model:"Je préfère le métro parce que c'est plus rapide."},
+    {pt:'Peça um conselho sobre onde jantar no bairro',keys:['conseil','dîner','où','conseillez'],model:'Vous me conseillez où dîner dans le quartier ?'},
+    {pt:'Diga que mora em Paris há três meses',keys:['habite','depuis','trois','mois'],model:"J'habite à Paris depuis trois mois."}
+  ]
+};
+const PTEST={active:false,queue:[],i:0,scores:[]};
+function proposeTest(){
+  toast('🎓 <b>Petit test !</b> Camille preparou uma provinha de nível '+S.pendingTest+'. Fala com ela quando quiser (ou abre pelo Carnet).',5200);
+  chime();
+  if(!camExcl){ camExcl=bubbleSprite('❗'); camExcl.position.y=1.75; camille.g.add(camExcl); }
+  camExcl.material.opacity=1;
+  setTimeout(()=>{ if(camExcl&&!S.pendingTest) camExcl.material.opacity=0; },9000);
+  phoneArrive('camille','test');
+}
+function openTest(){
+  if(!S.pendingTest){ toast('🎓 Nenhum teste pendente agora. Continua jogando!'); return; }
+  closeRadial();
+  $('carnet').classList.remove('open');
+  if(camExcl) camExcl.material.opacity=0;
+  const ws=defiWords();
+  const types=['frpt','ptfr','listen','frpt','ptfr'];
+  const exs=types.map((type,i)=>{
+    let w=ws[i%Math.max(1,ws.length)];
+    if(!w) w={fr:DEFI_FALLBACK_FR[i%DEFI_FALLBACK_FR.length],pt:DEFI_FALLBACK_PT[i%DEFI_FALLBACK_PT.length]};
+    return {kind:'word',type,w};
+  });
+  const pool=SITUATIONS[S.pendingTest]||SITUATIONS.B1; /* B2 usa o pool B1 */
+  const sits=[...pool].sort(()=>Math.random()-0.5).slice(0,2).map(s=>({kind:'sit',s}));
+  PTEST.queue=[...exs.sort(()=>Math.random()-0.5),...sits];
+  PTEST.i=0; PTEST.scores=[]; PTEST.active=true;
+  $('pt-head').textContent='🎓 Petit test · '+S.pendingTest;
+  $('pt-end').style.display='none';
+  $('pt-q').style.display=''; $('pt-area').style.display='';
+  $('testmodal').classList.add('open');
+  blip(660);
+  testStep();
+}
+function testStep(){
+  const it=PTEST.queue[PTEST.i];
+  if(!it){ testEnd(); return; }
+  $('pt-fill').style.width=Math.round(PTEST.i/PTEST.queue.length*100)+'%';
+  $('pt-count').textContent=(PTEST.i+1)+' / '+PTEST.queue.length;
+  const fb=$('pt-fb'); fb.style.display='none'; fb.textContent='';
+  const q=$('pt-q'), area=$('pt-area');
+  q.innerHTML=''; area.innerHTML='';
+  const lblCss='font-size:10.5px;font-weight:800;letter-spacing:1.2px;color:var(--ink2);text-transform:uppercase;text-align:center';
+  const bigCss='font-family:Fraunces,serif;font-size:24px;font-weight:700;color:var(--paris);text-align:center;margin-top:4px';
+  if(it.kind==='word'){
+    const w=it.w;
+    const others=S.player.words.filter(x=>x.fr!==w.fr);
+    if(it.type==='frpt'){
+      q.innerHTML='<div style="'+lblCss+'">o que significa…</div><div style="'+bigCss+'"></div>';
+      q.children[1].textContent=w.fr;
+      speak(w.fr);
+      testOpts(area,[w.pt,...defiDistractors(w.pt,others.map(x=>x.pt),DEFI_FALLBACK_PT)].sort(()=>Math.random()-0.5),w.pt);
+    }else if(it.type==='ptfr'){
+      q.innerHTML='<div style="'+lblCss+'">como se diz em francês…</div><div style="'+bigCss+'"></div>';
+      q.children[1].textContent=w.pt;
+      testOpts(area,[w.fr,...defiDistractors(w.fr,others.map(x=>x.fr),DEFI_FALLBACK_FR)].sort(()=>Math.random()-0.5),w.fr);
+    }else{
+      q.innerHTML='<div style="'+lblCss+'">escuta e escolhe o que ouviu</div>';
+      const spk=document.createElement('button');
+      spk.className='defi-ear'; spk.textContent='🔊 écouter';
+      spk.addEventListener('click',()=>{ speak(w.fr); blip(700); });
+      q.appendChild(spk);
+      speak(w.fr);
+      testOpts(area,[w.fr,...defiDistractors(w.fr,others.map(x=>x.fr),DEFI_FALLBACK_FR)].sort(()=>Math.random()-0.5),w.fr);
+    }
+  }else{
+    const s=it.s;
+    q.innerHTML='<div style="font-size:10.5px;font-weight:800;letter-spacing:1.2px;color:var(--terra);text-transform:uppercase;text-align:center">situation</div><div style="font-size:15px;font-weight:800;text-align:center;margin-top:6px"></div><div style="font-size:11.5px;color:var(--ink2);font-style:italic;text-align:center;margin:4px 0 10px">Escreve em francês, do seu jeito. Vale tentar!</div>';
+    q.children[1].textContent='« '+s.pt+' »';
+    const ta=document.createElement('textarea');
+    ta.id='pt-input'; ta.maxLength=200; ta.placeholder='Écris ta réponse en français…';
+    const go=document.createElement('button');
+    go.id='jt-go'; go.textContent='Valider';
+    go.addEventListener('click',()=>testSit(s,ta.value.trim(),go));
+    area.appendChild(ta); area.appendChild(go);
+    setTimeout(()=>ta.focus(),200);
+  }
+}
+function testOpts(area,choices,correct){
+  let answered=false;
+  choices.forEach(c=>{
+    const b=document.createElement('button');
+    b.className='rev-opt'; b.textContent=c;
+    b.addEventListener('click',()=>{
+      if(answered||!PTEST.active) return; answered=true;
+      const ok=(c===correct);
+      b.classList.add(ok?'good':'bad');
+      if(!ok) [...area.children].forEach(x=>{ if(x.textContent===correct) x.classList.add('good'); });
+      testScore(ok?100:0,ok?'✅ Correct !':'✏️ Era: '+correct);
+    });
+    area.appendChild(b);
+  });
+}
+async function testSit(s,txt,go){
+  if(!txt){ toast('✍️ Escreve alguma coisa em francês, mesmo simples.'); return; }
+  go.disabled=true; go.textContent='…';
+  let res=null;
+  try{
+    const data=await apiAction({action:'eval_answer',situation_pt:s.pt,user_text:txt,level:S.pendingTest});
+    if(data&&typeof data.score==='number') res={score:clamp(Math.round(data.score),0,100),fb:data.feedback_pt||'',better:data.better_fr||''};
+  }catch(e){}
+  if(!res){
+    const norm=t=>t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+    const nt=norm(txt);
+    const hits=s.keys.filter(k=>nt.includes(norm(k))).length;
+    const sc=hits>=2?85:hits===1?45:15;
+    res={score:sc,fb:sc>=70?'Deu pra entender direitinho!':'Faltou um pedaço da ideia. Compara com o modelo.',better:s.model};
+  }
+  if(!PTEST.active) return;
+  testScore(res.score,(res.score>=70?'✅ ':'💡 ')+res.fb+(res.better?'\n✨ '+res.better:''));
+  if(res.better) speak(res.better);
+}
+function testScore(score,msg){
+  PTEST.scores.push(score);
+  const fb=$('pt-fb');
+  fb.style.cssText='display:block;margin-top:10px;padding:9px 12px;border-radius:12px;font-size:12.5px;font-weight:700;text-align:center;white-space:pre-line;line-height:1.45;'+(score>=70?'background:rgba(127,174,106,.22);color:#3f6b32':'background:rgba(207,90,74,.16);color:#a04432');
+  fb.textContent=msg;
+  if(score>=70) blip(880,0.12,'sine',0.1); else thud();
+  PTEST.i++;
+  setTimeout(testStep,score>=70?1000:2600);
+}
+function testEnd(){
+  if(!PTEST.active) return;
+  PTEST.active=false;
+  const avg=Math.round(PTEST.scores.reduce((a,b)=>a+b,0)/Math.max(1,PTEST.scores.length));
+  $('pt-fill').style.width='100%';
+  $('pt-q').style.display='none'; $('pt-area').style.display='none';
+  $('pt-fb').style.display='none';
+  const end=$('pt-end'); end.style.display='';
+  const lvl=S.pendingTest;
+  if(avg>=70){
+    S.player.level=lvl;
+    S.pendingTest=null;
+    if(!S.certs.includes(lvl)) S.certs.push(lvl);
+    spawnCert(lvl);
+    end.innerHTML='<div style="font-family:Fraunces,serif;font-size:34px;font-weight:900;color:var(--terra)">🎉 '+avg+'%</div><div style="font-size:14px;font-weight:800;margin-top:8px">Nível <b style="color:var(--paris)">'+lvl+'</b> conquistado!</div><div id="pt-unlocks" style="font-size:12px;color:var(--ink2);margin-top:8px;line-height:1.6"></div><button id="pt-fin" style="margin-top:14px;padding:10px 28px;border-radius:12px;font-size:14px;font-weight:800;background:linear-gradient(135deg,var(--terra),var(--terra2));color:#fff">Génial !</button>';
+    const un=['🖼️ Certificado '+lvl+' emoldurado na parede do apê'];
+    if(lvl==='A1'){ un.push('🎬 Canal <b>Ciné</b> liberado na TV'); $('tvtab-cine').style.display=''; }
+    if(lvl==='A2') un.push('🎻 Faixa <b>Jazz manouche</b> na vitrola');
+    end.querySelector('#pt-unlocks').innerHTML=un.join('<br>');
+    confettiRain(); fanfare();
+    const pl=$('plevel');
+    pl.style.transition='transform .5s cubic-bezier(.34,1.56,.64,1)';
+    pl.style.transform='scale(1.6)';
+    setTimeout(()=>pl.style.transform='scale(1)',700);
+    bump('confiance',15); bump('humeur',12);
+  }else{
+    S.testFails=(S.testFails||0)+1;
+    end.innerHTML='<div style="font-family:Fraunces,serif;font-size:30px;font-weight:900;color:var(--paris)">'+avg+'%</div><div style="font-size:13px;font-weight:700;margin-top:8px;line-height:1.55">Camille te abraça: « Presque ! » Quase lá. Treina no Défi e nas conversas, e tenta de novo quando quiser pelo Carnet.</div><button id="pt-fin" style="margin-top:14px;padding:10px 28px;border-radius:12px;font-size:14px;font-weight:800;background:linear-gradient(135deg,var(--paris),var(--paris2));color:#fff">D\'accord</button>';
+    bump('humeur',-4);
+  }
+  end.querySelector('#pt-fin').addEventListener('click',()=>{ $('testmodal').classList.remove('open'); blip(600); });
+  updateHUD(); save();
+}
+$('test-close').addEventListener('click',()=>{ PTEST.active=false; $('testmodal').classList.remove('open'); blip(480); if(S.pendingTest) toast('🎓 Sem pressa. O Petit test fica te esperando no Carnet.'); });
+$('btn-test').addEventListener('click',()=>{ blip(600); openTest(); });
+
+/* certificado emoldurado na parede */
+const certSpawned=new Set();
+function certTex(lvl){
+  return ctex(128,96,(g,w,h)=>{
+    g.fillStyle='#fdf8ec'; g.fillRect(0,0,w,h);
+    g.strokeStyle='#d9a441'; g.lineWidth=5; g.strokeRect(5,5,w-10,h-10);
+    g.fillStyle='#4a6fa5'; g.textAlign='center';
+    g.font='900 34px Fraunces,serif';
+    g.fillText(lvl,w/2,50);
+    g.fillStyle='#8a6d3b'; g.font='700 11px Nunito,sans-serif';
+    g.fillText('RÊVE · français',w/2,74);
+    g.fillStyle='#c96f4a';
+    g.beginPath(); g.arc(w/2+38,66,7,0,7); g.fill();
+  });
+}
+const CERT_POS={A1:-0.9,A2:-0.1,B1:0.7,B2:1.5};
+function spawnCert(lvl){
+  if(certSpawned.has(lvl)) return;
+  certSpawned.add(lvl);
+  const z=(CERT_POS[lvl]!==undefined)?CERT_POS[lvl]:0;
+  frame(-4.86,2.38,z,Math.PI/2,0.42,0.32,certTex(lvl));
+  burst(-4.6,2.38,z,0xd9a441,14,0.5,1.2);
+}
+
 /* ========== loop principal ========== */
 const clock3=new THREE.Clock();
 function loop(){
@@ -3785,7 +5114,7 @@ function loop(){
   tickHover();
   tickVie(dt);
   tickTV(dt);
-  if(S.seen){ tickClock(dt); tickLea(dt); }
+  if(S.seen){ tickClock(dt); tickLea(dt); tickEvents(dt); tickPhone(dt); }
   tickHUDClock(dt);
   /* disco da vitrola gira quando toca */
   if(lofi.on&&discMesh) discMesh.rotation.y+=dt*2.5;
@@ -3795,7 +5124,11 @@ function loop(){
 /* ========== boot ========== */
 (function boot(){
   const had=loadSave();
+  const awayLong=had&&S.lastReal>0&&(Date.now()-S.lastReal)>2*DAY_MS;
   player.g.position.set(S.pos.x,0,S.pos.z);
+  for(const lv of S.certs) spawnCert(lv);
+  $('tvtab-cine').style.display=S.certs.includes('A1')?'':'none';
+  if(awayLong&&S.introDone) setTimeout(()=>phoneArrive('camille','absence'),9000);
   if(S.music){ /* retoma no primeiro gesto (autoplay é bloqueado antes disso) */
     const once=()=>{ if(S.music&&!lofi.on) lofiStart(); removeEventListener('pointerdown',once); };
     addEventListener('pointerdown',once);

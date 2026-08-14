@@ -2,19 +2,23 @@
  * RÊVE — backend de IA do game de francês (Cloudflare Worker, ES module).
  *
  * Rotas:
- *   GET     /api/health  -> {"ok":true,"model":"...","model_chat":"..."}
+ *   GET     /api/health  -> {"ok":true,"model":"...","model_chat":"...","actions":[...]}
  *   POST    /api/chat    -> multi-action (campo "action", default "chat"):
- *                           chat           -> Camille | Minou | Hugo | Léa (JSON, sem streaming)
+ *                           chat           -> Camille | Minou | Hugo | Léa | Patron (JSON, sem
+ *                                             streaming; "channel":"sms" = modo mensagem)
  *                           translate_help -> pt-BR -> francês cotidiano + dica
  *                           mirror_check   -> avalia fala (STT) contra frase-alvo
  *                           work_email     -> mini-desafio de e-mail de trabalho
+ *                           phone_message  -> mensagem de celular espontânea de um NPC
+ *                           job_task       -> tarefa de turno de trabalho por carreira
+ *                           eval_answer    -> avalia resposta aberta do petit test
  *   OPTIONS /api/*       -> preflight CORS (204)
  *   demais rotas         -> env.ASSETS; senão EMBEDDED_HTML; senão 404 JSON
  *
  * Config no deploy:
  *   ANTHROPIC_API_KEY  (secret, obrigatório)  -> wrangler secret put ANTHROPIC_API_KEY
  *   MODEL              (var opcional; default claude-haiku-4-5-20251001) — actions utilitárias
- *   MODEL_CHAT         (var opcional; default claude-sonnet-5) — action "chat" (conversa dos NPCs)
+ *   MODEL_CHAT         (var opcional; default claude-sonnet-5) — "chat" e "eval_answer"
  *
  * Contrato da API e decisões de prompt: ver PROMPTS.md (mesma pasta).
  */
@@ -24,10 +28,13 @@ const EMBEDDED_HTML = null; // __HTML_SLOT__
 const DEFAULT_MODEL = "claude-haiku-4-5-20251001";
 const DEFAULT_MODEL_CHAT = "claude-sonnet-5";
 
-// Modelo por action: a conversa dos NPCs (chat) usa um modelo mais forte;
-// as actions utilitárias (tradução, avaliação, e-mail) ficam no modelo barato.
+// Modelo por action: a conversa dos NPCs (chat) e a avaliação aberta
+// (eval_answer, julgamento fino de score) usam o modelo forte; as actions
+// utilitárias (tradução, mirror, e-mail, SMS, job_task) ficam no barato.
 function MODEL_BY_ACTION(env, action) {
-  return action === "chat" ? env.MODEL_CHAT || DEFAULT_MODEL_CHAT : env.MODEL || DEFAULT_MODEL;
+  return action === "chat" || action === "eval_answer"
+    ? env.MODEL_CHAT || DEFAULT_MODEL_CHAT
+    : env.MODEL || DEFAULT_MODEL;
 }
 
 const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
@@ -49,11 +56,24 @@ const MAX_TOKENS_BY_ACTION = {
   translate_help: 300,
   mirror_check: 300,
   work_email: 600,
+  phone_message: 400,
+  job_task: 1200,
+  eval_answer: 2000, // sonnet-5: thinking dentro do max_tokens (mesmo motivo do chat)
 };
 
 const LEVELS = ["A0", "A1", "A2", "B1", "B2"];
 const MOODS = ["happy", "amused", "proud", "curious", "neutral"];
-const NPCS = ["camille", "minou", "hugo", "lea"];
+const NPCS = ["camille", "minou", "hugo", "lea", "patron"];
+const PHONE_NPCS = ["camille", "hugo", "lea", "patron"]; // Minou não manda SMS
+const CAREERS = ["menage", "compta", "bar", "dev"];
+const KIND_BY_CAREER = { menage: "order", compta: "numbers", bar: "serve", dev: "ticket" };
+const JOB_LEVELS = [1, 2, 3];
+const EVAL_LEVELS = ["A0", "A1", "A2", "B1"]; // petit test não avalia B2
+const MAX_TRIGGER = 60; // phone_message: context.trigger
+const MAX_TIME_OF_DAY = 40; // phone_message: context.time_of_day
+const MAX_THREAD_TAIL = 4; // phone_message: últimas mensagens da thread
+const MAX_THREAD_ITEM = 200; // corte por mensagem da thread
+const MAX_SITUATION = 300; // eval_answer: situation_pt
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -214,6 +234,12 @@ const LEA_BIO = `SUA VIDA (fatos canônicos — nunca contradiga, cite com natur
 - Faz os projetos da faculdade com a Yasmine, que atrasa tudo — você reclama dela com carinho.
 - Sonho: intercâmbio em São Paulo — por isso adora falar com brasileiro e pergunta de lá de vez em quando.`;
 
+const PATRON_BIO = `SUA VIDA (fatos canônicos — nunca contradiga)
+- M. Bernard, o chefe do jogador no emprego atual dele. Direto e justo: fala o essencial, sem rodeio e sem grosseria.
+- Elogia esforço de verdade quando vê ("Bon travail.", "C'est bien."), e cobra com respeito quando precisa.
+- Vous com o jogador no começo; educado-direto sempre. Assunto = trabalho: turno, horário, tarefa, cliente, pagamento.
+- Qual é o emprego (limpeza, contabilidade, bar, dev...) vem das MEMÓRIAS do jogador e do contexto — nunca invente outro.`;
+
 function convoRules(name) {
   return `CONVERSA DE GENTE — OBRIGATÓRIO (é isto que separa você de um robô)
 1. PROIBIDO responder só com elogio genérico + pergunta devolvida ("C'est super ! Et toi ?" · "C'est magnifique ! Et au Brésil ?"). Quando ${name} contar algo, sua resposta traz pelo menos UM destes: (a) sua opinião concreta ("Moi, je préfère..."), (b) uma mini-memória sua relacionada ("Moi, une fois..."), (c) uma dica específica com nome real de lugar/coisa ("Va au Marché d'Aligre, dimanche matin."), (d) uma discordância leve e simpática ("Ah non, moi je trouve que...").
@@ -359,6 +385,42 @@ ${goldenRules(name, player.level)}
 ${chatFormatSpec(name, player.level)}`;
 }
 
+export function buildSystemPatron(player) {
+  const name = player.name;
+  return `Você é M. BERNARD, o chefe de ${name} (brasileiro aprendendo francês) no emprego dele. Patrão francês clássico: direto, justo, ocupado — mas gosta de quem se esforça, e ${name} se esforça.
+
+QUEM É VOCÊ
+- Fala de trabalho: o turno de hoje, a tarefa, o horário, o cliente, o pagamento no fim do mês.
+- Educado-direto: frases objetivas, "vous" com ${name}, zero papo furado — mas um elogio sincero quando o trabalho sai bem.
+- Ensina naturalmente o francês do trabalho: horários (à 9 heures), instruções (il faut, vous pouvez), pedidos polidos (merci de, pourriez-vous).
+- O EMPREGO de ${name} está nas MEMÓRIAS e no contexto — use-o; nunca invente outro cargo.
+- Mesmo papel pedagógico da Camille: corrections com jeitinho, new_words úteis, reformulação natural.
+
+${PATRON_BIO}
+
+${styleRules(name)}
+
+${playerCard(player)}
+
+COMO FALAR NO NÍVEL ${player.level}
+${levelRules(player.level, name)}
+
+${goldenRules(name, player.level)}
+
+${chatFormatSpec(name, player.level)}`;
+}
+
+// Modo SMS do chat: mesma persona, mesmo contrato JSON — muda só o ESTILO.
+function smsRules(name) {
+  return `
+
+MODO SMS — ESTE TURNO É TROCA DE MENSAGENS DE CELULAR (OBRIGATÓRIO)
+- reply_fr: mensagem de texto de verdade: NO MÁXIMO 2 frases curtas, pontuação informal, emoji ocasional (0 ou 1).
+- PROIBIDO narração de cena, descrição de ação ou fala de balcão presencial — é só o texto da mensagem.
+- suggested_replies: bem curtas, estilo SMS (2 a 6 palavras).
+- TODO o resto do contrato continua igual: segments, corrections, new_words, mood, xp_gain, level_estimate, memory_notes — o JSON completo, sempre.`;
+}
+
 export function buildSystemMinou(player) {
   const name = player.name;
   const words = player.words_known.length
@@ -420,6 +482,139 @@ function buildSystemWorkEmail(player) {
 - why_pt: 1 frase em pt-BR explicando por que aquela opção está certa ou errada.
 Responda SOMENTE com o objeto JSON válido, nada antes ou depois, aspas duplas em tudo:
 {"subject_pt":"assunto em pt-BR","body_fr":"e-mail em francês (2-3 frases)","options":[{"fr":"resposta em francês","correct":true,"why_pt":"por que está certa"},{"fr":"...","correct":false,"why_pt":"qual é o erro"},{"fr":"...","correct":false,"why_pt":"qual é o erro"}]}`;
+}
+
+/* -------------------- phone_message ------------------------------- */
+
+function phonePersona(npc, name) {
+  switch (npc) {
+    case "hugo":
+      return `Você é HUGO, garçom do Café du coin, mandando mensagem para o freguês ${name}.\n\n${HUGO_BIO}\n\nSeu jeito no SMS: bonachão, direto, humor de balcão leve, às vezes chama de "chef".`;
+    case "lea":
+      return `Você é LÉA, 24 anos, vizinha de porta de ${name}, mandando mensagem.\n\n${LEA_BIO}\n\nSeu jeito no SMS: rápida, animada, gíria jovem leve ("trop bien", "grave"), sempre meio de saída.`;
+    case "patron":
+      return `Você é M. BERNARD, chefe de ${name} no emprego dele, mandando mensagem.\n\n${PATRON_BIO}\n\nSeu jeito no SMS: educado-direto, "vous", sem emoji (no máximo um sóbrio), assunto de trabalho.`;
+    default: // camille
+      return `Você é CAMILLE, 28 anos, colega de apartamento de ${name}, mandando mensagem.\n\n${CAMILLE_BIO}\n\nSeu jeito no SMS: calorosa, espontânea, manda coisas do SEU dia (uma foto que fez, o mercado, o Minou aprontando), emoji ocasional.`;
+  }
+}
+
+function buildSystemPhoneMessage(npc, player) {
+  const name = player.name;
+  return `${phonePersona(npc, name)}
+
+Num jogo de francês, você manda UMA mensagem de celular ESPONTÂNEA (SMS/WhatsApp) para ${name}, brasileiro aprendendo francês, nível ${player.level}.
+
+ESTILO SMS — OBRIGATÓRIO
+- text_fr: mensagem de verdade: NO MÁXIMO 2 frases curtas, pontuação informal, emoji ocasional (0 ou 1). Sem narração, sem assinatura, sem "cher ami".
+- 100% no nível ${player.level} do jogador (A0 = pouquíssimas palavras, cognatos, frases de 3-6 palavras).
+- O GATILHO orienta o conteúdo: "morning_greeting" = bom dia do seu jeito · "player_away" = sentiu falta, puxa de volta · "after_shift_praise" = elogio pós-turno de trabalho · "invite" = convite CONCRETO (lugar + hora). Gatilho desconhecido: interprete pelo nome, sempre algo banal e cotidiano.
+- Se vier "ÚLTIMAS MENSAGENS", continue a conversa com naturalidade — não repita o que já foi dito.
+- text_pt: tradução natural em pt-BR (por sentido, como brasileiro fala).
+- segments: o text_fr INTEIRO fatiado em pedaços de sentido, na ordem (expressão fica junta); fr = pedaço exato, pt = tradução contextual. Concatenar os fr com espaços reconstrói o text_fr.
+Responda SOMENTE com o objeto JSON válido, nada antes ou depois, aspas duplas em tudo:
+{"text_fr":"a mensagem em francês","text_pt":"tradução em pt-BR","segments":[{"fr":"pedaço","pt":"tradução"}]}
+
+${playerCard(player)}`;
+}
+
+/* -------------------- job_task ------------------------------------ */
+
+function jobTaskSpec(career, jobLevel) {
+  switch (career) {
+    case "menage": {
+      const nItems = jobLevel === 1 ? 4 : 5;
+      const diff =
+        jobLevel === 1
+          ? "passos bem simples e óbvios (fazer a cama, aspirar, lixo)"
+          : jobLevel === 2
+            ? "passos com um detalhe a mais (trocar lençóis, produtos certos)"
+            : "vocabulário mais fino de hotelaria (repasser, désinfecter, réapprovisionner)";
+      return `kind: "order" — o jogador trabalha com LIMPEZA (ménage) e recebe as instruções do turno.
+- title_fr/title_pt: título curto da tarefa (ex.: "Nettoyer la chambre 12" / "Limpar o quarto 12").
+- prompt_fr: 1-2 frases da encarregada dando a instrução geral. prompt_pt: tradução.
+- items: EXATAMENTE ${nItems} passos de limpeza em francês, curtos (2-5 palavras), listados NA ORDEM CERTA de execução (o app embaralha e o jogador reordena). TODOS com "correct":true. Cada um com pt = tradução.
+- A ordem deve ter lógica REAL de limpeza (ex.: tirar o lixo antes de aspirar; cama antes de passar pano no chão).
+- Dificuldade nível ${jobLevel}: ${diff}.
+- why_pt: 1 frase explicando por que essa ordem faz sentido.`;
+    }
+    case "compta": {
+      const diff =
+        jobLevel === 1
+          ? "valores INTEIROS até 100 euros (cuidado extra com 70-99: soixante-dix, quatre-vingt...)"
+          : jobLevel === 2
+            ? "valores inteiros de 100 a 1000 euros"
+            : 'valores nos milhares e/ou com centimes (ex.: "1 250,50 €")';
+      return `kind: "numbers" — o jogador trabalha com CONTABILIDADE e precisa entender números ditos em francês.
+- title_fr/title_pt: título curto (ex.: "La facture du jour" / "A fatura do dia").
+- prompt_fr: UMA frase de escritório contendo UM valor em francês POR EXTENSO (ex.: "La facture s'élève à deux cent quarante-cinq euros."). prompt_pt: tradução com o valor em ALGARISMOS.
+- items: EXATAMENTE 3 valores, próximos entre si (pegadinhas plausíveis de dezena/centena), e SÓ UM com "correct":true — o que bate EXATAMENTE com o extenso do prompt_fr. Em CADA item, fr = o valor em ALGARISMOS com "€" (ex.: "245 €") — NUNCA por extenso, senão entrega a resposta; pt = o valor por extenso em pt-BR (ex.: "duzentos e quarenta e cinco euros").
+- CONFIRA DUAS VEZES: escreva o extenso francês correto (soixante-quinze, quatre-vingt-dix...) e garanta que o item correct é exatamente esse número.
+- Dificuldade nível ${jobLevel}: ${diff}.
+- why_pt: 1 frase explicando como ler o número em francês (a pegadinha).`;
+    }
+    case "bar": {
+      const diff =
+        jobLevel === 1
+          ? "pedido de 1 a 2 itens simples"
+          : jobLevel === 2
+            ? "pedido de 2 itens, um com detalhe (ex.: un café allongé)"
+            : "pedido de 3 itens com modificações (sans sucre, bien cuit, une carafe d'eau)";
+      return `kind: "serve" — o jogador trabalha num BAR/CAFÉ e precisa montar o pedido do cliente.
+- title_fr/title_pt: título curto (ex.: "La commande du client" / "O pedido do cliente").
+- prompt_fr: a fala do cliente pedindo no balcão (ex.: "Bonjour, un café et un croissant, s'il vous plaît."). prompt_pt: tradução.
+- items: 5 ou 6 itens do balcão em francês (un café, un croissant, un thé, un jus d'orange, une bière, un sandwich...), cada um com pt. Os que ESTÃO no pedido com "correct":true; os demais "correct":false. Pelo menos um true e pelo menos dois false.
+- Dificuldade nível ${jobLevel}: ${diff}.
+- why_pt: 1 frase confirmando em pt-BR o que o cliente pediu.`;
+    }
+    default: {
+      // dev
+      const diff =
+        jobLevel === 1
+          ? "erradas claramente fora do assunto"
+          : jobLevel === 2
+            ? "erradas plausíveis (assunto parecido, solução errada)"
+            : "erradas SUTIS: falso amigo, registro errado (tu com cliente), promessa errada";
+      return `kind: "ticket" — o jogador trabalha com DESENVOLVIMENTO/suporte e responde tickets de cliente.
+- title_fr/title_pt: título curto (ex.: "Ticket #248" / "Chamado #248").
+- prompt_fr: o ticket CURTO do cliente (1-2 frases, problema real de site/app: botão que não funciona, senha, página lenta). prompt_pt: tradução.
+- items: EXATAMENTE 3 respostas curtas de suporte em francês (1-2 frases cada), cada uma com pt. SÓ UMA com "correct":true: profissional, responde AO problema, "vous". As 2 erradas: ${diff}.
+- Dificuldade nível ${jobLevel}.
+- why_pt: 1 frase explicando por que a certa é a certa.`;
+    }
+  }
+}
+
+function buildSystemJobTask(career, jobLevel, player) {
+  return `Você cria a TAREFA DE TURNO de trabalho num jogo de francês para ${player.name}, nível ${player.level} (fala pt-BR). Carreira: ${career}, nível do emprego: ${jobLevel} (1 = novato, 3 = experiente).
+
+${jobTaskSpec(career, jobLevel)}
+
+REGRAS GERAIS
+- Vocabulário 100% cotidiano/profissional ÚTIL — nada raro, nada literário. Francês de trabalho de verdade.
+- Textos em francês no nível ${player.level} do jogador (ou levemente acima, nunca muito).
+- segments: o prompt_fr INTEIRO fatiado em pedaços de sentido, na ordem, {fr, pt}; concatenar os fr reconstrói o prompt_fr.
+- Varie o cenário a cada geração (quartos, clientes, valores e tickets diferentes).
+Responda SOMENTE com o objeto JSON válido, nada antes ou depois, aspas duplas em tudo, todas as chaves presentes:
+{"kind":"${KIND_BY_CAREER[career]}","title_fr":"...","title_pt":"...","prompt_fr":"...","prompt_pt":"...","segments":[{"fr":"...","pt":"..."}],"items":[{"fr":"...","pt":"...","correct":true}],"why_pt":"..."}`;
+}
+
+/* -------------------- eval_answer --------------------------------- */
+
+function buildSystemEvalAnswer(player, level) {
+  return `Você corrige a resposta aberta do "petit test" num jogo de francês. O jogador (${player.name}, nível ${level}, fala pt-BR) recebeu uma SITUAÇÃO em português e tinha que resolvê-la escrevendo em FRANCÊS.
+
+CRITÉRIO — GENEROSO E PEDAGÓGICO
+- score 0-100. A régua é COMUNICAÇÃO, não perfeição:
+  · Comunicou a intenção da situação em francês, mesmo com erros de acento, grafia ou gramática: score JÁ É 70+.
+  · 85-100: comunicou E a forma está boa para o nível ${level} (erros só leves ou nenhum).
+  · 40-69: comunicou só parte da intenção, ou misturou muito português.
+  · 0-39: não comunicou (fora da situação, só português, sem sentido).
+- Julgue NO NÍVEL ${level}: não cobre estrutura que esse nível não tem. Acento faltando NÃO derruba a nota.
+- feedback_pt: 1-2 frases em pt-BR, curtas e encorajadoras: diga primeiro o que FUNCIONOU, depois no máximo UMA melhoria concreta. Nunca humilhe.
+- better_fr: a frase como um nativo diria — SIMPLES, no nível ${level}, resolvendo a mesma situação. Se a resposta já estava ótima, apenas a versão polida dela.
+Responda SOMENTE com o objeto JSON válido, nada antes ou depois, aspas duplas em tudo:
+{"score":85,"feedback_pt":"1-2 frases em pt-BR","better_fr":"a frase como um nativo diria"}`;
 }
 
 /* ------------------------------------------------------------------ */
@@ -584,6 +779,73 @@ function sanitizeWorkEmail(parsed) {
   return { subject_pt, body_fr, options };
 }
 
+function sanitizePhoneMessage(parsed) {
+  const text_fr = typeof parsed.text_fr === "string" ? parsed.text_fr.trim() : "";
+  if (!text_fr) return null; // obrigatório -> retry/502
+  const text_pt = typeof parsed.text_pt === "string" ? parsed.text_pt.trim() : "";
+  let segments = cleanPairList(parsed.segments, 20);
+  // segments nunca falta no contrato: fallback = a mensagem inteira num segment só.
+  if (!segments.length) segments = [{ fr: text_fr, pt: text_pt }];
+  return { text_fr, text_pt, segments };
+}
+
+// Lista de itens {fr, pt, correct}: filtra lixo, apara, corta em max.
+function cleanItemList(list, max) {
+  return Array.isArray(list)
+    ? list
+        .filter((o) => o && typeof o === "object" && typeof o.fr === "string" && o.fr.trim())
+        .map((o) => ({
+          fr: o.fr.trim(),
+          pt: String(o.pt ?? "").trim(),
+          correct: o.correct === true,
+        }))
+        .slice(0, max)
+    : [];
+}
+
+function sanitizeJobTask(parsed, career) {
+  const title_fr = typeof parsed.title_fr === "string" ? parsed.title_fr.trim() : "";
+  const prompt_fr = typeof parsed.prompt_fr === "string" ? parsed.prompt_fr.trim() : "";
+  if (!title_fr || !prompt_fr) return null;
+  const title_pt = typeof parsed.title_pt === "string" ? parsed.title_pt.trim() : "";
+  const prompt_pt = typeof parsed.prompt_pt === "string" ? parsed.prompt_pt.trim() : "";
+  const why_pt = typeof parsed.why_pt === "string" ? parsed.why_pt.trim() : "";
+
+  const kind = KIND_BY_CAREER[career]; // kind é derivado da carreira, nunca do modelo
+  let items = cleanItemList(parsed.items, 6);
+  const nCorrect = items.filter((o) => o.correct).length;
+
+  if (kind === "order") {
+    // 4-5 passos, todos correct:true (a ordem certa é a posição na lista).
+    if (items.length < 4 || items.length > 5) return null;
+    items = items.map((o) => ({ ...o, correct: true }));
+  } else if (kind === "numbers" || kind === "ticket") {
+    // exatamente 3 itens, exatamente 1 correto.
+    if (items.length !== 3 || nCorrect !== 1) return null;
+    // numbers: fr tem que ser o valor em ALGARISMOS (por extenso entregaria a resposta).
+    if (kind === "numbers" && !items.every((o) => /\d/.test(o.fr))) return null;
+  } else {
+    // serve: 5-6 itens do balcão, ao menos 1 no pedido e ao menos 2 fora.
+    if (items.length < 5 || items.length > 6) return null;
+    if (nCorrect < 1 || nCorrect > items.length - 2) return null;
+  }
+
+  let segments = cleanPairList(parsed.segments, 30);
+  if (!segments.length) segments = [{ fr: prompt_fr, pt: prompt_pt }];
+
+  return { kind, title_fr, title_pt, prompt_fr, prompt_pt, segments, items, why_pt };
+}
+
+function sanitizeEvalAnswer(parsed) {
+  const feedback_pt = typeof parsed.feedback_pt === "string" ? parsed.feedback_pt.trim() : "";
+  const better_fr = typeof parsed.better_fr === "string" ? parsed.better_fr.trim() : "";
+  if (!feedback_pt || !better_fr) return null; // obrigatórios -> retry/502
+  let score = Math.round(Number(parsed.score));
+  if (!Number.isFinite(score)) return null;
+  score = Math.min(100, Math.max(0, score));
+  return { score, feedback_pt, better_fr };
+}
+
 /* ------------------------------------------------------------------ */
 /* POST /api/chat                                                       */
 /* ------------------------------------------------------------------ */
@@ -672,7 +934,12 @@ async function handleChat(request, env) {
   if (action === "chat") {
     const npc = body.npc == null ? "camille" : String(body.npc);
     if (!NPCS.includes(npc)) {
-      return fail('npc inválido: use "camille", "minou", "hugo" ou "lea".', 400);
+      return fail('npc inválido: use "camille", "minou", "hugo", "lea" ou "patron".', 400);
+    }
+
+    const channel = body.channel == null ? "" : String(body.channel);
+    if (channel && channel !== "sms") {
+      return fail('channel inválido: omita ou use "sms".', 400);
     }
 
     const userText = typeof body.user_text === "string" ? body.user_text.trim() : "";
@@ -681,17 +948,28 @@ async function handleChat(request, env) {
       return fail("Mensagem longa demais (máx. 500 caracteres).", 400);
     }
 
-    const system =
+    let system =
       npc === "minou"
         ? buildSystemMinou(player)
         : npc === "hugo"
           ? buildSystemHugo(player)
           : npc === "lea"
             ? buildSystemLea(player)
-            : buildSystemCamille(player);
+            : npc === "patron"
+              ? buildSystemPatron(player)
+              : buildSystemCamille(player);
+    if (channel === "sms") system += smsRules(player.name);
 
     const npcLabel =
-      npc === "minou" ? "Minou" : npc === "hugo" ? "Hugo" : npc === "lea" ? "Léa" : "Camille";
+      npc === "minou"
+        ? "Minou"
+        : npc === "hugo"
+          ? "Hugo"
+          : npc === "lea"
+            ? "Léa"
+            : npc === "patron"
+              ? "M. Bernard"
+              : "Camille";
 
     return runAction(env, {
       model: MODEL_BY_ACTION(env, "chat"),
@@ -758,7 +1036,109 @@ async function handleChat(request, env) {
     });
   }
 
-  return fail('action inválida: use "chat", "translate_help", "mirror_check" ou "work_email".', 400);
+  /* -------------------- action "phone_message" --------------------- */
+  if (action === "phone_message") {
+    const npc = body.npc == null ? "" : String(body.npc);
+    if (!PHONE_NPCS.includes(npc)) {
+      return fail('npc inválido: use "camille", "hugo", "lea" ou "patron".', 400);
+    }
+
+    const ctx = body.context && typeof body.context === "object" && !Array.isArray(body.context)
+      ? body.context
+      : {};
+    const trigger = typeof ctx.trigger === "string" ? ctx.trigger.trim().slice(0, MAX_TRIGGER) : "";
+    if (!trigger) return fail("context.trigger vazio.", 400);
+    const timeOfDay =
+      typeof ctx.time_of_day === "string" ? ctx.time_of_day.trim().slice(0, MAX_TIME_OF_DAY) : "";
+    const threadTail = Array.isArray(ctx.thread_tail)
+      ? ctx.thread_tail
+          .filter((s) => typeof s === "string" && s.trim())
+          .map((s) => s.trim().slice(0, MAX_THREAD_ITEM))
+          .slice(-MAX_THREAD_TAIL)
+      : [];
+
+    const userMsg =
+      "Gatilho: " + trigger +
+      (timeOfDay ? "\nHora do dia: " + timeOfDay : "") +
+      (threadTail.length ? "\nÚLTIMAS MENSAGENS DA CONVERSA:\n" + threadTail.join("\n") : "") +
+      "\nGere a mensagem agora.";
+
+    return runAction(env, {
+      model: MODEL_BY_ACTION(env, "phone_message"),
+      system: buildSystemPhoneMessage(npc, player),
+      messages: [{ role: "user", content: userMsg }],
+      temperature: 1.0,
+      maxTokens: MAX_TOKENS_BY_ACTION.phone_message,
+      sanitize: sanitizePhoneMessage,
+    });
+  }
+
+  /* -------------------- action "job_task" -------------------------- */
+  if (action === "job_task") {
+    const career = body.career == null ? "" : String(body.career);
+    if (!CAREERS.includes(career)) {
+      return fail('career inválida: use "menage", "compta", "bar" ou "dev".', 400);
+    }
+    const jobLevel = Number(body.job_level);
+    if (!JOB_LEVELS.includes(jobLevel)) {
+      return fail("job_level inválido: use 1, 2 ou 3.", 400);
+    }
+
+    return runAction(env, {
+      model: MODEL_BY_ACTION(env, "job_task"),
+      system: buildSystemJobTask(career, jobLevel, player),
+      messages: [
+        {
+          role: "user",
+          content:
+            "Gere a tarefa agora. Sorteio de variação: #" + Math.floor(Math.random() * 1e6) + ".",
+        },
+      ],
+      temperature: 1.0,
+      maxTokens: MAX_TOKENS_BY_ACTION.job_task,
+      sanitize: (p) => sanitizeJobTask(p, career),
+    });
+  }
+
+  /* -------------------- action "eval_answer" ----------------------- */
+  if (action === "eval_answer") {
+    const situation = typeof body.situation_pt === "string" ? body.situation_pt.trim() : "";
+    if (!situation) return fail("situation_pt vazio.", 400);
+    if (situation.length > MAX_SITUATION) {
+      return fail("situation_pt longo demais (máx. 300 caracteres).", 400);
+    }
+    const userText = typeof body.user_text === "string" ? body.user_text.trim() : "";
+    if (!userText) return fail("user_text vazio.", 400);
+    if (userText.length > MAX_USER_TEXT) {
+      return fail("user_text longo demais (máx. 500 caracteres).", 400);
+    }
+    const level = body.level == null ? player.level : String(body.level);
+    if (!EVAL_LEVELS.includes(level)) {
+      return fail('level inválido: use "A0", "A1", "A2" ou "B1".', 400);
+    }
+
+    return runAction(env, {
+      model: MODEL_BY_ACTION(env, "eval_answer"),
+      system: buildSystemEvalAnswer(player, level),
+      messages: [
+        {
+          role: "user",
+          content:
+            'Situação (em português): "' + situation + '"\nResposta do jogador (em francês): "' +
+            userText + '"\nAvalie agora. Responda SOMENTE com o objeto JSON.',
+        },
+      ],
+      temperature: null, // sonnet-5 não aceita temperature
+      prefill: false, // sonnet-5 não aceita prefill assistant
+      maxTokens: MAX_TOKENS_BY_ACTION.eval_answer,
+      sanitize: sanitizeEvalAnswer,
+    });
+  }
+
+  return fail(
+    'action inválida: use "chat", "translate_help", "mirror_check", "work_email", "phone_message", "job_task" ou "eval_answer".',
+    400
+  );
 }
 
 /* ------------------------------------------------------------------ */
@@ -778,6 +1158,15 @@ export default {
           ok: true,
           model: env.MODEL || DEFAULT_MODEL,
           model_chat: env.MODEL_CHAT || DEFAULT_MODEL_CHAT,
+          actions: [
+            "chat",
+            "translate_help",
+            "mirror_check",
+            "work_email",
+            "phone_message",
+            "job_task",
+            "eval_answer",
+          ],
         });
       }
       if (pathname === "/api/chat") {

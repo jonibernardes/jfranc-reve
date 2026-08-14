@@ -11,7 +11,7 @@ Fonte da verdade do código e dos prompts: `worker.js` (funções `buildSystem*`
 
 | Rota | Método | Resposta |
 |---|---|---|
-| `/api/health` | GET | `{"ok":true,"model":"<utilitárias>","model_chat":"<chat>"}` |
+| `/api/health` | GET | `{"ok":true,"model":"<utilitárias>","model_chat":"<chat>","actions":[...as 7 actions]}` |
 | `/api/chat` | POST | multi-action (campo `action`, default `"chat"`) — seção 2 |
 | `/api/*` | OPTIONS | 204 (preflight CORS) |
 | qualquer outra | * | `env.ASSETS` se existir; senão `EMBEDDED_HTML`; senão 404 JSON |
@@ -19,14 +19,14 @@ Fonte da verdade do código e dos prompts: `worker.js` (funções `buildSystem*`
 - CORS: `Access-Control-Allow-Origin: *` (MVP sem login; restringir quando houver domínio fixo).
 - Config de deploy:
   - `ANTHROPIC_API_KEY` — secret obrigatório (`wrangler secret put ANTHROPIC_API_KEY`).
-  - `MODEL` — var opcional; default `claude-haiku-4-5-20251001`. Vale para as actions utilitárias (translate_help, mirror_check, work_email).
-  - `MODEL_CHAT` — var opcional; default `claude-sonnet-5`. Vale só para a action `chat` (a conversa dos NPCs pede modelo mais forte — v2.1). O roteamento é `MODEL_BY_ACTION(env, action)` no `worker.js`.
+  - `MODEL` — var opcional; default `claude-haiku-4-5-20251001`. Vale para as actions utilitárias (translate_help, mirror_check, work_email, phone_message, job_task).
+  - `MODEL_CHAT` — var opcional; default `claude-sonnet-5`. Vale para `chat` (conversa dos NPCs — v2.1) e `eval_answer` (julgamento fino de score — v3). O roteamento é `MODEL_BY_ACTION(env, action)` no `worker.js`.
 - Front-end: duas opções, nesta ordem:
   1. Workers Assets (`env.ASSETS`) — deploy com pasta de assets.
   2. HTML embutido: a linha `const EMBEDDED_HTML = null; // __HTML_SLOT__` no topo do `worker.js` é o slot. Outro processo substitui essa linha por `const EMBEDDED_HTML = "<html...>";`. Não remover nem editar o marcador `// __HTML_SLOT__`.
 - Os named exports (`buildSystemCamille`, `buildSystemMinou`, `buildSystemHugo`, `buildSystemLea`) existem para teste automatizado; o runtime da Cloudflare ignora exports extras.
 
-## 2. Contrato `POST /api/chat` (v2, retrocompatível)
+## 2. Contrato `POST /api/chat` (v3, retrocompatível)
 
 Todo request é JSON, máx. **~12 KB**, com campo `action` (ausente → `"chat"`). `player` é aceito em todas as actions com os mesmos defaults do v1 (name `mon ami`, level `A0`, xp 0, listas vazias).
 
@@ -37,7 +37,8 @@ Request:
 ```json
 {
   "action": "chat",
-  "npc": "camille" | "minou" | "hugo" | "lea",
+  "npc": "camille" | "minou" | "hugo" | "lea" | "patron",
+  "channel": "sms (opcional — v3)",
   "user_text": "string (máx. 500 caracteres)",
   "player": {
     "name": "string",
@@ -51,7 +52,11 @@ Request:
 }
 ```
 
-Tolerâncias: `npc` ausente → `camille`; inválido → 400. `history` → últimas 12, cada uma cortada em 600 chars. `words_known` → últimas 150; `memories` → últimas 20 (até 140 chars cada).
+Tolerâncias: `npc` ausente → `camille`; inválido → 400. `channel` ausente/vazio → conversa normal; `"sms"` → modo mensagem; outro valor → 400. `history` → últimas 12, cada uma cortada em 600 chars. `words_known` → últimas 150; `memories` → últimas 20 (até 140 chars cada).
+
+Modo SMS (v3, `"channel":"sms"`): mesma persona, MESMO contrato de resposta — muda só o estilo via bloco `smsRules` anexado ao system: reply_fr máx. 2 frases curtas, pontuação informal, emoji ocasional, PROIBIDO narração de cena; suggested_replies de 2-6 palavras. segments, corrections, new_words (2-4), memory_notes etc. continuam iguais.
+
+Persona nova (v3): **patron** — M. Bernard, chefe do jogador no emprego atual (`buildSystemPatron` + `PATRON_BIO`): direto, justo, "vous", elogia esforço; o emprego vem de `player.memories`/contexto, nunca inventado. Mesmo esqueleto pedagógico dos demais.
 
 Uso interno do `history` (v2.1): ele NÃO vira mais mensagens user/assistant alternadas — vira uma TRANSCRIÇÃO ("Camille: ... / Joni: ...") dentro de UMA única mensagem user (`buildChatTranscript`), fechada pela instrução de formato. Motivo: o sonnet-5 não aceita prefill, e com o histórico como mensagens assistant em texto puro ele imitava o histórico e respondia sem JSON (visto em teste real). O contrato externo não muda.
 
@@ -101,11 +106,54 @@ Request: `{"action":"work_email","player":{...}}`
 Response: `{"subject_pt":"...","body_fr":"e-mail 2-3 frases","options":[{"fr":"...","correct":bool,"why_pt":"1 frase"}×3]}`
 Validação dura: `subject_pt` e `body_fr` presentes, `options` com EXATAMENTE 3 itens e EXATAMENTE 1 `correct:true` — senão retry/502. As opções são 100% francês; erradas com erro plausível (falso amigo, conjugação, registro). O worker sorteia um contexto (`EMAIL_CONTEXTS`: cliente, chefe, colega, fornecedor, agenda...) e injeta na mensagem user para variar. Temperature 1.0, max_tokens 600.
 
+### 2.5 action `"phone_message"` (v3)
+
+Mensagem de celular ESPONTÂNEA de um NPC (não é resposta ao jogador — é o NPC puxando papo).
+
+Request: `{"action":"phone_message","npc":"camille"|"hugo"|"lea"|"patron","player":{...},"context":{"time_of_day":"string (máx. 40)","trigger":"string (máx. 60, OBRIGATÓRIO)","thread_tail":["até 4 strings de 200"]}}`
+Response: `{"text_fr":"a mensagem","text_pt":"tradução pt-BR","segments":[{"fr","pt"}...]}`
+
+- Minou não manda SMS (`PHONE_NPCS` sem ele); `npc` inválido/ausente → 400. `trigger` vazio → 400.
+- `trigger` orienta o conteúdo — no prompt: `morning_greeting` (bom dia), `player_away` (sentiu falta), `after_shift_praise` (elogio pós-turno), `invite` (convite concreto lugar+hora); desconhecido → interpretar pelo nome.
+- Estilo SMS de verdade: máx. 2 frases curtas, pontuação informal, emoji 0-1, no nível do jogador, personalidade da BIO (Camille manda coisas do dia dela; patron educado-direto sem emoji). `thread_tail` entra como "ÚLTIMAS MENSAGENS" para não repetir conversa.
+- Obrigatório: `text_fr` (senão retry/502). `segments` vazio → fallback `[{fr:text_fr, pt:text_pt}]` (nunca falta). Haiku, temperature 1.0, max_tokens 400, prefill sim.
+
+### 2.6 action `"job_task"` (v3)
+
+Tarefa de turno de trabalho, por carreira.
+
+Request: `{"action":"job_task","career":"menage"|"compta"|"bar"|"dev","job_level":1|2|3,"player":{...}}`
+Response: `{"kind":"order"|"numbers"|"serve"|"ticket","title_fr","title_pt","prompt_fr","prompt_pt","segments":[...],"items":[{"fr","pt","correct":bool}...],"why_pt"}`
+
+`kind` é DERIVADO da carreira no código (`KIND_BY_CAREER`), nunca do modelo. Validação dura por kind (falhou → retry/502):
+
+| career | kind | items | regra dura |
+|---|---|---|---|
+| menage | `order` | 4-5 passos de limpeza NA ORDEM CERTA (o front embaralha; o jogador reordena) | todos forçados `correct:true` |
+| compta | `numbers` | 3 valores; prompt_fr tem o valor POR EXTENSO em francês | exatamente 1 correct; todo `fr` precisa ter algarismo (`/\d/`) — por extenso entregaria a resposta (corrigido após teste real: o haiku invertia fr/pt) |
+| bar | `serve` | 5-6 itens do balcão; prompt_fr = pedido do cliente | ≥1 correct e ≥2 incorrect |
+| dev | `ticket` | 3 respostas de suporte; prompt_fr = ticket do cliente | exatamente 1 correct |
+
+- Dificuldade sobe com `job_level` (1-3): compta 1 = inteiros até 100 (pegadinha soixante-dix/quatre-vingt), 2 = até 1000, 3 = milhares/centimes; bar 1 = 1-2 itens → 3 = 3 itens com modificações; dev 3 = erradas sutis (falso amigo, registro); menage 3 = vocabulário fino de hotelaria.
+- `segments` = prompt_fr fatiado; vazio → fallback `[{fr:prompt_fr, pt:prompt_pt}]`. Variação por sorteio no user message (mesmo racional do `EMAIL_CONTEXTS`). Haiku, temperature 1.0, max_tokens 1200, prefill sim.
+
+### 2.7 action `"eval_answer"` (v3)
+
+Avalia a resposta ABERTA do petit test (situação em pt, resposta do jogador em francês).
+
+Request: `{"action":"eval_answer","situation_pt":"string (máx. 300)","user_text":"string (máx. 500)","level":"A0"|"A1"|"A2"|"B1","player":{...}}`
+Response: `{"score":0-100,"feedback_pt":"1-2 frases","better_fr":"como um nativo diria"}`
+
+- `level` ausente → `player.level`; fora de A0-B1 → 400 (petit test não avalia B2).
+- Critério generoso e pedagógico (no prompt): comunicou a intenção = já 70+, mesmo com erros; 85-100 exige forma boa PARA O NÍVEL; acento faltando não derruba. feedback curto e encorajador (o que funcionou + máx. 1 melhoria); better_fr simples, no nível.
+- Obrigatórios: `feedback_pt`, `better_fr`, `score` numérico (clamp 0-100) — senão retry/502.
+- **Sonnet** (`MODEL_CHAT`) por ser julgamento fino: mesmas peculiaridades do chat — sem temperature, sem prefill, max_tokens 2000 (thinking dentro do teto).
+
 ### Erros (status ≠ 200, corpo `{"error":"mensagem curta em pt-BR"}`)
 
 | Status | Quando |
 |---|---|
-| 400 | JSON inválido, `action`/`npc` inválidos, `user_text`/`pt_text`/`target_fr`/`heard_fr` vazios ou acima do limite |
+| 400 | JSON inválido, `action`/`npc`/`channel`/`career`/`job_level`/`level` inválidos, `user_text`/`pt_text`/`target_fr`/`heard_fr`/`context.trigger`/`situation_pt` vazios ou acima do limite |
 | 404 | rota de API inexistente |
 | 405 | método errado em `/api/chat` |
 | 413 | corpo > ~12 KB |
@@ -131,6 +179,9 @@ Chamada Anthropic: `POST /v1/messages`, `anthropic-version: 2023-06-01`, timeout
 | translate_help | `MODEL` (haiku 4.5) | 300 | 0.4 | sim |
 | mirror_check | `MODEL` (haiku 4.5) | 300 | 0.3 | sim |
 | work_email | `MODEL` (haiku 4.5) | 600 | 1.0 | sim |
+| phone_message | `MODEL` (haiku 4.5) | 400 | 1.0 | sim |
+| job_task | `MODEL` (haiku 4.5) | 1200 | 1.0 | sim |
+| eval_answer | `MODEL_CHAT` (claude-sonnet-5) | 2000 | omitida | não |
 
 ## 4. System prompts dos NPCs de chat
 
@@ -165,6 +216,9 @@ Os NPCs humanos (Camille, Hugo, Léa) compartilham os blocos montados por helper
 - **translate_help** (`buildSystemTranslateHelp`) — tradutor pedagógico pt-BR→FR cotidiano, ajustado ao nível; por sentido, nunca palavra a palavra; `dica_pt` = 1 frase de nuance/registro ("assim é informal, entre amigos").
 - **mirror_check** (`buildSystemMirrorCheck`) — avaliador de fala: tolerante com STT (pontuação, caixa, homófonos); `ok=true` se equivale funcionalmente; máx. UMA melhoria por vez; se ok, só elogiar — instrução explícita de NÃO inventar problema nem dica de pronúncia falsa (consoante final muda não se pronuncia; corrigido após teste real em que o modelo mandou "articular o s final de voudrais").
 - **work_email** (`buildSystemWorkEmail`) — opções 100% em francês com exemplos concretos de cada tipo de erro no prompt (assister como falso amigo, "vous pouvez envoyez", tu formal) — sem isso o modelo gerava opções erradas misturando português, fácil demais (corrigido após teste real). Contexto sorteado no código (`EMAIL_CONTEXTS`) porque a action não tem histórico e a temperature sozinha repetia cenários.
+- **phone_message** (`buildSystemPhoneMessage` + `phonePersona`) — v3: persona SMS por NPC reaproveitando as BIOs do chat (`CAMILLE_BIO` etc. + `PATRON_BIO`); regras de estilo SMS (máx. 2 frases, emoji 0-1, sem narração/assinatura); tabela de gatilhos com exemplo de conteúdo por gatilho; `playerCard` no fim para nível/memórias.
+- **job_task** (`buildSystemJobTask` + `jobTaskSpec`) — v3: um spec por carreira com a regra dos items, exemplos reais de vocabulário de trabalho e a rampa de dificuldade por `job_level` escrita no prompt. No compta, instrução dupla de conferência do extenso (soixante-quinze, quatre-vingt-dix) + fr SEMPRE em algarismos.
+- **eval_answer** (`buildSystemEvalAnswer`) — v3: régua de score explícita por faixa (70+ = comunicou; 85-100 = comunicou + forma boa no nível; 40-69 parcial; 0-39 não comunicou), julgar NO nível informado, acento não derruba, feedback = acerto primeiro + 1 melhoria. Validado em teste real: "je veux un cafe. c'est combien?" (A0) → score 85, better_fr "Je voudrais un café, s'il vous plaît. C'est combien?".
 
 ## 6. Decisões técnicas e trade-offs
 
@@ -189,6 +243,12 @@ Os NPCs humanos (Camille, Hugo, Léa) compartilham os blocos montados por helper
 | Contextos do desafio de e-mail | array `EMAIL_CONTEXTS` |
 | Limites (histórico, tamanhos, timeout, tokens) | constantes no topo do `worker.js` (`MAX_TOKENS_BY_ACTION` etc.) |
 | Modelo das actions utilitárias | var `MODEL` no deploy (sem tocar no código) |
-| Modelo da conversa (chat) | var `MODEL_CHAT` no deploy; roteamento em `MODEL_BY_ACTION` |
+| Modelo da conversa (chat) e do eval_answer | var `MODEL_CHAT` no deploy; roteamento em `MODEL_BY_ACTION` |
 | Novo NPC de chat | nova `buildSystemX` usando os helpers + adicionar em `NPCS` e no dispatch de `handleChat` |
 | Nova action | system + sanitizer próprios + branch em `handleChat` chamando `runAction` |
+| Estilo do modo SMS do chat | `smsRules` |
+| Persona do chefe (chat e SMS) | `PATRON_BIO` + `buildSystemPatron` |
+| Persona SMS de um NPC | `phonePersona` (reusa as BIOs) |
+| Gatilhos do phone_message | lista de gatilhos em `buildSystemPhoneMessage` (front pode inventar novos: gatilho desconhecido é interpretado pelo nome) |
+| Regras/dificuldade de uma carreira do job_task | `jobTaskSpec` (prompt) + `sanitizeJobTask` (validação dura) |
+| Régua de score do petit test | faixas em `buildSystemEvalAnswer` |
