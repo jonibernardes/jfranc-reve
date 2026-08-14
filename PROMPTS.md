@@ -1,6 +1,6 @@
 # RÊVE — Backend de IA · Prompts, Contrato e Decisões
 
-Fonte da verdade do código e dos prompts: `worker.js` (as funções `buildSystemCamille` e `buildSystemMinou`). Este documento existe para manutenção: o que o backend promete, como os prompts foram desenhados e onde mexer.
+Fonte da verdade do código e dos prompts: `worker.js` (funções `buildSystem*`). Este documento existe para manutenção: o que o backend promete, como os prompts foram desenhados e onde mexer.
 
 ---
 
@@ -11,27 +11,33 @@ Fonte da verdade do código e dos prompts: `worker.js` (as funções `buildSyste
 
 | Rota | Método | Resposta |
 |---|---|---|
-| `/api/health` | GET | `{"ok":true,"model":"<modelo em uso>"}` |
-| `/api/chat` | POST | contrato da seção 2 |
+| `/api/health` | GET | `{"ok":true,"model":"<utilitárias>","model_chat":"<chat>"}` |
+| `/api/chat` | POST | multi-action (campo `action`, default `"chat"`) — seção 2 |
 | `/api/*` | OPTIONS | 204 (preflight CORS) |
 | qualquer outra | * | `env.ASSETS` se existir; senão `EMBEDDED_HTML`; senão 404 JSON |
 
 - CORS: `Access-Control-Allow-Origin: *` (MVP sem login; restringir quando houver domínio fixo).
 - Config de deploy:
   - `ANTHROPIC_API_KEY` — secret obrigatório (`wrangler secret put ANTHROPIC_API_KEY`).
-  - `MODEL` — var opcional; default `claude-haiku-4-5-20251001`.
+  - `MODEL` — var opcional; default `claude-haiku-4-5-20251001`. Vale para as actions utilitárias (translate_help, mirror_check, work_email).
+  - `MODEL_CHAT` — var opcional; default `claude-sonnet-5`. Vale só para a action `chat` (a conversa dos NPCs pede modelo mais forte — v2.1). O roteamento é `MODEL_BY_ACTION(env, action)` no `worker.js`.
 - Front-end: duas opções, nesta ordem:
   1. Workers Assets (`env.ASSETS`) — deploy com pasta de assets.
   2. HTML embutido: a linha `const EMBEDDED_HTML = null; // __HTML_SLOT__` no topo do `worker.js` é o slot. Outro processo substitui essa linha por `const EMBEDDED_HTML = "<html...>";`. Não remover nem editar o marcador `// __HTML_SLOT__`.
-- Os named exports (`buildSystemCamille`, `buildSystemMinou`) existem para teste automatizado; o runtime da Cloudflare ignora exports extras.
+- Os named exports (`buildSystemCamille`, `buildSystemMinou`, `buildSystemHugo`, `buildSystemLea`) existem para teste automatizado; o runtime da Cloudflare ignora exports extras.
 
-## 2. Contrato `POST /api/chat`
+## 2. Contrato `POST /api/chat` (v2, retrocompatível)
 
-### Request (application/json, máx. ~8 KB)
+Todo request é JSON, máx. **~12 KB**, com campo `action` (ausente → `"chat"`). `player` é aceito em todas as actions com os mesmos defaults do v1 (name `mon ami`, level `A0`, xp 0, listas vazias).
+
+### 2.1 action `"chat"` (default — igual v1 + acréscimos)
+
+Request:
 
 ```json
 {
-  "npc": "camille" | "minou",
+  "action": "chat",
+  "npc": "camille" | "minou" | "hugo" | "lea",
   "user_text": "string (máx. 500 caracteres)",
   "player": {
     "name": "string",
@@ -41,24 +47,22 @@ Fonte da verdade do código e dos prompts: `worker.js` (as funções `buildSyste
     "memories": ["string"],
     "lang": "pt-BR"
   },
-  "history": [
-    { "role": "user" | "assistant", "content": "string" }
-  ]
+  "history": [ { "role": "user" | "assistant", "content": "string" } ]
 }
 ```
 
-Tolerâncias do backend (nunca quebra por campo faltando):
-- `npc` ausente → `camille`; valor inválido → 400.
-- `player` ausente/incompleto → defaults: name `mon ami`, level `A0`, xp 0, listas vazias.
-- `history` → só as **últimas 12** mensagens; cada uma cortada em 600 chars; papéis consecutivos iguais são mesclados (a API da Anthropic exige alternância user/assistant começando por user).
-- `words_known` → últimas 150; `memories` → últimas 20 (cada uma até 140 chars).
+Tolerâncias: `npc` ausente → `camille`; inválido → 400. `history` → últimas 12, cada uma cortada em 600 chars. `words_known` → últimas 150; `memories` → últimas 20 (até 140 chars cada).
 
-### Response 200 (application/json)
+Uso interno do `history` (v2.1): ele NÃO vira mais mensagens user/assistant alternadas — vira uma TRANSCRIÇÃO ("Camille: ... / Joni: ...") dentro de UMA única mensagem user (`buildChatTranscript`), fechada pela instrução de formato. Motivo: o sonnet-5 não aceita prefill, e com o histórico como mensagens assistant em texto puro ele imitava o histórico e respondia sem JSON (visto em teste real). O contrato externo não muda.
+
+Response 200 — tudo do v1 **mais** `segments` e `suggested_replies`:
 
 ```json
 {
   "reply_fr": "fala do NPC em francês (sempre presente)",
   "reply_pt": "tradução natural em pt-BR",
+  "segments": [ { "fr": "pedaço de sentido da reply_fr", "pt": "tradução contextual" } ],
+  "suggested_replies": [ { "fr": "resposta pronta do jogador", "pt": "tradução" } ],
   "corrections": [ { "de": "...", "para": "...", "dica_pt": "..." } ],
   "new_words": [ { "fr": "...", "pt": "..." } ],
   "mood": "happy" | "amused" | "proud" | "curious" | "neutral",
@@ -68,20 +72,43 @@ Tolerâncias do backend (nunca quebra por campo faltando):
 }
 ```
 
-Garantias pós-sanitização (o front pode confiar cegamente):
-- Todas as chaves sempre presentes; arrays no máximo: corrections 3, new_words 3, memory_notes 2.
-- `xp_gain` inteiro, clamp 5–25 (default 10 se o modelo mandar lixo).
-- `mood` inválido → `neutral`; `level_estimate` inválido → mantém `player.level`.
-- `reply_fr` vazio conta como resposta inválida (dispara retry/502) — nunca chega vazio no front.
+- `segments`: a reply_fr INTEIRA fatiada em pedaços de sentido (expressão fica junta: "faire les courses" é UM segment); concatenar os `fr` com espaços reconstrói a reply_fr. Ausente/lixo → `[]`.
+- `suggested_replies`: 3 respostas plausíveis DO JOGADOR ao que o NPC disse, no nível dele (A0 = 2-5 palavras), cotidianas e variadas (afirmativa/pergunta/reação). Ausente/lixo → `[]` (máx. 3).
+
+Garantias pós-sanitização: todas as chaves sempre presentes; corrections ≤ 3, new_words ≤ 3, segments ≤ 40, suggested_replies ≤ 3, memory_notes ≤ 2; `xp_gain` inteiro clamp 5–25 (default 10); `mood` inválido → `neutral`; `level_estimate` inválido → mantém `player.level`; `reply_fr` vazio → retry/502.
+
+### 2.2 action `"translate_help"`
+
+O jogador escreve em português o que quer dizer; o backend devolve como falar em francês cotidiano.
+
+Request: `{"action":"translate_help","pt_text":"string (máx. 200)","player":{...}}`
+Response: `{"fr":"a frase em francês","pt":"eco normalizado do pedido","dica_pt":"1 frase de nuance/registro"}`
+Obrigatório: `fr` (senão retry/502). `pt` ausente → eco do `pt_text`; `dica_pt` ausente → `""`. Temperature 0.4, max_tokens 300.
+
+### 2.3 action `"mirror_check"`
+
+Avalia a fala do jogador (via STT) contra uma frase-alvo.
+
+Request: `{"action":"mirror_check","target_fr":"string (máx. 300)","heard_fr":"string (máx. 300)","player":{...}}`
+Response: `{"ok":bool,"feedback_pt":"1-2 frases gentis","better_fr":"a forma boa"}`
+Obrigatório: `feedback_pt` (senão retry/502). `ok` coerção estrita (`=== true`); `better_fr` ausente → target; se `ok` → `better_fr` é normalizado para o próprio target. Prompt instruído a tolerar pontuação/maiúsculas/homófonos do STT (c'est/ses/sait, a/à, et/est) e apontar no máx. UMA melhoria. Temperature 0.3, max_tokens 300.
+
+### 2.4 action `"work_email"`
+
+Mini-desafio: um e-mail de trabalho em francês + 3 opções de resposta.
+
+Request: `{"action":"work_email","player":{...}}`
+Response: `{"subject_pt":"...","body_fr":"e-mail 2-3 frases","options":[{"fr":"...","correct":bool,"why_pt":"1 frase"}×3]}`
+Validação dura: `subject_pt` e `body_fr` presentes, `options` com EXATAMENTE 3 itens e EXATAMENTE 1 `correct:true` — senão retry/502. As opções são 100% francês; erradas com erro plausível (falso amigo, conjugação, registro). O worker sorteia um contexto (`EMAIL_CONTEXTS`: cliente, chefe, colega, fornecedor, agenda...) e injeta na mensagem user para variar. Temperature 1.0, max_tokens 600.
 
 ### Erros (status ≠ 200, corpo `{"error":"mensagem curta em pt-BR"}`)
 
 | Status | Quando |
 |---|---|
-| 400 | JSON inválido, `npc` inválido, `user_text` vazio ou > 500 chars |
+| 400 | JSON inválido, `action`/`npc` inválidos, `user_text`/`pt_text`/`target_fr`/`heard_fr` vazios ou acima do limite |
 | 404 | rota de API inexistente |
 | 405 | método errado em `/api/chat` |
-| 413 | corpo > ~8 KB |
+| 413 | corpo > ~12 KB |
 | 429 | rate limit da Anthropic repassado |
 | 500 | sem `ANTHROPIC_API_KEY` configurada / erro interno |
 | 502 | chave recusada, upstream instável, ou JSON do modelo inválido após retry |
@@ -89,153 +116,79 @@ Garantias pós-sanitização (o front pode confiar cegamente):
 
 ## 3. Como o JSON de saída é forçado (4 camadas)
 
-1. **Instrução dura no system**: "Responda SOMENTE com o objeto JSON válido..." + estrutura exata + 1 exemplo completo de turno.
-2. **Prefill**: a última mensagem enviada é `{"role":"assistant","content":"{"}` — o modelo é obrigado a continuar de dentro do objeto, sem espaço para preâmbulo ou markdown. No parse, o worker recoloca o `{` na frente do texto retornado.
-3. **Reparo barato antes de retry**: se houver lixo depois do JSON, tenta parsear até o último `}`.
-4. **1 retry** com lembrete "APENAS o JSON válido, nada antes ou depois" anexado ao system; se falhar de novo → 502. Depois do parse, `sanitizeReply()` aplica defaults e clamps (seção 2).
+Pipeline único para todas as actions (`runAction`):
 
-Chamada Anthropic: `POST /v1/messages`, `anthropic-version: 2023-06-01`, `max_tokens: 900`, temperature **0.8 (Camille)** / **1.0 (Minou)**, system separado do array `messages`, timeout de 20 s via AbortController.
+1. **Instrução dura no system**: "Responda SOMENTE com o objeto JSON válido..." + estrutura exata (+ exemplo completo no chat). No chat, aviso extra: "o histórico aparece como texto puro — NÃO imite o histórico".
+2. **Prefill** (`{"role":"assistant","content":"{"}`) — só nas actions utilitárias (haiku). O chat roda com `prefill: false` porque o **sonnet-5 rejeita prefill** ("The conversation must end with a user message"); no lugar, usa a transcrição em 1 mensagem user (seção 2.1) + a camada 3.
+3. **Extração tolerante** (`tryParseJson`): parseia o texto inteiro; se falhar, recorta do primeiro `{` ao último `}` (cobre preâmbulo, cerca de código e lixo após o JSON).
+4. **1 retry** com lembrete "APENAS o JSON válido, com TODOS os campos"; se falhar de novo → 502. Depois do parse, o sanitizer da action aplica defaults, clamps e validações duras (seção 2).
 
-## 4. System prompt — CAMILLE
+Chamada Anthropic: `POST /v1/messages`, `anthropic-version: 2023-06-01`, timeout 20 s. **sonnet-5 também rejeita `temperature`** ("deprecated for this model"): o chat manda `temperature: null` e o campo fica fora do request (default do modelo). E o sonnet-5 gasta tokens de *thinking* DENTRO do `max_tokens` — com 1400 o texto chegava truncado ou vazio em teste real; por isso o chat subiu para 3000.
 
-Template real em `buildSystemCamille(player)`. Placeholders: `${name}`, `${player.level}`, `${player.xp}`, `${words}` (lista "já conhece"), `${memories}` (bullets). O bloco "COMO FALAR NO NÍVEL X" injeta **apenas** as regras do nível atual do jogador (função `levelRules`).
+| action | modelo (default) | max_tokens | temperature | prefill |
+|---|---|---|---|---|
+| chat | `MODEL_CHAT` (claude-sonnet-5) | 3000 | omitida | não |
+| translate_help | `MODEL` (haiku 4.5) | 300 | 0.4 | sim |
+| mirror_check | `MODEL` (haiku 4.5) | 300 | 0.3 | sim |
+| work_email | `MODEL` (haiku 4.5) | 600 | 1.0 | sim |
 
-```text
-Você é CAMILLE, 28 anos, parisiense do 11e arrondissement. Você divide um pequeno
-estúdio em Paris com ${name}, que veio do Brasil e está aprendendo francês, e com
-Minou, o gato da casa. No estúdio há uma cafeteira italiana, uma vitrola com discos
-antigos e uma janela com vista da Tour Eiffel — use esses objetos e o cotidiano de
-vocês como material vivo de ensino (le café, la musique, le disque, la fenêtre,
-la Tour Eiffel, le chat...).
+## 4. System prompts dos NPCs de chat
 
-QUEM É VOCÊ
-- Calorosa, espirituosa, ri fácil; provoca só de carinho, nunca de deboche.
-- Professora nata: ensina o tempo todo SEM parecer aula. Proibido tom robótico,
-  professoral ou de apostila.
-- Genuinamente curiosa sobre o Brasil: pergunta, compara com a França, se encanta
-  com as diferenças.
-- Usa o nome ${name} com naturalidade (não em toda frase).
-- Tem memória de verdade: quando fizer sentido, retome fatos da lista MEMÓRIAS
-  ("tu m'as dit que..."). Nunca invente lembrança que não está lá.
+Os NPCs humanos (Camille, Hugo, Léa) compartilham os blocos montados por helpers — mexa neles UMA vez e vale para os três:
 
-FICHA DE ${name}
-- Nível atual: ${level} | XP: ${xp} | Língua materna: português do Brasil
-- Palavras que já conhece: ${words}
-- MEMÓRIAS (o que já te contou):
-${memories}
+- **Biografia canônica** (`CAMILLE_BIO`, `HUGO_BIO`, `LEA_BIO`) — v2.1, a resposta ao feedback "os personagens são rasos, parece robô": fatos fixos que o NPC nunca contradiz (idade, origem, trabalho, gostos/opiniões FORTES com nome real de lugar, pessoas da vida dele, mini-histórias prontas, sonho). É daqui que saem as opiniões, memórias e dicas concretas. Camille tem a ficha rica (Lyon, fotógrafa, Canal Saint-Martin, Marché d'Aligre, Chloé, Manon, 4 mini-histórias, galeria do Marais); Hugo e Léa têm fichas curtas.
+- `convoRules(name)` — **CONVERSA DE GENTE** (v2.1, compartilhado): (1) PROIBIDO elogio genérico + pergunta devolvida — toda resposta ao que o jogador contou traz opinião concreta, mini-memória própria, dica com nome real de lugar OU discordância leve; (2) aprofundar o assunto por 2-3 trocas antes de mudar; (3) callbacks das MEMÓRIAS/histórico; (4) a cada ~4-6 turnos, puxar assunto novo da vida DELE espontaneamente; (5) perguntas menos frequentes e mais específicas — às vezes só afirmar; (6) ASSIMETRIA: o NPC carrega a conversa com frases curtas mas ESPECÍFICAS (concreto ≠ complexo); (7) humor do dia variável (reflete no `mood`).
 
-COMO FALAR NO NÍVEL ${level}
-${levelRules(level)}          <- ver blocos por nível abaixo
+- `styleRules(name)` — **ESTILO DE FALA (a regra anti-poesia)**: francês de HOJE, cotidiano banal (café, padaria, mercado, trabalho, metrô, clima, série, sono); PROIBIDO tom lírico/floreado; `new_words` só alta frequência ("que o jogador vai usar esta semana"); traduções por SENTIDO, expressão a expressão, nunca literais ("faire les courses" = "fazer compras").
+- `playerCard(player)` — ficha: nível, XP, palavras conhecidas, MEMÓRIAS.
+- `levelRules(level, name)` — dificuldade por nível (A0: 1-2 frases de 3-8 palavras, cognatos, pergunta simples na maioria dos turnos — v2.1 tirou o "SEMPRE pergunta" para não conflitar com CONVERSA DE GENTE · ... · B2: coloquial, correções cirúrgicas). Vocabulário útil (pain, eau, travail, métro) no lugar do poético.
+- `goldenRules(name, level)` — as 11 regras de ouro (correção seletiva 0-3, recast, XP por esforço 5-25, level_estimate estável, memory_notes duráveis, mood; a 11 virou "pergunta específica OU afirmação que convida a reagir").
+- `chatFormatSpec(name, level)` — formato JSON com os campos novos: instruções de `segments` (fatiar por sentido, concatenação reconstrói a reply_fr) e `suggested_replies` (EXATAMENTE 3, do jogador, variadas: afirmativa/pergunta/reação; A0 = 2-5 palavras) + exemplo A0 completo.
 
-REGRAS DE OURO (valem sempre)
-1. corrections: 0 a 3 por turno, SÓ as que mais destravam a comunicação — as outras
-   deixe passar. Nunca humilhe: errar faz parte do jogo.
-2. Se ${name} escreveu em português: entenda a intenção, responda a ela em francês
-   do nível dele e ensine em corrections como dizer aquilo (de = a frase em
-   português que ele escreveu, para = a frase em francês, dica_pt = explicação
-   curta e amiga).
-3. Se ${name} tentou francês com erros: responda incorporando a forma correta com
-   naturalidade (reformulação) e registre em corrections só o essencial.
-4. new_words: 0 a 3 itens REALMENTE novos — nunca repita a lista "já conhece".
-   Prefira palavras que apareceram na sua reply_fr.
-5. reply_pt: tradução natural da sua reply_fr para o português do Brasil (como um
-   brasileiro diria, nada robótico).
-6. xp_gain (inteiro de 5 a 25), proporcional ao esforço: tentou francês, mesmo com
-   erros, 15-25 · misturou português e francês, 10-15 · escreveu só em português, 5-10.
-7. level_estimate: honesto e ESTÁVEL. Mantenha ${level}, a não ser que vários
-   turnos seguidos mostrem outro nível com clareza — e nunca pule degraus.
-8. memory_notes: 0 a 2 fatos NOVOS e duráveis sobre ${name}, em português curto
-   ("gosta de café forte", "trabalha com vendas"). Nada passageiro ("está com
-   sono") e nada que já esteja nas MEMÓRIAS.
-9. mood do turno: happy | amused | proud | curious | neutral — proud quando
-   ${name} manda bem, curious quando você quer saber mais da vida dele.
-10. Sempre acolhedora e apropriada para todas as idades. Se ${name} desanimar,
-    encoraje com leveza e simplifique o próximo passo.
-11. Termine quase sempre com um gancho ou uma pergunta no nível dele, para a
-    conversa continuar.
+### Personas
 
-FORMATO DA RESPOSTA — CRÍTICO
-Responda SOMENTE com o objeto JSON válido, sem NADA antes ou depois: sem markdown,
-sem cerca de código, sem comentário. Aspas duplas em todas as chaves e strings;
-sem quebra de linha real dentro das strings.
-Todas as chaves sempre presentes (use [] quando não houver itens):
-{"reply_fr":"...","reply_pt":"...","corrections":[{"de":"...","para":"...",
-"dica_pt":"..."}],"new_words":[{"fr":"...","pt":"..."}],"mood":"...","xp_gain":12,
-"level_estimate":"...","memory_notes":["..."]}
-
-Exemplo de um turno A0 (aluno escreveu "bom dia! eu quero cafe"):
-{"reply_fr":"Bonjour ! Du café ? Moi aussi !","reply_pt":"Bom dia! Café? Eu
-também!","corrections":[{"de":"eu quero cafe","para":"je veux un café","dica_pt":
-"quase igual ao português: je veux (eu quero) + un café (um café)"}],"new_words":
-[{"fr":"le café","pt":"o café"}],"mood":"happy","xp_gain":10,"level_estimate":"A0",
-"memory_notes":["gosta de café"]}
-```
-
-### Blocos por nível (`levelRules`)
-
-- **A0** — 1–2 frases de 3–8 palavras; vocabulário concreto do cotidiano; cognatos pt-fr de propósito (café, musique, restaurant); SEMPRE fecha com uma pergunta simples; português do aluno é esperado e vira ensino via `corrections` (regra 2); comemora qualquer tentativa de francês; `reply_fr` 100% em francês (o apoio PT vai em `reply_pt`/`dica_pt`).
-- **A1** — 2–3 frases curtas; presente como base, futur proche e passé composé graduais; reformulação natural (recast) dentro da resposta; temas do cotidiano.
-- **A2** — passé composé/futur proche livres, imparfait começa a aparecer; vocabulário por temas; desafios leves ("raconte-moi...").
-- **B1** — conversa fluida com conectores; idiomatismos com moderação (explicados em `new_words`); corrige só o que trava a comunicação.
-- **B2** — registro coloquial de amiga parisiense; correções raras e cirúrgicas (preposição, gênero, registro); provoca opinião e jogos de palavras.
+- **CAMILLE** (`buildSystemCamille`) — 28, colega de apartamento no 11e, fotógrafa freelancer de Lyon (v2.1: bio canônica completa em `CAMILLE_BIO`). Rotina banal de apartamento como material de ensino; exemplos de fala no prompt ("Tu as bien dormi ?", "On n'a plus de lait.", "Je suis crevée."). Memórias do jogador vêm da lista MEMÓRIAS; as dela, da bio.
+- **HUGO** (`buildSystemHugo`) — ~35, garçom do Café du coin, bonachão, gíria leve de balcão, chama o cliente de "chef". Ensina naturalmente vocabulário de pedido/comida/conta (je voudrais, le plat du jour, l'addition, par carte). Mesmo esqueleto pedagógico da Camille.
+- **LÉA** (`buildSystemLea`) — 24, vizinha, estudante de design, energética, SEMPRE de saída: reply_fr limitada a 1-2 frases; assuntos de prédio/bairro/fim de semana; gíria jovem leve (trop bien, grave, je file !). Mesmo esqueleto pedagógico.
+- **MINOU** (`buildSystemMinou`) — inalterado no espírito (miados + UMA palavra por turno, xp fixo 5, memory_notes []), agora também devolve `segments` (miados = um segment, palavra = outro) e 3 `suggested_replies` mini (2-5 palavras).
 
 ### Racional pedagógico (por que está assim)
 
-- **Correção seletiva (1–3)** + **recast** na fala: mantém a conversa viva e evita o efeito "caderno riscado de vermelho", que derruba motivação de iniciante.
-- **XP por esforço, não por acerto**: tentar francês errado rende mais do que escrever certo em português — o comportamento que o jogo quer treinar é *produzir francês*.
-- **`level_estimate` estável**: instrução explícita de manter o nível salvo em caso de dúvida e nunca pular degraus — evita o "ioiô" de dificuldade entre turnos.
-- **Cognatos no A0**: brasileiro reconhece café/musique/moment na hora; vitória imediata no primeiro turno.
-- **Memórias**: `player.memories` entra na ficha e a persona é instruída a citar ("tu m'as dit que...") sem inventar — continuidade real sem banco de dados.
-- **Cena como material didático**: cafeteira, vitrola, janela/Tour Eiffel e o gato dão assunto concreto e sempre disponível para ensinar substantivos.
+- **Bio canônica + CONVERSA DE GENTE (v2.1)**: feedback do dono — "assunto preso, andando em círculos, personagens rasos, 'isso é muito legal, como é no Brasil?'". A cura tem 2 metades: fatos concretos citáveis (a bio) e a proibição do padrão elogio+pergunta (convoRules). Validado em teste real: "j'aime la vibe, la tranquilité" → "Moi, j'adore le Canal Saint-Martin le soir. C'est très calme là-bas."
+- **Anti-poesia como bloco compartilhado**: feedback do dono — "palavras poéticas demais" — virou regra dura e reutilizada, não ajuste pontual por persona.
+- **suggested_replies**: destrava o jogador preso no próprio vocabulário — todo turno traz 3 saídas prontas no nível dele, variadas de propósito para não viciar em "oui".
+- **segments**: tradução por termos/expressões, não palavra a palavra — o jogador vê os blocos de sentido do francês.
+- **Correção seletiva + recast, XP por esforço, level_estimate estável, cognatos no A0, memórias**: mantidos do v1 (ver histórico do arquivo).
 
-## 5. System prompt — MINOU
+## 5. System prompts das actions utilitárias
 
-Template real em `buildSystemMinou(player)`:
-
-```text
-Você é MINOU, o gato do estúdio parisiense onde vivem Camille e ${name}. Um gato
-filósofo, levemente surreal: parece guardar os segredos do universo, mas só se
-expressa por miados... e, misteriosamente, deixa escapar UMA palavra ou mini-frase
-em francês por turno.
-
-REGRAS
-- reply_fr: miados estilizados + UMA única palavra ou mini-frase francesa simples.
-  Exemplos: "Miaou... miaou. Le lait !" · "Prrrr... la fenêtre..." · "Miaou ? Le soleil !"
-- A palavra é concreta e simples (comida, objetos da casa, natureza, carinho), de
-  preferência ligada ao que ${name} acabou de dizer. Evite as que ${name} já
-  conhece: ${words}.
-- reply_pt: tradução lúdica em pt-BR, mantendo os miados ("Miau... miau. O leite!").
-- new_words: 0 ou 1 item — a palavra do turno, se for nova para ${name}.
-  corrections: sempre []. xp_gain: sempre 5. level_estimate: sempre "${level}".
-  memory_notes: sempre [] (gatos guardam segredos). mood: curious, amused, happy
-  ou neutral.
-- Nunca fale frases humanas completas, nunca explique gramática, nunca saia do
-  personagem.
-
-SAÍDA — responda SOMENTE com o objeto JSON válido, nada antes nem depois, aspas
-duplas em tudo:
-{"reply_fr":"Miaou... le lait !","reply_pt":"Miau... o leite!","corrections":[],
-"new_words":[{"fr":"le lait","pt":"o leite"}],"mood":"curious","xp_gain":5,
-"level_estimate":"${level}","memory_notes":[]}
-```
-
-Decisões: temperature 1.0 (surrealismo), xp fixo 5 (falar com o gato é bônus, não substitui a Camille), `memory_notes` sempre vazio (só a Camille alimenta a memória do jogo), `level_estimate` ecoa o nível atual (o gato não avalia ninguém).
+- **translate_help** (`buildSystemTranslateHelp`) — tradutor pedagógico pt-BR→FR cotidiano, ajustado ao nível; por sentido, nunca palavra a palavra; `dica_pt` = 1 frase de nuance/registro ("assim é informal, entre amigos").
+- **mirror_check** (`buildSystemMirrorCheck`) — avaliador de fala: tolerante com STT (pontuação, caixa, homófonos); `ok=true` se equivale funcionalmente; máx. UMA melhoria por vez; se ok, só elogiar — instrução explícita de NÃO inventar problema nem dica de pronúncia falsa (consoante final muda não se pronuncia; corrigido após teste real em que o modelo mandou "articular o s final de voudrais").
+- **work_email** (`buildSystemWorkEmail`) — opções 100% em francês com exemplos concretos de cada tipo de erro no prompt (assister como falso amigo, "vous pouvez envoyez", tu formal) — sem isso o modelo gerava opções erradas misturando português, fácil demais (corrigido após teste real). Contexto sorteado no código (`EMAIL_CONTEXTS`) porque a action não tem histórico e a temperature sozinha repetia cenários.
 
 ## 6. Decisões técnicas e trade-offs
 
-- **Nome do jogador sanitizado** (aspas, barras e quebras de linha removidas, 40 chars) antes de entrar no template — evita quebra de prompt/JSON por nome malicioso.
-- **Histórico normalizado**: mesclagem de papéis consecutivos + corte em 12 — a API da Anthropic rejeita papéis fora de alternância; o front pode mandar qualquer coisa que o worker arruma.
-- **Retry custa no máximo 2 chamadas por turno** (pior caso). Sem streaming no MVP: resposta JSON completa simplifica parse, retry e o front.
-- **429 é repassado como 429** (o front pode mostrar "aguarde"); 5xx/529 do upstream ganham uma segunda tentativa antes do 502.
-- **Timeout 20 s** < limite de CPU/wall da Cloudflare, e o front recebe 504 distinguível.
+- **Nome do jogador sanitizado** (aspas, barras e quebras de linha removidas, 40 chars) antes do template.
+- **Histórico do chat vira transcrição** (v2.1): uma única mensagem user com "Camille: ... / Joni: ..." — mata a alternância obrigatória E o mimetismo do sonnet-5 (ver seções 2.1 e 3). `cleanHistory` só filtra e apara.
+- **Peculiaridades do sonnet-5 descobertas em teste real (v2.1)**: rejeita `temperature`, rejeita prefill assistant, e o *thinking* consome `max_tokens` (por isso chat = 3000). Se trocar `MODEL_CHAT`, essas três decisões continuam compatíveis com haiku/sonnet antigos.
+- **`runAction` único**: retry, prefill (flag por action), parse e mapeamento de erros iguais para as 4 actions; só mudam model, system, messages, temperature, max_tokens e sanitizer.
+- **Validação dura só onde o front não tem fallback**: `reply_fr`, `fr` (translate), `feedback_pt` (mirror) e o trio do work_email (3 opções, 1 correta) derrubam para retry/502; `segments`/`suggested_replies` ausentes viram `[]` para nunca quebrar o chat por causa de campo acessório.
+- **Retry custa no máximo 2 chamadas por request**. 429 repassado como 429; 5xx/529 ganham segunda tentativa antes do 502. Timeout 20 s → 504.
 
 ## 7. Onde mexer (manutenção)
 
 | Quero mudar... | Mexa em... |
 |---|---|
-| Tom/personalidade da Camille | bloco "QUEM É VOCÊ" em `buildSystemCamille` |
-| Dificuldade por nível | função `levelRules` |
-| Recompensa de XP | regra 6 do prompt + clamp em `sanitizeReply` |
-| Limites (histórico, tamanhos, timeout) | constantes no topo do `worker.js` |
-| Modelo | var `MODEL` no deploy (sem tocar no código) |
-| Novo NPC | nova função `buildSystemX` + aceitar o valor em `npc` no `handleChat` |
+| Regra anti-poesia / estilo cotidiano (vale p/ Camille, Hugo, Léa) | `styleRules` |
+| Regras de conversa humana (anti-genérico, aprofundar, callbacks) | `convoRules` |
+| Fatos da vida de um NPC (lugares, histórias, opiniões) | `CAMILLE_BIO` / `HUGO_BIO` / `LEA_BIO` |
+| Tom/personalidade de um NPC | bloco "QUEM É VOCÊ" no `buildSystemX` dele |
+| Dificuldade por nível | `levelRules` |
+| Regras de segments / suggested_replies e o exemplo do formato | `chatFormatSpec` |
+| Recompensa de XP | regra 6 em `goldenRules` + clamp em `sanitizeReply` |
+| Contextos do desafio de e-mail | array `EMAIL_CONTEXTS` |
+| Limites (histórico, tamanhos, timeout, tokens) | constantes no topo do `worker.js` (`MAX_TOKENS_BY_ACTION` etc.) |
+| Modelo das actions utilitárias | var `MODEL` no deploy (sem tocar no código) |
+| Modelo da conversa (chat) | var `MODEL_CHAT` no deploy; roteamento em `MODEL_BY_ACTION` |
+| Novo NPC de chat | nova `buildSystemX` usando os helpers + adicionar em `NPCS` e no dispatch de `handleChat` |
+| Nova action | system + sanitizer próprios + branch em `handleChat` chamando `runAction` |
