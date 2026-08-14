@@ -335,6 +335,55 @@ input{font-family:inherit}
 #cafeov .cv-stool::after{content:'';position:absolute;top:12px;left:19px;width:6px;height:68px;background:#241812}
 #cafe-back{position:absolute;bottom:24px;left:24px;padding:11px 20px;border-radius:13px;font-size:14px;font-weight:800;color:var(--ink)}
 
+/* ====== tooltip: coletar palavra ====== */
+#tt-btns{display:flex;gap:6px;justify-content:center}
+#tt-add{pointer-events:auto;font-size:12px;margin-top:3px;padding:2px 8px;border-radius:8px;background:rgba(217,164,65,.18);font-weight:800;color:#8a6d3b;transition:background .2s}
+#tt-add:hover{background:rgba(217,164,65,.4)}
+
+/* ====== le défi ====== */
+#btn-defi{font-size:12px;font-weight:800;padding:6px 12px;border-radius:10px;background:linear-gradient(135deg,var(--terra),var(--terra2));color:#fff;display:flex;align-items:center;gap:6px;box-shadow:0 3px 10px rgba(201,111,74,.35);transition:transform .2s}
+#btn-defi:hover{transform:translateY(-1px)}
+#defibadge{display:none;font-size:10px;font-weight:800;background:#fff;color:var(--terra);padding:1px 6px;border-radius:99px}
+#defibadge.on{display:inline-block}
+#defi-top{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+#defi-bar{flex:1;height:10px;background:rgba(90,70,50,.14);border-radius:99px;overflow:hidden;box-shadow:inset 0 1px 3px rgba(0,0,0,.1)}
+#defi-fill{height:100%;width:0;background:linear-gradient(90deg,var(--green),#a8d08a);border-radius:99px;transition:width .4s cubic-bezier(.22,1,.36,1)}
+#defi-combo{font-size:12px;font-weight:800;color:var(--terra);min-width:46px;text-align:right}
+#defi-q{text-align:center;margin-bottom:12px}
+#defi-q .lbl{font-size:10.5px;font-weight:800;letter-spacing:1.2px;color:var(--ink2);text-transform:uppercase}
+#defi-q .big{font-family:'Fraunces',serif;font-size:24px;font-weight:700;color:var(--paris);margin-top:4px}
+#defi-q .sub{font-size:12.5px;color:var(--ink2);font-style:italic;margin-top:4px;line-height:1.4}
+.defi-spk{font-size:16px;margin-top:6px;padding:4px 12px;border-radius:10px;background:rgba(74,111,165,.12);transition:background .2s}
+.defi-spk:hover{background:rgba(74,111,165,.28)}
+.defi-ear{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--paris);margin-top:8px;padding:10px 22px;border-radius:14px;background:rgba(74,111,165,.12);transition:background .2s}
+.defi-ear:hover{background:rgba(74,111,165,.28)}
+#defi-fb{display:none;margin-top:8px;padding:9px 12px;border-radius:12px;font-size:13px;font-weight:700;line-height:1.4;text-align:center}
+#defi-fb.ok{display:block;background:rgba(127,174,106,.22);color:#3f6b32;animation:bubin .25s}
+#defi-fb.no{display:block;background:rgba(207,90,74,.16);color:#a04432;animation:bubin .25s}
+.defi-line{min-height:44px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:8px;border-radius:12px;background:rgba(255,255,255,.5);border:1.5px dashed rgba(110,96,88,.3);margin-bottom:8px}
+.defi-bank{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:10px}
+.defi-tok{font-size:13px;font-weight:800;padding:6px 12px;border-radius:10px;background:rgba(255,255,255,.85);border:1px solid rgba(110,96,88,.25);box-shadow:0 2px 6px rgba(70,45,25,.12);transition:transform .15s}
+.defi-tok:hover{transform:translateY(-2px)}
+#defi-check{display:block;margin:0 auto;padding:8px 22px;border-radius:11px;font-weight:800;font-size:13px;background:linear-gradient(135deg,var(--terra),var(--terra2));color:#fff}
+#defi-check:disabled{background:rgba(110,96,88,.28);cursor:default}
+#defi-end{text-align:center;padding:12px 0}
+#defi-end .big{font-family:'Fraunces',serif;font-size:32px;font-weight:900;color:var(--terra)}
+#defi-end .sum{font-size:13px;font-weight:800;color:var(--ink2);margin-top:6px}
+#defi-again{margin-top:14px;padding:10px 28px;border-radius:12px;font-size:14px;font-weight:800;background:linear-gradient(135deg,var(--terra),var(--terra2));color:#fff;box-shadow:0 4px 14px rgba(201,111,74,.4)}
+.confetti{position:fixed;top:-16px;z-index:130;border-radius:3px;pointer-events:none;animation:confall linear forwards}
+@keyframes confall{to{transform:translateY(105vh) rotate(680deg);opacity:.9}}
+
+/* ====== painel da TV ====== */
+#tvpanel{position:fixed;bottom:88px;left:50%;transform:translateX(-50%) translateY(16px);z-index:40;padding:12px 16px;width:400px;max-width:92vw;opacity:0;pointer-events:none;transition:all .4s cubic-bezier(.22,1,.36,1)}
+#tvpanel.on{opacity:1;pointer-events:auto;transform:translateX(-50%)}
+#tv-tabs{display:flex;gap:6px;margin-bottom:8px}
+#tv-tabs button{flex:1;font-size:12px;font-weight:800;padding:7px 6px;border-radius:10px;background:rgba(255,255,255,.5);transition:all .2s}
+#tv-tabs button:hover{background:rgba(74,111,165,.15)}
+#tv-tabs button.cur{background:linear-gradient(135deg,var(--paris),var(--paris2));color:#fff}
+#tv-tabs #tv-off{flex:0 0 auto;background:rgba(58,50,48,.12)}
+#tv-tabs #tv-off:hover{background:rgba(201,111,74,.2)}
+#tv-text{font-size:13.5px;line-height:1.5;font-weight:700;min-height:20px}
+
 /* ====== mobile ====== */
 @media (max-width:760px){
   #tl{min-width:180px;padding:9px 12px;transform:scale(.92);transform-origin:top left}
@@ -395,7 +444,7 @@ input{font-family:inherit}
 </div>
 
 <!-- tooltip -->
-<div id="tooltip" class="glass"><div id="tt-fr"></div><div id="tt-pt"></div><button id="tt-spk">🔊</button></div>
+<div id="tooltip" class="glass"><div id="tt-fr"></div><div id="tt-pt"></div><div id="tt-btns"><button id="tt-spk">🔊</button><button id="tt-add" title="guardar no Carnet">＋ mot</button></div></div>
 
 <!-- tooltip de chunk -->
 <div id="segtip" class="glass"><div class="sfr"></div><div class="spt"></div></div>
@@ -427,7 +476,7 @@ input{font-family:inherit}
 
 <!-- carnet -->
 <div id="carnet" class="glass">
-  <div id="carnet-head"><b>📖 Carnet de mots</b><button id="carnet-close" style="font-size:15px;width:34px;height:34px;border-radius:12px;background:rgba(255,255,255,.45)">✕</button></div>
+  <div id="carnet-head"><b>📖 Carnet de mots</b><button id="btn-defi">🎯 Réviser<span id="defibadge"></span></button><button id="carnet-close" style="font-size:15px;width:34px;height:34px;border-radius:12px;background:rgba(255,255,255,.45)">✕</button></div>
   <div id="carnet-list"></div>
 </div>
 
@@ -439,13 +488,15 @@ input{font-family:inherit}
   <div id="ph-btns"><button id="ph-spk">🔊 Écouter</button><button id="ph-ok">D'accord !</button></div>
 </div>
 
-<!-- révision du minou -->
-<div id="revmodal" class="glass modal">
-  <div class="modal-head"><b>😺 Révision du Minou</b><button id="rev-close" class="modal-x">✕</button></div>
+<!-- le défi (revisão estilo duolingo) -->
+<div id="defimodal" class="glass modal">
+  <div class="modal-head"><b>🎯 Le Défi</b><button id="defi-close" class="modal-x">✕</button></div>
   <div class="modal-body">
-    <div id="rev-prog"></div>
-    <div id="rev-word"></div>
-    <div id="rev-opts"></div>
+    <div id="defi-top"><div id="defi-bar"><div id="defi-fill"></div></div><span id="defi-combo"></span></div>
+    <div id="defi-q"></div>
+    <div id="defi-area"></div>
+    <div id="defi-fb"></div>
+    <div id="defi-end" style="display:none"></div>
   </div>
 </div>
 
@@ -463,6 +514,7 @@ input{font-family:inherit}
     <div id="wk-body"></div>
     <div id="wk-opts"></div>
     <div id="wk-why"></div>
+    <div id="wk-chips" class="wchips"></div>
   </div>
 </div>
 
@@ -482,6 +534,18 @@ input{font-family:inherit}
 
 <!-- volume da vitrola -->
 <div id="volpanel" class="glass"><span class="vl">🎵</span><input id="vol-slider" type="range" min="0" max="100" value="80"><span class="vl" id="vol-num">80</span></div>
+
+<!-- painel da TV -->
+<div id="tvpanel" class="glass">
+  <div id="tv-tabs">
+    <button data-ch="meteo">🌦 Météo</button>
+    <button data-ch="cuisine">🍳 Cuisine</button>
+    <button data-ch="musique">🎵 Musique</button>
+    <button id="tv-off" title="desligar e levantar">⏻</button>
+  </div>
+  <div id="tv-text"><i>La télé s'allume… choisis une chaîne.</i></div>
+  <div id="tv-chips" class="wchips"></div>
+</div>
 
 <!-- café du coin -->
 <div id="cafeov">
@@ -1215,6 +1279,10 @@ reg(vitrola,{id:'vitrola',fr:'le tourne-disque',pt:'a vitrola',approach:{x:0.2,z
   sofa.position.set(-1.0,0,2.6); sofa.rotation.y=Math.PI;
   room.add(sofa);
   blockRect(-2.15,2.15,0.15,3.1);
+  reg(sofa,{id:'canape',fr:'le canapé',pt:'o sofá',approach:{x:-0.55,z:1.9},actions:[
+    {emoji:'📺',fr:'Regarder la télé',pt:'assistir TV',run:()=>actTV()},
+    {emoji:'😌',fr:'Se reposer',pt:'sentar e descansar',run:()=>actRest()}
+  ]});
   /* mesinha de centro */
   const ct=new THREE.Group();
   ct.add(box(0.9,0.06,0.55,M(0x8a5f3c,{roughness:0.7}),0,0.34,0));
@@ -1231,6 +1299,31 @@ reg(vitrola,{id:'vitrola',fr:'le tourne-disque',pt:'a vitrola',approach:{x:0.2,z
   blockRect(-2.85,2.7,-2.3,3.2);
   lamp(-2.55,1.75,2.95,0xffc27a,1.0,4.5);
 }
+
+/* ---- TV de tela plana (rack baixo, de frente pro sofá) ---- */
+const tvCv=document.createElement('canvas'); tvCv.width=384; tvCv.height=232;
+const tvCtx=tvCv.getContext('2d');
+const tvTex=new THREE.CanvasTexture(tvCv); tvTex.colorSpace=THREE.SRGBColorSpace;
+const tele=new THREE.Group();
+{
+  const matRack=M(0x8a5f3c,{roughness:0.75});
+  tele.add(box(1.25,0.34,0.36,matRack,0,0.17,0));
+  tele.add(box(1.25,0.04,0.38,M(0x6b4a2e,{roughness:0.7}),0,0.36,0));
+  for(const dx of [-0.5,0.5]) tele.add(cyl(0.03,0.04,0.06,Mfix(0x494236),dx,0.03,0.1,6));
+  /* pé + moldura + tela */
+  tele.add(box(0.16,0.1,0.12,Mfix(0x2a2d33,{roughness:0.5}),0,0.43,0));
+  tele.add(box(1.1,0.66,0.05,Mfix(0x23262c,{roughness:0.45}),0,0.83,0));
+  const scr=new THREE.Mesh(new THREE.PlaneGeometry(1.02,0.58),new THREE.MeshBasicMaterial({map:tvTex}));
+  scr.position.set(0,0.83,0.028);
+  tele.add(scr);
+  tele.position.set(-0.95,0,-0.55);
+  room.add(tele);
+  blockRect(-1.65,-0.85,-0.25,-0.25);
+}
+reg(tele,{id:'tele',fr:'la télé',pt:'a televisão',approach:{x:-0.55,z:1.9},actions:[
+  {emoji:'📺',fr:'Regarder la télé',pt:'assistir TV',run:()=>actTV()}
+]});
+drawTVOff();
 
 /* ---- estante de livros ---- */
 {
@@ -1326,13 +1419,15 @@ plant(2.7,-3.55,0.85); blockRect(2.4,-3.7,3.0,-3.3);
 
 /* ---- laptop na mesa ---- */
 const laptop=new THREE.Group();
+let lapScreenMat=null;
 {
   const matLap=Mfix(0x8a8f9a,{roughness:0.4,metalness:0.4});
   laptop.add(box(0.34,0.02,0.24,matLap,0,0.01,0));
   const lid=new THREE.Group();
   lid.add(box(0.34,0.23,0.015,matLap,0,0.115,0));
   const scr=new THREE.Mesh(new THREE.PlaneGeometry(0.3,0.19),
-    Mfix(0x9fc4e8,{emissive:0x4a78b0,emissiveIntensity:0.8,roughness:0.4}));
+    Mfix(0x9fc4e8,{emissive:0x4a78b0,emissiveIntensity:0.35,roughness:0.4}));
+  lapScreenMat=scr.material;
   scr.position.set(0,0.115,0.011); lid.add(scr);
   lid.position.set(0,0.01,-0.12); lid.rotation.x=0.32;
   laptop.add(lid);
@@ -1362,32 +1457,46 @@ reg(porte,{id:'porte',fr:'la porte',pt:'a porta',approach:{x:-4.2,z:-0.55},actio
   {emoji:'☕',fr:'Sortir au café',pt:'café do bairro · 5€',run:()=>actCafeOut()}
 ]});
 
-/* ---- objetos comprados (aparecem ao comprar e persistem) ---- */
+/* ---- objetos comprados (aparecem NA HORA da compra e persistem no save) ---- */
 const spawned=new Set();
-function spawnPurchase(id){
-  if(spawned.has(id)) return;
-  spawned.add(id);
-  if(id==='fleurs'){
-    const g=new THREE.Group();
-    g.add(cyl(0.07,0.05,0.16,Mfix(0x5e93c9,{roughness:0.5}),0,0.08,0,10));
-    const cols=[0xe86a8a,0xf3c94e,0xc9749e];
-    cols.forEach((c,i)=>{
-      const a=i/3*Math.PI*2;
-      g.add(cyl(0.008,0.01,0.14,Mfix(0x5f8f4e),Math.cos(a)*0.03,0.2,Math.sin(a)*0.03,5));
-      g.add(sph(0.035,Mfix(c,{roughness:0.7}),Math.cos(a)*0.045,0.28,Math.sin(a)*0.045,7,5));
-    });
-    g.position.set(-1.2,0.37,1.45); room.add(g);
-  }else if(id==='disque'){
-    const d=cyl(0.15,0.15,0.015,Mfix(0x26262c,{roughness:0.5}),1.95,0.79,1.55,20);
-    d.rotation.z=Math.PI/2*0.92; d.rotation.x=0.2; room.add(d);
-  }else if(id==='jouet'){
-    const ball=sph(0.07,Mfix(0xc0576b,{roughness:0.6}),2.0,0.07,2.9,10,8);
-    room.add(ball);
-    minouAI.waypoints.push({x:2.0,z:2.65});
-  }else if(id==='affiche'){
-    frame(-2.35,1.85,-3.86,0,0.55,0.75,paintingTex('#8ab0e0','#f3d9a8','#4a6fa5'));
-  }else if(id==='plante'){
-    plant(0.9,3.5,1.1); blockRect(0.6,3.3,1.2,3.7);
+const PURCHASE_FX={
+  fleurs:{x:-1.2,y:0.65,z:1.45,col:0xe86a8a,msg:'Les fleurs sont là 🌸'},
+  disque:{x:1.95,y:1.0,z:1.55,col:0xc9749e,msg:'Le disque est près du tourne-disque 💿 · liga a vitrola pra face B'},
+  jouet:{x:2.0,y:0.4,z:2.9,col:0xe86a8a,msg:'La balle de Minou est là 🧶'},
+  affiche:{x:-2.35,y:1.9,z:-3.7,col:0x8ab0e0,msg:"L'affiche est au mur 🖼️"},
+  plante:{x:0.9,y:0.6,z:3.5,col:0x7fae6a,msg:'La plante verte est là 🌿'}
+};
+function spawnPurchase(id,celebrate=false){
+  if(!spawned.has(id)){
+    spawned.add(id);
+    if(id==='fleurs'){
+      const g=new THREE.Group();
+      g.add(cyl(0.09,0.07,0.2,Mfix(0x5e93c9,{roughness:0.5}),0,0.1,0,10));
+      const cols=[0xe86a8a,0xf3c94e,0xc9749e,0xf09a4e];
+      cols.forEach((c,i)=>{
+        const a=i/4*Math.PI*2;
+        g.add(cyl(0.01,0.012,0.18,Mfix(0x5f8f4e),Math.cos(a)*0.04,0.26,Math.sin(a)*0.04,5));
+        g.add(sph(0.05,Mfix(c,{roughness:0.7}),Math.cos(a)*0.06,0.38,Math.sin(a)*0.06,7,5));
+      });
+      g.position.set(-1.2,0.37,1.45); room.add(g);
+    }else if(id==='disque'){
+      const d=cyl(0.18,0.18,0.018,Mfix(0x26262c,{roughness:0.5}),1.95,0.82,1.55,20);
+      d.rotation.z=Math.PI/2*0.92; d.rotation.x=0.2; room.add(d);
+    }else if(id==='jouet'){
+      const ball=sph(0.1,Mfix(0xd94a6a,{roughness:0.5}),2.0,0.1,2.9,12,9);
+      room.add(ball);
+      minouAI.waypoints.push({x:2.0,z:2.65});
+    }else if(id==='affiche'){
+      frame(-2.35,1.85,-3.86,0,0.55,0.75,paintingTex('#8ab0e0','#f3d9a8','#4a6fa5'));
+    }else if(id==='plante'){
+      plant(0.9,3.5,1.1); blockRect(0.6,3.3,1.2,3.7);
+    }
+  }
+  const fx=PURCHASE_FX[id];
+  if(celebrate&&fx){
+    burst(fx.x,fx.y,fx.z,fx.col,18,0.6,1.6);
+    setTimeout(()=>burst(fx.x,fx.y+0.15,fx.z,0xffd9a0,10,0.4,1.2),260);
+    toast('✨ '+fx.msg);
   }
 }
 
@@ -1654,7 +1763,31 @@ function tickCamille(t,dt){
 }
 /* ========== movimento do player ========== */
 const move={path:null,pi:0,speed:2.1,walking:false,onArrive:null};
+/* sentar / levantar (cadeira da mesa, sofá) */
+let seated=null;
+function sitAt(x,z,ry,y){
+  if(seated) standUp();
+  move.walking=false; move.path=null; hideMarker();
+  seated={px:player.g.position.x,pz:player.g.position.z};
+  player.g.position.set(x,y,z);
+  player.g.rotation.y=ry;
+  player.lLeg.rotation.x=-1.35; player.rLeg.rotation.x=-1.35;
+  player.lArm.rotation.x=-0.5; player.rArm.rotation.x=-0.5;
+  player.lArm.rotation.z=0.05; player.rArm.rotation.z=-0.05;
+}
+function standUp(){
+  if(!seated) return;
+  player.g.position.set(seated.px,0,seated.pz);
+  player.lLeg.rotation.x=0; player.rLeg.rotation.x=0;
+  player.lArm.rotation.x=0; player.rArm.rotation.x=0;
+  seated=null;
+}
 function goTo(x,z,onArrive=null){
+  if(tvWatching) tvOff(true);
+  else if(seated){
+    standUp();
+    if($('workmodal').classList.contains('open')){ $('workmodal').classList.remove('open'); setLaptop(false); }
+  }
   const p=findPath(player.g.position.x,player.g.position.z,x,z);
   if(!p){ if(onArrive) onArrive(); return; }
   move.path=p; move.pi=0; move.onArrive=onArrive; move.walking=true;
@@ -1687,6 +1820,9 @@ function tickPlayer(t,dt){
     player.rLeg.rotation.x=-Math.sin(ph)*0.65;
     player.lArm.rotation.x=-Math.sin(ph)*0.5;
     player.rArm.rotation.x=Math.sin(ph)*0.5;
+  }else if(seated){
+    /* sentado: só respira */
+    player.torso.scale.y=1+Math.sin(t*1.6)*0.015;
   }else{
     /* idle */
     player.g.position.y=lerp(player.g.position.y,0,dt*8);
@@ -1731,11 +1867,17 @@ function tickMarker(dt){
 }
 
 /* ========== câmera ========== */
+let camDistCur=cam.dist;
 function tickCamera(dt){
-  cam.target.lerp(new THREE.Vector3(player.g.position.x,0.85,player.g.position.z),Math.min(1,dt*3.2));
-  const cx=cam.target.x+Math.sin(cam.yaw)*Math.cos(cam.pitch)*cam.dist;
-  const cz=cam.target.z+Math.cos(cam.yaw)*Math.cos(cam.pitch)*cam.dist;
-  const cy=cam.target.y+Math.sin(cam.pitch)*cam.dist;
+  /* assistindo TV: zoom suave em direção à tela */
+  const tx=tvWatching?(player.g.position.x*0.4+(-0.95)*0.6):player.g.position.x;
+  const tz=tvWatching?(player.g.position.z*0.4+(-0.55)*0.6):player.g.position.z;
+  const ty=tvWatching?0.9:0.85;
+  cam.target.lerp(new THREE.Vector3(tx,ty,tz),Math.min(1,dt*3.2));
+  camDistCur=lerp(camDistCur,tvWatching?8.2:cam.dist,Math.min(1,dt*2.6));
+  const cx=cam.target.x+Math.sin(cam.yaw)*Math.cos(cam.pitch)*camDistCur;
+  const cz=cam.target.z+Math.cos(cam.yaw)*Math.cos(cam.pitch)*camDistCur;
+  const cy=cam.target.y+Math.sin(cam.pitch)*camDistCur;
   camera.position.lerp(new THREE.Vector3(cx,cy,cz),Math.min(1,dt*5));
   camera.lookAt(cam.target);
 }
@@ -1824,6 +1966,17 @@ function interOf(obj){
 const tooltip=$('tooltip');
 let ttObj=null;
 $('tt-spk').addEventListener('click',e=>{ e.stopPropagation(); if(ttObj) speak(ttObj.userData.inter.fr); blip(720); });
+$('tt-add').addEventListener('click',e=>{
+  e.stopPropagation();
+  if(!ttObj) return;
+  const def=ttObj.userData.inter;
+  if(S.player.words.some(x=>x.fr===def.fr)) return;
+  flyWord({fr:def.fr,pt:def.pt},$('tt-add').getBoundingClientRect());
+  gainXP(3);
+  toast('✨ <b>'+def.fr+'</b> guardado no Carnet · +3 XP');
+  $('tt-add').style.display='none';
+  save();
+});
 function tickHover(){
   if(radialOpen||chatOpen) { clearHover(); return; }
   ray.setFromCamera(mouse,camera);
@@ -1837,6 +1990,8 @@ function tickHover(){
       const def=hovered.userData.inter;
       $('tt-fr').textContent=def.fr;
       $('tt-pt').textContent=def.pt;
+      const known=S.player.words.some(x=>x.fr===def.fr);
+      $('tt-add').style.display=(known||def.id==='camille'||def.id==='minou')?'none':'';
       ttObj=hovered;
       tooltip.classList.add('on');
       canvas.style.cursor='pointer';
@@ -1872,8 +2027,8 @@ function openRadial(x,y,def,root){
   radialEl.innerHTML='';
   radialEl.style.left=x+'px'; radialEl.style.top=y+'px';
   let acts=def.actions;
-  if(def.id==='minou'&&dueWords().length>=3)
-    acts=[{emoji:'❗',fr:'Révision !',pt:'revisar palavras',run:()=>{ purrSound(72); openRev(); }},...def.actions];
+  if(def.id==='minou'&&S.player.words.length>=4)
+    acts=[{emoji:'🎯',fr:'Le Défi !',pt:'treino de palavras',run:()=>{ purrSound(72); openDefi(); }},...def.actions];
   if(def.id==='porte'&&leaWaiting)
     acts=[{emoji:'👋',fr:'Ouvrir à Léa',pt:'abrir pra vizinha',run:()=>openLea()},...def.actions];
   const n=acts.length;
@@ -1983,6 +2138,9 @@ function updateHUD(){
   const rb=$('revbadge');
   if(dueCount>0){ rb.textContent=dueCount+' à réviser'; rb.classList.add('on'); }
   else rb.classList.remove('on');
+  const db=$('defibadge');
+  if(dueCount>0){ db.textContent=dueCount; db.classList.add('on'); }
+  else db.classList.remove('on');
 }
 function payMoney(n){
   S.argent=Math.max(0,S.argent+n);
@@ -2163,6 +2321,8 @@ function actMusic(){
 }
 function actSleep(){
   closeChat();
+  if(tvWatching) tvOff(true);
+  if(seated) standUp();
   const f=$('fade');
   f.classList.add('on');
   blip(320,0.4,'sine',0.05);
@@ -2413,6 +2573,25 @@ function wordChips(bubble,words){
   bubble.appendChild(wrap);
   chatMsgs.scrollTop=chatMsgs.scrollHeight;
 }
+/* chips de palavras fora do chat (TV, boulot) */
+function chipRow(container,words){
+  container.innerHTML='';
+  const fresh=(words||[]).filter(w=>w&&w.fr&&!S.player.words.some(x=>x.fr===w.fr));
+  fresh.forEach(w=>{
+    const c=document.createElement('span');
+    c.className='wchip';
+    const tx=document.createElement('span'); tx.textContent=w.fr+' · ';
+    const sm=document.createElement('small'); sm.textContent=w.pt||'';
+    const b=document.createElement('button'); b.textContent='+'; b.title='guardar no Carnet';
+    b.addEventListener('click',()=>{
+      flyWord(w,c.getBoundingClientRect());
+      c.remove();
+      save();
+    });
+    c.appendChild(tx); c.appendChild(sm); c.appendChild(b);
+    container.appendChild(c);
+  });
+}
 
 /* ---- API ---- */
 function playerInfo(){
@@ -2558,8 +2737,8 @@ function applyCamille(userText,data,npc='camille'){
     dailyHit('hugo');
     if(S.cafeMission===1&&/caf[ée]|commande/i.test(userText)){
       S.cafeMission=2;
-      payMoney(5); gainXP(10);
-      toast('✨ <b>Commande un café</b> · missão feita! <b>+5€ +10 XP</b>');
+      gainXP(18);
+      toast('✨ <b>Commande un café</b> · missão feita! <b>+18 XP</b>');
       chime();
     }
   }
@@ -2710,70 +2889,216 @@ function renderCarnet(){
 }
 $('btn-carnet').addEventListener('click',()=>{ renderCarnet(); $('carnet').classList.add('open'); blip(600); });
 $('carnet-close').addEventListener('click',()=>{ $('carnet').classList.remove('open'); blip(480); });
-/* ========== révision du minou (SRS) ========== */
-const REV={queue:[],i:0,hits:0};
-function openRev(){
-  const due=dueWords();
-  if(!due.length){ toast('😺 Nada vencido por agora. O Minou aprova.'); return; }
-  closeRadial();
-  REV.queue=due.slice(0,5); REV.i=0; REV.hits=0;
-  $('revmodal').classList.add('open');
-  revStep();
+/* ========== Le Défi · revisão estilo Duolingo (SRS) ========== */
+const DEFI={queue:[],i:0,score:0,combo:0,active:false};
+const DEFI_FALLBACK_PT=['a padaria','devagar','o guarda-chuva','a chave','ontem'];
+const DEFI_FALLBACK_FR=['la boulangerie','doucement','le parapluie','la clé','hier'];
+function defiWords(){
+  /* vencidas primeiro, depois as mais fracas (menor intervalo SRS) */
+  const now=Date.now();
+  return [...S.player.words].sort((a,b)=>{
+    const da=a.due<=now?0:1, db=b.due<=now?0:1;
+    if(da!==db) return da-db;
+    if((a.interval_d||1)!==(b.interval_d||1)) return (a.interval_d||1)-(b.interval_d||1);
+    return a.due-b.due;
+  });
 }
-function revStep(){
-  if(REV.i>=REV.queue.length){ revEnd(); return; }
-  const w=REV.queue[REV.i];
-  $('rev-prog').textContent=(REV.i+1)+' / '+REV.queue.length;
-  $('rev-word').textContent=w.fr;
-  speak(w.fr);
-  const opts=$('rev-opts'); opts.innerHTML='';
-  const pool=S.player.words.filter(x=>x.fr!==w.fr&&x.pt&&x.pt!==w.pt);
-  const distr=[];
-  for(const p of [...pool].sort(()=>Math.random()-0.5)){
-    if(distr.length>=2) break;
-    if(!distr.includes(p.pt)) distr.push(p.pt);
+function openDefi(){
+  if(S.player.words.length<4){
+    toast('🎯 Guarda pelo menos <b>4 mots</b> no Carnet pra liberar o Défi. Os chips [+] estão por todo lado!');
+    return;
   }
-  const FALLBACK=['a padaria','devagar','o guarda-chuva'];
+  closeRadial();
+  $('carnet').classList.remove('open');
+  const ws=defiWords();
+  const types=['frpt','ptfr','listen','build','frpt','ptfr','listen','build'];
+  DEFI.queue=types.map((type,i)=>({w:ws[i%ws.length],type,retried:false}));
+  DEFI.queue.sort(()=>Math.random()-0.5);
+  DEFI.i=0; DEFI.score=0; DEFI.combo=0; DEFI.active=true;
+  $('defi-end').style.display='none';
+  $('defi-q').style.display='';
+  $('defi-area').style.display='';
+  $('defimodal').classList.add('open');
+  blip(660);
+  defiStep();
+}
+function defiDistractors(correct,pool,fallback){
+  const out=[];
+  for(const p of [...pool].sort(()=>Math.random()-0.5)){
+    if(out.length>=2) break;
+    if(p&&p!==correct&&!out.includes(p)) out.push(p);
+  }
   let fi=0;
-  while(distr.length<2&&fi<FALLBACK.length){ const f=FALLBACK[fi++]; if(f!==w.pt&&!distr.includes(f)) distr.push(f); }
-  const choices=[w.pt,...distr].sort(()=>Math.random()-0.5);
+  while(out.length<2&&fi<fallback.length){
+    const f=fallback[fi++];
+    if(f!==correct&&!out.includes(f)) out.push(f);
+  }
+  return out;
+}
+function defiOptButtons(area,choices,correct,ex){
   let answered=false;
   choices.forEach(c=>{
     const b=document.createElement('button');
     b.className='rev-opt'; b.textContent=c;
     b.addEventListener('click',()=>{
-      if(answered) return; answered=true;
-      const ok=(c===w.pt);
+      if(answered||!DEFI.active) return; answered=true;
+      const ok=(c===correct);
       b.classList.add(ok?'good':'bad');
-      srsAnswer(w,ok);
-      if(ok){ REV.hits++; blip(880,0.12,'sine',0.1); payMoney(2); }
-      else{
-        thud();
-        [...opts.children].forEach(x=>{ if(x.textContent===w.pt) x.classList.add('good'); });
-      }
-      setTimeout(()=>{ REV.i++; revStep(); },ok?750:1500);
+      if(!ok) [...area.children].forEach(x=>{ if(x.textContent===correct) x.classList.add('good'); });
+      defiResolve(ex,ok,correct);
     });
-    opts.appendChild(b);
+    area.appendChild(b);
   });
 }
-function revEnd(){
-  $('revmodal').classList.remove('open');
-  chime();
-  gainXP(REV.hits*3);
-  toast('😺 Révision: <b>'+REV.hits+'/'+REV.queue.length+'</b> · <b>+'+(REV.hits*2)+'€</b>');
-  dailyHit('review',REV.queue.length);
+function defiStep(){
+  const ex=DEFI.queue[DEFI.i];
+  if(!ex){ defiEnd(); return; }
+  $('defi-fill').style.width=Math.round(DEFI.i/DEFI.queue.length*100)+'%';
+  $('defi-combo').textContent=DEFI.combo>=2?('×'+DEFI.combo+' 🔥'):'';
+  const fb=$('defi-fb'); fb.className=''; fb.textContent='';
+  const q=$('defi-q'), area=$('defi-area');
+  q.innerHTML=''; area.innerHTML='';
+  const w=ex.w;
+  const others=S.player.words.filter(x=>x.fr!==w.fr);
+  if(ex.type==='frpt'){
+    q.innerHTML='<div class="lbl">o que significa…</div><div class="big"></div>';
+    q.querySelector('.big').textContent=w.fr;
+    const spk=document.createElement('button');
+    spk.className='defi-spk'; spk.textContent='🔊';
+    spk.addEventListener('click',()=>{ speak(w.fr); blip(700); });
+    q.appendChild(spk);
+    speak(w.fr);
+    defiOptButtons(area,[w.pt,...defiDistractors(w.pt,others.map(x=>x.pt),DEFI_FALLBACK_PT)].sort(()=>Math.random()-0.5),w.pt,ex);
+  }else if(ex.type==='ptfr'){
+    q.innerHTML='<div class="lbl">como se diz em francês…</div><div class="big"></div>';
+    q.querySelector('.big').textContent=w.pt;
+    defiOptButtons(area,[w.fr,...defiDistractors(w.fr,others.map(x=>x.fr),DEFI_FALLBACK_FR)].sort(()=>Math.random()-0.5),w.fr,ex);
+  }else if(ex.type==='listen'){
+    q.innerHTML='<div class="lbl">escuta e escolhe o que ouviu</div>';
+    const spk=document.createElement('button');
+    spk.className='defi-ear'; spk.textContent='🔊 écouter';
+    spk.addEventListener('click',()=>{ speak(w.fr); blip(700); });
+    q.appendChild(spk);
+    speak(w.fr);
+    defiOptButtons(area,[w.fr,...defiDistractors(w.fr,others.map(x=>x.fr),DEFI_FALLBACK_FR)].sort(()=>Math.random()-0.5),w.fr,ex);
+  }else{
+    defiBuild(ex);
+  }
+}
+function defiPhrase(w){
+  const fr=w.fr.trim();
+  const art=/^(le |la |les |l'|un |une )/i.test(fr);
+  const T=art?[
+    {toks:['Où','est',...fr.split(' ')],end:'?',pt:'Onde está '+w.pt+'?'},
+    {toks:["J'aime",'bien',...fr.split(' ')],end:'.',pt:'Eu gosto de '+w.pt+'.'},
+    {toks:['Voici',...fr.split(' ')],end:'!',pt:'Aqui está '+w.pt+'!'},
+    {toks:['Regarde',...fr.split(' ')],end:'!',pt:'Olha '+w.pt+'!'}
+  ]:[
+    {toks:['On','dit',...fr.split(' '),'en','français'],end:'.',pt:'A gente diz "'+w.pt+'" em francês.'},
+    {toks:["J'apprends",'à','dire',...fr.split(' ')],end:'.',pt:'Estou aprendendo a dizer "'+w.pt+'".'}
+  ];
+  const t=T[Math.floor(Math.random()*T.length)];
+  const toks=[...t.toks];
+  toks[toks.length-1]=toks[toks.length-1]+' '+t.end;
+  return {toks,pt:t.pt};
+}
+function defiBuild(ex){
+  const q=$('defi-q'), area=$('defi-area');
+  const ph=defiPhrase(ex.w);
+  q.innerHTML='<div class="lbl">monte a frase</div><div class="sub"></div>';
+  q.querySelector('.sub').textContent='« '+ph.pt+' »';
+  const line=document.createElement('div'); line.className='defi-line';
+  const bank=document.createElement('div'); bank.className='defi-bank';
+  const check=document.createElement('button'); check.id='defi-check'; check.textContent='Vérifier'; check.disabled=true;
+  [...ph.toks].sort(()=>Math.random()-0.5).forEach(tk=>{
+    const b=document.createElement('button');
+    b.className='defi-tok'; b.textContent=tk;
+    b.addEventListener('click',()=>{
+      blip(620,0.05,'sine',0.05);
+      if(b.parentElement===bank) line.appendChild(b);
+      else bank.appendChild(b);
+      check.disabled=bank.children.length>0;
+    });
+    bank.appendChild(b);
+  });
+  let answered=false;
+  check.addEventListener('click',()=>{
+    if(answered||!DEFI.active) return; answered=true;
+    const built=[...line.children].map(x=>x.textContent).join(' ');
+    const target=ph.toks.join(' ');
+    defiResolve(ex,built===target,target);
+  });
+  area.appendChild(line); area.appendChild(bank); area.appendChild(check);
+}
+function defiResolve(ex,ok,correctTxt){
+  if(!ex.retried) srsAnswer(ex.w,ok);
+  const fb=$('defi-fb');
+  if(ok){
+    DEFI.combo++;
+    if(!ex.retried) DEFI.score++;
+    fb.className='ok';
+    fb.textContent='✅ Correct !'+(DEFI.combo>=2?' ×'+DEFI.combo+' 🔥':'');
+    blip(880,0.12,'sine',0.1);
+    if(DEFI.combo>=3) setTimeout(()=>blip(1174,0.1,'sine',0.08),90);
+    if(ex.type==='build') speak(correctTxt);
+  }else{
+    DEFI.combo=0;
+    fb.className='no';
+    fb.textContent='✏️ Era: '+correctTxt+' · sem stress, essa volta no fim.';
+    thud();
+    if(!ex.retried) DEFI.queue.push({w:ex.w,type:ex.type,retried:true});
+  }
+  DEFI.i++;
+  save();
+  setTimeout(defiStep,ok?800:1800);
+}
+function confettiRain(){
+  const cols=['#c96f4a','#4a6fa5','#d9a441','#7fae6a','#c9749e','#e8956b'];
+  for(let i=0;i<36;i++){
+    const d=document.createElement('div');
+    d.className='confetti';
+    d.style.left=rand(4,96)+'vw';
+    d.style.background=cols[i%cols.length];
+    d.style.width=rand(6,10)+'px';
+    d.style.height=rand(10,16)+'px';
+    d.style.animationDuration=rand(1.1,2.1)+'s';
+    d.style.animationDelay=rand(0,0.4)+'s';
+    document.body.appendChild(d);
+    setTimeout(()=>d.remove(),2800);
+  }
+}
+function defiEnd(){
+  if(!DEFI.active) return;
+  DEFI.active=false;
+  $('defi-fill').style.width='100%';
+  $('defi-combo').textContent='';
+  $('defi-q').style.display='none';
+  $('defi-area').style.display='none';
+  const fb=$('defi-fb'); fb.className=''; fb.textContent='';
+  const xp=8+DEFI.score*3;
+  gainXP(xp); bump('humeur',10); bump('confiance',8);
+  const end=$('defi-end');
+  end.style.display='';
+  end.innerHTML='<div class="big"></div><div class="sum"></div><button id="defi-again">Génial !</button>';
+  end.querySelector('.big').textContent='🎉 '+DEFI.score+' / 8';
+  end.querySelector('.sum').innerHTML='+'+xp+' XP · La Vie 🌸 fleurit';
+  end.querySelector('#defi-again').addEventListener('click',()=>{ $('defimodal').classList.remove('open'); blip(600); });
+  chime(); confettiRain();
+  dailyHit('review');
   updateHUD(); save();
 }
-$('rev-close').addEventListener('click',()=>{ $('revmodal').classList.remove('open'); blip(480); });
+$('defi-close').addEventListener('click',()=>{ DEFI.active=false; $('defimodal').classList.remove('open'); blip(480); });
+$('btn-defi').addEventListener('click',()=>{ blip(600); openDefi(); });
 
 /* ========== missões do dia + streak ========== */
+/* missões sociais/de estudo pagam XP + Vie — € só vem do trabalho no laptop */
 const DAILY_POOL=[
-  {id:'camille',txt:'💬 Parle avec Camille',eur:3,xp:8},
-  {id:'review',txt:'😺 Révise 3 mots',eur:4,xp:10,goal:3},
-  {id:'work',txt:'💼 Travaille une fois',eur:5,xp:10},
-  {id:'hugo',txt:'☕ Un café avec Hugo',eur:4,xp:8},
-  {id:'buy',txt:'🛒 Achète quelque chose',eur:3,xp:6},
-  {id:'mirror',txt:'🪞 Une séance de miroir',eur:4,xp:10}
+  {id:'camille',txt:'💬 Parle avec Camille',xp:14},
+  {id:'review',txt:'🎯 Fais un Défi',xp:18},
+  {id:'work',txt:'💼 Travaille une fois',xp:12},
+  {id:'hugo',txt:'☕ Un café avec Hugo',xp:14},
+  {id:'buy',txt:'🛒 Achète quelque chose',xp:10},
+  {id:'mirror',txt:'🪞 Une séance de miroir',xp:16}
 ];
 function rollDaily(){
   const pool=[...DAILY_POOL].sort(()=>Math.random()-0.5);
@@ -2788,7 +3113,7 @@ function renderDaily(){
     li.id='d-'+id;
     const chk=document.createElement('span'); chk.className='chk';
     const tx=document.createElement('span'); tx.textContent=m.txt;
-    const xr=document.createElement('span'); xr.className='xr'; xr.textContent='+'+m.eur+'€';
+    const xr=document.createElement('span'); xr.className='xr'; xr.textContent='+'+m.xp+' XP';
     li.appendChild(chk); li.appendChild(tx); li.appendChild(xr);
     if(S.daily.done[id]){ li.classList.add('done'); chk.textContent='✓'; }
     ul.appendChild(li);
@@ -2803,9 +3128,9 @@ function dailyHit(id,n=1){
     if(S.daily.prog[id]<m.goal){ save(); return; }
   }
   S.daily.done[id]=true;
-  payMoney(m.eur); gainXP(m.xp);
+  gainXP(m.xp); bump('humeur',5);
   chime();
-  toast('🌞 Mission du jour: <b>'+m.txt+'</b> · +'+m.eur+'€');
+  toast('🌞 Mission du jour: <b>'+m.txt+'</b> · +'+m.xp+' XP');
   renderDaily();
   bumpStreak();
   save();
@@ -2827,32 +3152,44 @@ const WORK_POOL=[
   {subject_pt:'Confirmar a reunião de amanhã',body_fr:'Bonjour ! On confirme la réunion demain à 10 h ? Merci.',body_pt:'Bom dia! Confirmamos a reunião amanhã às 10h? Obrigado.',options:[
     {fr:"Oui, 10 h, c'est parfait pour moi.",correct:true,why_pt:'Confirma o horário, simples e educado.'},
     {fr:'Non, je mange une pomme.',correct:false,why_pt:'"Estou comendo uma maçã" não responde nada do e-mail.'},
-    {fr:'Oui, bonne nuit !',correct:false,why_pt:'"Boa noite" destoa: é um e-mail de trabalho de manhã.'}]},
+    {fr:'Oui, bonne nuit !',correct:false,why_pt:'"Boa noite" destoa: é um e-mail de trabalho de manhã.'}],words:[{fr:'une réunion',pt:'uma reunião'},{fr:'demain',pt:'amanhã'}]},
   {subject_pt:'Cliente pergunta o prazo',body_fr:'Bonjour, quand est-ce que le projet sera prêt ?',body_pt:'Bom dia, quando o projeto vai ficar pronto?',options:[
     {fr:'Le projet sera prêt vendredi matin.',correct:true,why_pt:'Responde direto a pergunta, com dia e período.'},
     {fr:"J'aime beaucoup les projets.",correct:false,why_pt:'"Gosto muito de projetos" não dá prazo nenhum.'},
-    {fr:'Le café est très bon ici.',correct:false,why_pt:'O cliente perguntou do prazo, não do café.'}]},
+    {fr:'Le café est très bon ici.',correct:false,why_pt:'O cliente perguntou do prazo, não do café.'}],words:[{fr:'un projet',pt:'um projeto'},{fr:'vendredi',pt:'sexta-feira'}]},
   {subject_pt:'Agradecer um arquivo recebido',body_fr:'Voici le document demandé. Bonne journée !',body_pt:'Aqui está o documento pedido. Bom dia!',options:[
     {fr:"Merci beaucoup, je l'ai bien reçu.",correct:true,why_pt:'Agradece e confirma que recebeu. Perfeito.'},
     {fr:'Je ne trouve pas mes chaussures.',correct:false,why_pt:'"Não acho meus sapatos" não tem nada a ver.'},
-    {fr:'Quel document ?',correct:false,why_pt:'O documento está no próprio e-mail, soaria desatento.'}]},
+    {fr:'Quel document ?',correct:false,why_pt:'O documento está no próprio e-mail, soaria desatento.'}],words:[{fr:'un document',pt:'um documento'},{fr:'merci beaucoup',pt:'muito obrigado'}]},
   {subject_pt:'Desmarcar o almoço de quinta',body_fr:'On déjeune ensemble jeudi ?',body_pt:'Almoçamos juntos na quinta?',options:[
     {fr:'Désolé, jeudi je ne peux pas. Vendredi, ça va ?',correct:true,why_pt:'Recusa com gentileza e já propõe outro dia.'},
     {fr:'Non.',correct:false,why_pt:'Curto demais: soa seco num e-mail.'},
-    {fr:"J'adore le jeudi !",correct:false,why_pt:'"Adoro quinta-feira" não responde o convite.'}]},
+    {fr:"J'adore le jeudi !",correct:false,why_pt:'"Adoro quinta-feira" não responde o convite.'}],words:[{fr:'déjeuner',pt:'almoçar'},{fr:'jeudi',pt:'quinta-feira'}]},
   {subject_pt:'Pedir mais detalhes de uma missão',body_fr:'Nous avons une nouvelle mission pour vous. Intéressé ?',body_pt:'Temos uma nova missão pra você. Interessado?',options:[
     {fr:"Oui ! Vous pouvez m'envoyer plus de détails ?",correct:true,why_pt:'Aceita e pede os detalhes na mesma frase.'},
     {fr:'Je suis fatigué.',correct:false,why_pt:'"Estou cansado" fecha a porta sem necessidade.'},
-    {fr:'Peut-être demain, ou pas.',correct:false,why_pt:'Vago demais: "talvez amanhã, ou não" não ajuda ninguém.'}]},
+    {fr:'Peut-être demain, ou pas.',correct:false,why_pt:'Vago demais: "talvez amanhã, ou não" não ajuda ninguém.'}],words:[{fr:'une mission',pt:'uma missão'},{fr:'les détails',pt:'os detalhes'}]},
   {subject_pt:'Responder um elogio do chefe',body_fr:'Très bon travail cette semaine, bravo !',body_pt:'Ótimo trabalho esta semana, parabéns!',options:[
     {fr:'Merci beaucoup ! Ça me fait très plaisir.',correct:true,why_pt:'Agradece com simpatia, sem exagero.'},
     {fr:'Oui, je sais.',correct:false,why_pt:'"É, eu sei" soa arrogante em qualquer língua.'},
-    {fr:'Qui êtes-vous ?',correct:false,why_pt:'"Quem é você?" pro próprio chefe… melhor não.'}]}
+    {fr:'Qui êtes-vous ?',correct:false,why_pt:'"Quem é você?" pro próprio chefe… melhor não.'}],words:[{fr:'le travail',pt:'o trabalho'},{fr:'la semaine',pt:'a semana'}]}
 ];
+function setLaptop(on){ if(lapScreenMat) lapScreenMat.emissiveIntensity=on?1.5:0.35; }
+function endWork(){
+  $('workmodal').classList.remove('open');
+  setLaptop(false);
+  standUp();
+}
 function actWork(){
   if(gameNow()<S.workUntil){ toast('💼 E-mail respondido por agora. Volta daqui a pouco.'); return; }
   if(S.needs.energie<25){ toast('😴 Sem energia pra trabalhar. Um café antes?'); return; }
-  openWorkEmail();
+  /* anda até a cadeira da mesa, senta, o laptop acende e só então o e-mail abre */
+  goTo(0.5,3.0,()=>{
+    sitAt(0.58,2.54,Math.atan2(1.0-0.58,1.2-2.54),0.12);
+    setLaptop(true);
+    blip(720);
+    setTimeout(openWorkEmail,700);
+  });
 }
 async function openWorkEmail(){
   bump('energie',-25);
@@ -2891,6 +3228,7 @@ function renderWork(data){
     tools.appendChild(be); body.appendChild(tools); body.appendChild(pv);
   }
   const opts=$('wk-opts'); opts.innerHTML='';
+  $('wk-chips').innerHTML='';
   const why=$('wk-why'); why.classList.remove('on'); why.textContent='';
   let done=false, tries=0;
   [...data.options].sort(()=>Math.random()-0.5).forEach(o=>{
@@ -2906,8 +3244,9 @@ function renderWork(data){
         const pay=(tries===1)?40:15;
         payMoney(pay); gainXP(tries===1?12:6); chime();
         dailyHit('work');
+        chipRow($('wk-chips'),data.words||[]);
         toast('💼 E-mail enviado. <b>+'+pay+'€</b>');
-        setTimeout(()=>$('workmodal').classList.remove('open'),2000);
+        setTimeout(endWork,($('wk-chips').children.length)?4200:2000);
       }else{ b.classList.add('bad'); thud(); }
       save();
     });
@@ -2916,7 +3255,7 @@ function renderWork(data){
   $('workmodal').classList.add('open');
   blip(660);
 }
-$('wk-close').addEventListener('click',()=>{ $('workmodal').classList.remove('open'); blip(480); });
+$('wk-close').addEventListener('click',()=>{ endWork(); blip(480); });
 
 /* ========== le marché ========== */
 const MARKET=[
@@ -2955,21 +3294,210 @@ function buyItem(it){
   if(S.argent<it.price){ toast('💶 Faltam alguns euros… um e-mail de trabalho resolve.'); return; }
   payMoney(-it.price);
   chime();
-  if(it.id==='croissants'){ S.stock+=3; toast('🥐 Croissants no frigo! <b>+3</b>'); }
-  else{
-    S.purchases.push(it.id);
-    spawnPurchase(it.id);
-    if(it.id==='fleurs'){ bump('humeur',10); gainXP(6); toast('💐 <i>Des fleurs !</i> O apê ganhou vida.'); }
-    if(it.id==='disque') toast('💿 Disco novo! Liga a vitrola pra ouvir a face B.');
-    if(it.id==='jouet') toast('🧶 O Minou já está de olho na bolinha…');
-    if(it.id==='affiche'){ gainXP(4); toast('🖼️ Paris na parede. Très chic.'); }
-    if(it.id==='plante'){ gainXP(4); toast('🌿 Mais verde por aqui.'); }
+  if(it.id==='croissants'){
+    S.stock+=3;
+    const wp=new THREE.Vector3(); frigo.getWorldPosition(wp);
+    burst(wp.x-0.4,1.2,wp.z,0xf3c94e,12,0.5,1.3);
+    toast('🥐 Croissants no frigo! <b>+3</b>');
+    dailyHit('buy'); save();
+    openMarche(); /* re-renderiza */
+    return;
   }
+  S.purchases.push(it.id);
+  /* fecha o marché pra ver o objeto chegar na hora, com partículas */
+  $('marche').classList.remove('open');
+  spawnPurchase(it.id,true);
+  if(it.id==='fleurs'){ bump('humeur',10); gainXP(6); }
+  if(it.id==='affiche'||it.id==='plante') gainXP(4);
   dailyHit('buy');
   save();
-  openMarche(); /* re-renderiza */
 }
 $('mk-close').addEventListener('click',()=>{ $('marche').classList.remove('open'); blip(480); });
+
+/* ========== TV: canais, canvas animado e sofá ========== */
+const TV={mode:'off',data:null};
+let tvWatching=false;
+const METEO_VILLES=['Paris','Lyon','Nice','Bordeaux','Lille','Marseille','Toulouse','Nantes'];
+const METEO_CONDS=[
+  {icon:'sun',emoji:'☀️',fr:'Il y a du soleil.',pt:'Está ensolarado.',tmin:18,tmax:31,words:[{fr:'le soleil',pt:'o sol'}]},
+  {icon:'rain',emoji:'🌧️',fr:'Il pleut un peu.',pt:'Está chovendo um pouco.',tmin:9,tmax:17,words:[{fr:'la pluie',pt:'a chuva'}]},
+  {icon:'cloud',emoji:'☁️',fr:'Le ciel est nuageux.',pt:'O céu está nublado.',tmin:11,tmax:19,words:[{fr:'un nuage',pt:'uma nuvem'}]},
+  {icon:'wind',emoji:'🌬️',fr:'Il y a beaucoup de vent.',pt:'Está ventando muito.',tmin:8,tmax:16,words:[{fr:'le vent',pt:'o vento'}]},
+  {icon:'snow',emoji:'❄️',fr:'Il neige ce matin !',pt:'Está nevando hoje de manhã!',tmin:-3,tmax:2,words:[{fr:'la neige',pt:'a neve'}]}
+];
+const TV_RECETTES=[
+  {nom:"la soupe à l'oignon",nomPt:'a sopa de cebola',fr:['Coupez trois oignons.','Faites-les cuire avec du beurre.'],pt:['Corte três cebolas.','Cozinhe com manteiga.'],words:[{fr:'un oignon',pt:'uma cebola'},{fr:'le beurre',pt:'a manteiga'}]},
+  {nom:'la crêpe sucrée',nomPt:'a crepe doce',fr:['Mélangez la farine et les œufs.','Ajoutez un peu de lait.'],pt:['Misture a farinha e os ovos.','Acrescente um pouco de leite.'],words:[{fr:'la farine',pt:'a farinha'},{fr:'le lait',pt:'o leite'}]},
+  {nom:'la quiche lorraine',nomPt:'a quiche lorraine',fr:['Battez les œufs avec la crème.','Versez sur la pâte et au four !'],pt:['Bata os ovos com o creme.','Despeje na massa e ao forno!'],words:[{fr:'un œuf',pt:'um ovo'},{fr:'le four',pt:'o forno'}]},
+  {nom:'la salade niçoise',nomPt:'a salada niçoise',fr:['Lavez la salade et les tomates.','Ajoutez le thon et les olives.'],pt:['Lave a alface e os tomates.','Acrescente o atum e as azeitonas.'],words:[{fr:'une tomate',pt:'um tomate'},{fr:'la salade',pt:'a salada'}]},
+  {nom:'le croque-monsieur',nomPt:'o croque-monsieur',fr:['Prenez deux tranches de pain.','Ajoutez le jambon et le fromage.'],pt:['Pegue duas fatias de pão.','Acrescente o presunto e o queijo.'],words:[{fr:'le pain',pt:'o pão'},{fr:'le fromage',pt:'o queijo'}]},
+  {nom:'la ratatouille',nomPt:'o ratatouille',fr:['Coupez les légumes en petits morceaux.','Laissez cuire trente minutes.'],pt:['Corte os legumes em pedacinhos.','Deixe cozinhar trinta minutos.'],words:[{fr:'les légumes',pt:'os legumes'},{fr:'une aubergine',pt:'uma berinjela'}]},
+  {nom:'la mousse au chocolat',nomPt:'a mousse de chocolate',fr:['Faites fondre le chocolat.','Mélangez avec les blancs en neige.'],pt:['Derreta o chocolate.','Misture com as claras em neve.'],words:[{fr:'le chocolat',pt:'o chocolate'},{fr:'fondre',pt:'derreter'}]},
+  {nom:'la tarte aux pommes',nomPt:'a torta de maçã',fr:['Épluchez quatre pommes.','Posez-les sur la pâte et au four !'],pt:['Descasque quatro maçãs.','Coloque na massa e ao forno!'],words:[{fr:'une pomme',pt:'uma maçã'},{fr:'une tarte',pt:'uma torta'}]}
+];
+function tvScreenBase(g,c1,c2){
+  const gr=g.createLinearGradient(0,0,0,232);
+  gr.addColorStop(0,c1); gr.addColorStop(1,c2);
+  g.fillStyle=gr; g.fillRect(0,0,384,232);
+}
+function drawTVOff(){
+  const g=tvCtx;
+  tvScreenBase(g,'#171a20','#0b0d11');
+  g.fillStyle='rgba(255,255,255,.045)';
+  g.beginPath(); g.moveTo(0,0); g.lineTo(180,0); g.lineTo(60,232); g.lineTo(0,232); g.fill();
+  tvTex.needsUpdate=true;
+}
+function drawTVIdle(ms){
+  const g=tvCtx;
+  tvScreenBase(g,'#2b2140','#171226');
+  g.textAlign='center';
+  g.fillStyle='#f3d9a8';
+  g.font="900 44px Fraunces,serif";
+  g.fillText('RÊVE TV',192,112+Math.sin(ms/600)*4);
+  g.font="700 16px Nunito,sans-serif"; g.fillStyle='#b9a8c9';
+  g.fillText('choisis une chaîne ↓',192,152);
+  tvTex.needsUpdate=true;
+}
+function drawTVMeteo(ms){
+  const d=TV.data; if(!d) return;
+  const g=tvCtx;
+  const sunny=d.cond.icon==='sun';
+  tvScreenBase(g,sunny?'#6fb0e6':'#8b95a8',sunny?'#cfe6f5':'#b8c0cd');
+  g.textAlign='center';
+  g.font='86px serif';
+  g.fillText(d.cond.emoji,116,128+Math.sin(ms/500)*5);
+  if(d.cond.icon==='rain'||d.cond.icon==='snow'){
+    g.fillStyle='rgba(255,255,255,.75)';
+    for(let i=0;i<12;i++){
+      const y=((ms/5)+i*41)%180;
+      if(d.cond.icon==='rain') g.fillRect(30+i*30,26+y,3,10);
+      else { g.beginPath(); g.arc(30+i*30,26+y,3,0,7); g.fill(); }
+    }
+  }
+  g.fillStyle='#1e2836';
+  g.font="900 62px Nunito,sans-serif";
+  g.fillText(d.temp+'°',276,128);
+  g.font="800 22px Nunito,sans-serif";
+  g.fillText(d.ville,276,164);
+  g.font="800 14px Nunito,sans-serif"; g.fillStyle='rgba(30,40,54,.7)';
+  g.fillText('MÉTÉO · RÊVE TV',192,214);
+  tvTex.needsUpdate=true;
+}
+function drawTVCuisine(ms){
+  const g=tvCtx;
+  tvScreenBase(g,'#c9403a','#7a2620');
+  g.textAlign='center';
+  g.font='80px serif';
+  g.fillText('🍳',192,126+Math.sin(ms/400)*4);
+  g.fillStyle='rgba(255,255,255,.5)';
+  for(let i=0;i<3;i++){
+    const y=((ms/14)+i*26)%68;
+    g.beginPath(); g.arc(168+i*24,116-y,4+i,0,7); g.fill();
+  }
+  g.fillStyle='#ffe8c8'; g.font="800 19px Nunito,sans-serif";
+  g.fillText(TV.data&&TV.data.r?TV.data.r.nom:'',192,178);
+  g.font="800 13px Nunito,sans-serif"; g.fillStyle='rgba(255,232,200,.7)';
+  g.fillText('LA PETITE CUISINE',192,212);
+  tvTex.needsUpdate=true;
+}
+function drawTVMusique(ms){
+  const g=tvCtx;
+  tvScreenBase(g,'#1d1830','#0f0c1c');
+  for(let i=0;i<16;i++){
+    const h=24+Math.abs(Math.sin(ms/300+i*0.9))*130*(0.4+0.6*Math.abs(Math.sin(ms/1400+i)));
+    g.fillStyle='hsl('+((i*18+ms/40)%360)+',60%,60%)';
+    g.fillRect(14+i*23,214-h,16,h);
+  }
+  g.fillStyle='rgba(255,255,255,.75)'; g.font="800 15px Nunito,sans-serif"; g.textAlign='left';
+  g.fillText('♪ radio lo-fi de Paris',14,26);
+  tvTex.needsUpdate=true;
+}
+let tvDrawT=0;
+function tickTV(dt){
+  if(TV.mode==='off') return;
+  tvDrawT-=dt; if(tvDrawT>0) return;
+  tvDrawT=0.1;
+  const ms=performance.now();
+  if(TV.mode==='idle') drawTVIdle(ms);
+  else if(TV.mode==='meteo') drawTVMeteo(ms);
+  else if(TV.mode==='cuisine') drawTVCuisine(ms);
+  else if(TV.mode==='musique') drawTVMusique(ms);
+}
+function tvShowSegs(segs){
+  const box=$('tv-text'); box.innerHTML='';
+  segs.forEach((s,i)=>{
+    const sp=document.createElement('span');
+    sp.className='seg'; sp.textContent=s.fr;
+    sp.dataset.fr=s.fr; sp.dataset.pt=s.pt||'';
+    sp.addEventListener('mouseenter',()=>showSegtip(sp));
+    sp.addEventListener('mouseleave',hideSegtip);
+    box.appendChild(sp);
+    if(i<segs.length-1) box.appendChild(document.createTextNode(' '));
+  });
+}
+function actTV(){
+  if(tvWatching){ $('tvpanel').classList.add('on'); return; }
+  closeRadial();
+  sitAt(-0.55,2.5,Math.atan2(-0.95+0.55,-0.55-2.5),0.18);
+  tvWatching=true;
+  TV.mode='idle';
+  $('tv-text').innerHTML="<i>La télé s'allume… choisis une chaîne.</i>";
+  $('tv-chips').innerHTML='';
+  [...document.querySelectorAll('#tv-tabs button[data-ch]')].forEach(b=>b.classList.remove('cur'));
+  $('tvpanel').classList.add('on');
+  blip(660);
+}
+function actRest(){
+  sitAt(-0.55,2.5,Math.PI,0.18);
+  bump('humeur',6); bump('energie',6);
+  toast('😌 <i>Un petit moment de calme…</i> clica no chão pra levantar.');
+}
+function tvTune(ch){
+  if(!tvWatching) actTV();
+  TV.mode=ch;
+  [...document.querySelectorAll('#tv-tabs button[data-ch]')].forEach(b=>b.classList.toggle('cur',b.dataset.ch===ch));
+  S.min+=20; /* assistir custa um tempinho do dia */
+  bump('humeur',8);
+  if(ch==='meteo'){
+    const cond=METEO_CONDS[Math.floor(Math.random()*METEO_CONDS.length)];
+    const ville=METEO_VILLES[Math.floor(Math.random()*METEO_VILLES.length)];
+    const temp=Math.round(rand(cond.tmin,cond.tmax));
+    TV.data={ville,temp,cond};
+    tvShowSegs([
+      {fr:'À '+ville+',',pt:'Em '+ville+','},
+      {fr:'il fait '+temp+' degrés.',pt:'faz '+temp+' graus.'},
+      {fr:cond.fr,pt:cond.pt}
+    ]);
+    speak('À '+ville+', il fait '+temp+' degrés. '+cond.fr);
+    chipRow($('tv-chips'),[...cond.words,{fr:'la météo',pt:'a previsão do tempo'}]);
+  }else if(ch==='cuisine'){
+    const r=TV_RECETTES[Math.floor(Math.random()*TV_RECETTES.length)];
+    TV.data={r};
+    const segs=[{fr:"Aujourd'hui :",pt:'Hoje:'},{fr:r.nom+'.',pt:r.nomPt+'.'}];
+    r.fr.forEach((f,i)=>segs.push({fr:f,pt:r.pt[i]||''}));
+    tvShowSegs(segs);
+    speak("Aujourd'hui, "+r.nom+'. '+r.fr.join(' '));
+    chipRow($('tv-chips'),r.words);
+  }else if(ch==='musique'){
+    if(!lofi.on) lofiStart();
+    $('tv-text').innerHTML='🎶 <i>Radio lo-fi de Paris… laisse-toi porter.</i>';
+    chipRow($('tv-chips'),[{fr:'la musique',pt:'a música'},{fr:'une chanson',pt:'uma canção'}]);
+  }
+  if(ch!=='musique'&&lofi.on&&!S.music) lofiStop();
+  blip(700); save();
+}
+function tvOff(silent){
+  const was=tvWatching;
+  tvWatching=false; TV.mode='off';
+  drawTVOff();
+  $('tvpanel').classList.remove('on');
+  hideSegtip();
+  if(lofi.on&&!S.music) lofiStop();
+  if(seated) standUp();
+  if(was&&!silent){ toast('📺 La télé est éteinte.'); blip(480); }
+}
+document.querySelectorAll('#tv-tabs button[data-ch]').forEach(b=>b.addEventListener('click',()=>tvTune(b.dataset.ch)));
+$('tv-off').addEventListener('click',()=>tvOff(false));
 
 /* ========== café du coin + léa ========== */
 let inCafe=false, leaWaiting=false, leaTimer=20;
@@ -3256,6 +3784,7 @@ function loop(){
   tickDust(t,dt);
   tickHover();
   tickVie(dt);
+  tickTV(dt);
   if(S.seen){ tickClock(dt); tickLea(dt); }
   tickHUDClock(dt);
   /* disco da vitrola gira quando toca */
