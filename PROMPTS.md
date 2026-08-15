@@ -14,6 +14,10 @@ Fonte da verdade do código e dos prompts: `worker.js` (funções `buildSystem*`
 | `/api/health` | GET | `{"ok":true,"model":"<utilitárias>","model_chat":"<chat>","actions":[...as 8 actions]}` |
 | `/api/chat` | POST | multi-action (campo `action`, default `"chat"`) — seção 2 |
 | `/api/tts` | POST | **v4** — voz da Camille (mp3). Rota REAL no `server.mjs` (seção 8); no worker CF puro devolve 501 amigável |
+| `/api/save/new` | POST | **v5** — gera código de save `REVE-XXXX-XXXX` (só no `server.mjs`; seção 9) |
+| `/api/save` | PUT / GET | **v5** — grava e lê o save na nuvem por código (só no `server.mjs`; seção 9) |
+| `/api/league/score` | POST | **v5** — envia o XP da semana pra Ligue RÊVE (só no `server.mjs`; seção 9) |
+| `/api/league/top` | GET | **v5** — ranking da semana corrente (só no `server.mjs`; seção 9) |
 | `/api/*` | OPTIONS | 204 (preflight CORS) |
 | qualquer outra | * | `env.ASSETS` se existir; senão `EMBEDDED_HTML`; senão 404 JSON |
 
@@ -302,3 +306,35 @@ Request: `POST /api/tts` com `{"text":"string (máx. 300)","voice":"camille"}` (
 - **Upstream**: OpenAI `POST /v1/audio/speech`, model `gpt-4o-mini-tts` (override: env `TTS_MODEL`), voice `nova`, `response_format: mp3`, instructions "Fale em francês nativo parisiense, tom caloroso e vivo de uma amiga de 28 anos". Com `TTS_MODEL=tts-1*`, `instructions` é omitido (o modelo antigo rejeita o campo). Timeout 30 s.
 - **Erros**: 400 (JSON/`text`/`voice` inválidos), 405 (método), 429 (rate limit repassado), 500 (sem `OPENAI_API_KEY`), 502 (chave recusada/upstream/áudio vazio), 504 (timeout).
 - **Validado em teste real (15/08/2026)**: frase de 64 chars → 200 `audio/mpeg`, arquivo `MPEG ADTS layer III, 24 kHz` (mp3 de verdade); segunda chamada idêntica → `X-Tts-Cache: hit`, bytes iguais, zero custo; GET → 405; sem `text` → 400; 301 chars → 400.
+
+## 9. Nuvem e Ligue RÊVE (v5, só no `server.mjs`)
+
+Persistência sem conta: o jogador guarda um CÓDIGO e leva o progresso pra qualquer aparelho. Tudo em disco no adapter Node (no container, `/app/saves` e `/app/league` → volume `/root/reve` na VPS); o worker CF puro não tem essas rotas. CORS liberado igual ao `/api/tts`.
+
+### 9.1 Save por código
+
+- **`POST /api/save/new`** `{}` → `{"code":"REVE-XXXX-XXXX"}`. Alfabeto A-Z e 2-9 sem os ambíguos O/0/I/1 (`CODE_ALPHABET`); unicidade conferida no disco; cria o arquivo do save vazio (`{save:null, updated_at:null}`).
+- **`PUT /api/save`** `{"code":"REVE-...","save":{...}}` → `{"ok":true,"updated_at":"ISO"}`. O `save` é um objeto JSON livre do front, até **200 KB** serializado. Escrita atômica (tmp + rename) em `saves/<sha1(code)>.json`; nome de arquivo nunca é o código em claro.
+- **History dos últimos 3**: a cada PUT o save anterior desce pra `<hash>.1.json` e o `.1` vira `.2.json` (rotação simples; save vazio de recém-criado não vira history). Restauração é manual no disco, é rede de segurança, não feature de UI.
+- **`GET /api/save?code=REVE-...`** → `{"save":{...},"updated_at":"ISO"}` (round-trip idêntico ao que foi gravado). Recém-criado sem PUT → `{"save":null,"updated_at":null}`.
+- **Erros**: formato de código errado → 400; `save` ausente/não-objeto → 400; > 200 KB → 413; código não existe → 404 `{"error":"código não encontrado"}`; mais de **30 escritas/min por IP** (new + PUT somados, memória) → 429; método errado → 405.
+
+### 9.2 Ligue RÊVE (ranking semanal)
+
+- Semana **ISO, segunda a domingo, no fuso UTC-3**: chave `"2026-W33"` (`isoWeekKey`). Um arquivo por semana em `league/<semana>.json`; semana virou, arquivo novo, ranking zera sozinho (o antigo fica no disco como histórico).
+- **`POST /api/league/score`** `{"code":"REVE-...","name":"até 16 chars","xp_week":320}` → `{"ok":true,"rank":1,"total":12}`. Upsert do jogador na semana corrente, chaveado por `sha1(code)`; guarda o **melhor** valor (nunca regride — validado: mandar 10 depois de 320 mantém 320). `name` sanitizado (controle, `<>&"'`, aspas e barras fora; vazio → "Anônimo"); o código exige save existente (senão 404).
+- **Anti-fraude leve**: `xp_week` clamp **0–5000** por semana; **1 upsert/min por código** → 429; não numérico → 400.
+- **`GET /api/league/top?limit=20`** → `{"week":"2026-W33","players":[{"name","xp_week","rank"}...],"closes_in_h":35}`. `limit` clamp 1–100 (default 20). O código NUNCA aparece na resposta nem no ranking; empate no XP fica com quem chegou primeiro. `closes_in_h` = horas até segunda 00:00 UTC-3.
+- **Proibição de texto**: nenhum texto do recurso usa a palavra proibida que começa com "acad..."; o nome público é **Ligue RÊVE**.
+
+### 9.3 O que a UI vai precisar chamar
+
+1. Primeira vez: `POST /api/save/new`, mostrar o código GRANDE pro jogador anotar (é a única chave dele) e guardar em localStorage.
+2. Autosave: `PUT /api/save` com o estado inteiro do jogo (debounce; lembrar do teto de 30 escritas/min por IP, 1 PUT a cada 30-60 s é confortável).
+3. "Jogar em outro aparelho": campo pra digitar o código → `GET /api/save?code=` → carregar o `save`.
+4. Fim de sessão ou ganho de XP: `POST /api/league/score` com o mesmo código, o nome de exibição e o XP acumulado NA SEMANA (máx. 1×/min; 429 é só esperar).
+5. Tela da liga: `GET /api/league/top?limit=20` → listar `players` com `rank`, mostrar `closes_in_h` como contagem regressiva ("fecha em Xh").
+
+### Validado em teste real (15/08/2026)
+
+`new` → `REVE-FFLT-JP6Z`; PUT de objeto com acento/aninhamento → GET round-trip **idêntico** (comparação por igualdade de JSON); código malformado → 400; inexistente → 404; 210 KB → 413; `save` array → 400; 2º e 3º PUT → `.1.json` e `.2.json` com os conteúdos certos; 3 jogadores na liga (320 / 950 / 99999→clamp 5000, nome `Zeca<script>` → `Zecascript`) → top com ranks 1-2-3 corretos, `week 2026-W33`, `closes_in_h 35`; 2º envio no mesmo minuto → 429; envio com código inexistente → 404.
