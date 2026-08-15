@@ -12,7 +12,7 @@
   --cream:#faf3e7; --cream2:#f3e7d3; --ink:#3a3230; --ink2:#6e6058;
   --terra:#c96f4a; --terra2:#e08a63; --paris:#4a6fa5; --paris2:#6f93c4;
   --gold:#d9a441; --green:#7fae6a; --amber-bg:#fdf3dd; --amber-bd:#e5c78a;
-  --glass:linear-gradient(145deg, rgba(255,251,243,.82), rgba(252,243,228,.66));
+  --glass:linear-gradient(145deg, rgba(255,251,243,.80), rgba(252,243,228,.62));
   --glass-bd:1px solid rgba(255,255,255,.55);
   --glass-sh:0 10px 34px rgba(70,45,25,.20);
   --r:16px;
@@ -54,11 +54,11 @@ input{font-family:inherit}
 #gearmenu button:hover{background:rgba(201,111,74,.14)}
 
 /* ====== needs ====== */
-#needs{position:fixed;bottom:14px;left:14px;z-index:20;padding:12px 16px;display:flex;flex-direction:column;gap:7px;min-width:200px}
-.need{display:flex;align-items:center;gap:9px}
-.need .ic{font-size:15px;width:20px;text-align:center;filter:drop-shadow(0 1px 1px rgba(0,0,0,.15))}
-.need .nm{font-size:10.5px;font-weight:800;color:var(--ink2);width:66px;letter-spacing:.4px}
-.nbar{flex:1;height:7px;background:rgba(90,70,50,.14);border-radius:99px;overflow:hidden}
+#needs{position:fixed;bottom:14px;left:14px;z-index:20;padding:10px 14px;display:flex;flex-direction:column;gap:5px;min-width:200px}
+.need{display:flex;align-items:center;gap:8px}
+.need .ic{font-size:13px;width:18px;text-align:center;filter:drop-shadow(0 1px 1px rgba(0,0,0,.15))}
+.need .nm{font-size:10px;font-weight:800;color:var(--ink2);width:58px;letter-spacing:.3px}
+.nbar{flex:1;height:6px;background:rgba(90,70,50,.14);border-radius:99px;overflow:hidden}
 .nfill{height:100%;border-radius:99px;transition:width .6s ease, background-color .6s}
 
 /* ====== La Vie ====== */
@@ -177,10 +177,10 @@ input{font-family:inherit}
 #carnet-empty{text-align:center;padding:26px 20px;color:var(--ink2);font-size:12.5px;font-style:italic;line-height:1.6}
 
 /* ====== cartão de frase ====== */
-#phrasecard{position:fixed;bottom:110px;left:50%;transform:translateX(-50%) translateY(30px);z-index:45;padding:18px 24px;text-align:center;max-width:420px;width:88vw;opacity:0;pointer-events:none;transition:all .5s cubic-bezier(.22,1,.36,1)}
+#phrasecard{position:fixed;bottom:110px;left:50%;transform:translateX(-50%) translateY(30px);z-index:45;padding:13px 18px;text-align:center;max-width:380px;width:80vw;opacity:0;pointer-events:none;transition:all .5s cubic-bezier(.22,1,.36,1)}
 #phrasecard.open{opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0)}
-#ph-tag{font-size:10px;font-weight:800;letter-spacing:1.5px;color:var(--terra);text-transform:uppercase;margin-bottom:6px}
-#ph-fr{font-family:'Fraunces',serif;font-size:21px;font-weight:700;color:var(--ink);line-height:1.3}
+#ph-tag{font-size:9.5px;font-weight:800;letter-spacing:1.5px;color:var(--terra);text-transform:uppercase;margin-bottom:5px}
+#ph-fr{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--ink);line-height:1.3}
 #ph-pt{font-size:13px;color:var(--ink2);font-style:italic;margin-top:5px}
 #ph-btns{display:flex;gap:8px;justify-content:center;margin-top:12px}
 #ph-btns button{padding:7px 16px;border-radius:11px;font-size:13px;font-weight:800;transition:all .2s}
@@ -488,13 +488,13 @@ input{font-family:inherit}
 .defi-in{width:100%;border:1.5px solid rgba(110,96,88,.22);border-radius:12px;padding:9px 12px;font-size:14px;background:rgba(255,255,255,.8);outline:none;color:var(--ink);margin-bottom:8px}
 .defi-in:focus{border-color:var(--paris)}
 
-/* ====== v5: ambiente de trabalho ====== */
-#wt-banner{position:fixed;top:64px;left:50%;transform:translateX(-50%) translateY(-10px);z-index:44;padding:10px 16px;max-width:520px;width:92vw;opacity:0;pointer-events:none;transition:all .4s cubic-bezier(.22,1,.36,1);text-align:center}
+/* ====== v5: ambiente de trabalho · v6: barra fina translúcida no topo (não cobre o centro da ação) ====== */
+#wt-banner{position:fixed;top:0;left:50%;transform:translateX(-50%) translateY(-110%);z-index:44;padding:5px 14px;max-width:min(680px,58vw);opacity:0;pointer-events:none;transition:all .35s cubic-bezier(.22,1,.36,1);display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;border-radius:0 0 14px 14px;background:rgba(255,250,240,.80);backdrop-filter:blur(12px) saturate(1.1);-webkit-backdrop-filter:blur(12px) saturate(1.1);text-align:center}
 #wt-banner.on{opacity:1;pointer-events:auto;transform:translateX(-50%)}
-#wt-count{font-size:10px;font-weight:800;letter-spacing:1.2px;color:var(--terra);text-transform:uppercase}
-#wt-instr{font-family:'Fraunces',serif;font-size:16px;font-weight:700;color:var(--ink);line-height:1.35;margin-top:2px}
-#wt-sub{font-size:11px;color:var(--ink2);font-style:italic;margin-top:2px}
-#wt-btns{display:flex;gap:6px;justify-content:center;margin-top:6px}
+#wt-count{font-size:9px;font-weight:800;letter-spacing:1px;color:var(--terra);text-transform:uppercase;white-space:nowrap}
+#wt-instr{font-family:'Fraunces',serif;font-size:14.5px;font-weight:700;color:var(--ink);line-height:1.25}
+#wt-sub{font-size:10.5px;color:var(--ink2);font-style:italic}
+#wt-btns{display:flex;gap:6px;justify-content:center}
 #wt-btns button{font-size:11.5px;font-weight:800;padding:4px 11px;border-radius:9px;background:rgba(74,111,165,.12);color:var(--paris)}
 #wt-btns #wt-quit{background:rgba(201,111,74,.12);color:var(--terra)}
 #wt-tray{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:44;padding:8px 14px;display:none;align-items:center;gap:8px;font-size:16px;font-weight:800}
@@ -583,6 +583,7 @@ input{font-family:inherit}
   <div id="g-career" style="display:none"></div>
   <button id="g-music">🎵 Música da vitrola</button>
   <button id="g-ambient">🕊️ Sons de Paris</button>
+  <button id="g-cam">🎥 Câmera: estável</button>
   <button id="g-reset">🌱 Recomeçar do zero</button>
 </div>
 
@@ -606,6 +607,9 @@ input{font-family:inherit}
   <div class="need"><span class="ic">🙂</span><span class="nm">Humeur</span><div class="nbar"><div class="nfill" id="n-humeur"></div></div></div>
   <div class="need"><span class="ic">💬</span><span class="nm">Social</span><div class="nbar"><div class="nfill" id="n-social"></div></div></div>
   <div class="need"><span class="ic">🇫🇷</span><span class="nm">Confiance</span><div class="nbar"><div class="nfill" id="n-confiance"></div></div></div>
+  <div class="need"><span class="ic">🍽️</span><span class="nm">Faim</span><div class="nbar"><div class="nfill" id="n-faim"></div></div></div>
+  <div class="need"><span class="ic">🚿</span><span class="nm">Hygiène</span><div class="nbar"><div class="nfill" id="n-hygiene"></div></div></div>
+  <div id="wc-need" style="display:none;font-size:9.5px;font-weight:800;color:var(--paris);margin-top:1px">💧 Envie de faire pipi… (les toilettes)</div>
 </div>
 
 <!-- La Vie -->
@@ -818,6 +822,24 @@ input{font-family:inherit}
   </div>
 </div>
 
+<!-- v6: certificado em close-up -->
+<div id="certmodal" class="glass modal" style="width:320px;top:auto;bottom:20px;transform:translate(-50%,0)">
+  <div class="modal-head"><b>🎓 Certificat</b><button id="cert-close" class="modal-x">✕</button></div>
+  <div class="modal-body" style="text-align:center">
+    <div style="border:3px double var(--gold);border-radius:14px;padding:18px 14px;background:rgba(255,252,242,.8)">
+      <div style="font-size:10px;letter-spacing:2px;font-weight:800;color:var(--terra)">ÉCOLE RÊVE · PARIS</div>
+      <div id="cert-lvl" style="font-family:'Fraunces',serif;font-size:44px;font-weight:900;color:var(--paris);line-height:1.1">A1</div>
+      <div style="font-size:12px;font-weight:700;color:var(--ink2)">nível de francês conquistado no Petit test</div>
+      <div style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-top:10px;font-size:12px;font-weight:800">
+        <span title="data da conquista">📅 <span id="cert-date">—</span></span>
+        <span title="nota do Petit test">📝 <span id="cert-score">—</span></span>
+        <span title="palavras dominadas na época">📖 <span id="cert-words">—</span></span>
+      </div>
+      <div style="margin-top:12px;font-family:'Fraunces',serif;font-style:italic;color:var(--terra)">— École RÊVE</div>
+    </div>
+  </div>
+</div>
+
 <!-- toast -->
 <div id="toast" class="glass"></div>
 
@@ -859,7 +881,7 @@ const SAVE_KEY_V1='reve_save_v1';
 const DAY_MS=24*3600*1000;
 const S={
   player:{name:'',level:'A0',xp:0,words:[],memories:[]},
-  needs:{energie:82,humeur:70,social:55,confiance:35},
+  needs:{energie:82,humeur:70,social:55,confiance:35,faim:85,hygiene:85},
   dia:1, min:8*60,
   pos:{x:-1.8,z:-1.2},
   missions:{cafe:false,paris:false,camille:false},
@@ -876,7 +898,17 @@ const S={
   /* v4.1 */
   exposed:[], chapter:null, stats:{time:0}, decayDay:'',
   /* v5 */
-  ambient:true
+  ambient:true,
+  /* v6 */
+  laundry:{dirty:0,state:'idle',doneAt:0},
+  home:{dirt:0},
+  pantry:{},
+  recipes:['omelette'],
+  minouCare:{fedDay:0,litter:0},
+  bio:{wc:20,brushAm:0,brushPm:0},
+  camMode:'stable',
+  certInfo:{},
+  careDay:{hyg:0,linge:0,menage:0,minou:0}
 };
 function srsNew(now){ return {added:now,due:now+DAY_MS,interval_d:1,ease:2.5}; }
 /* v4.1: domínio estimado pra save antigo, a partir do intervalo SRS */
@@ -938,6 +970,21 @@ function applySaveData(d){
   if(d.chapter&&typeof d.chapter==='object'&&typeof d.chapter.n==='number') S.chapter=d.chapter;
   if(d.stats&&typeof d.stats==='object') S.stats={time:(typeof d.stats.time==='number')?d.stats.time:0};
   if(typeof d.ambient==='boolean') S.ambient=d.ambient;
+  /* v6: campos novos, sempre com default amigável — needs novas começam ALTAS (sem punir a chegada) */
+  if(typeof S.needs.faim!=='number'||isNaN(S.needs.faim)) S.needs.faim=85;
+  if(typeof S.needs.hygiene!=='number'||isNaN(S.needs.hygiene)) S.needs.hygiene=85;
+  S.needs.faim=clamp(S.needs.faim,0,100); S.needs.hygiene=clamp(S.needs.hygiene,0,100);
+  if(d.laundry&&typeof d.laundry==='object') S.laundry={dirty:clamp(d.laundry.dirty|0,0,100),state:['idle','washing','washed','drying','dry'].includes(d.laundry.state)?d.laundry.state:'idle',doneAt:(typeof d.laundry.doneAt==='number')?d.laundry.doneAt:0};
+  if(d.home&&typeof d.home==='object') S.home={dirt:clamp(d.home.dirt|0,0,100)};
+  if(d.pantry&&typeof d.pantry==='object'){ S.pantry={}; for(const k of Object.keys(d.pantry)){ const v=d.pantry[k]|0; if(v>0) S.pantry[k]=Math.min(v,99); } }
+  if(Array.isArray(d.recipes)) S.recipes=[...new Set(['omelette',...d.recipes.filter(r=>typeof r==='string')])].slice(0,8);
+  if(d.minouCare&&typeof d.minouCare==='object') S.minouCare={fedDay:d.minouCare.fedDay|0,litter:clamp(d.minouCare.litter|0,0,100)};
+  if(d.bio&&typeof d.bio==='object') S.bio={wc:clamp(d.bio.wc|0,0,100),brushAm:d.bio.brushAm|0,brushPm:d.bio.brushPm|0};
+  if(d.camMode==='follow') S.camMode='follow';
+  if(d.certInfo&&typeof d.certInfo==='object') S.certInfo=d.certInfo;
+  if(d.careDay&&typeof d.careDay==='object') S.careDay=Object.assign({hyg:0,linge:0,menage:0,minou:0},d.careDay);
+  /* migração sem punição: Minou conta como alimentado hoje; cesto/sujeira ficam em 0 no save antigo */
+  if(!S.minouCare.fedDay) S.minouCare.fedDay=S.dia;
   const now=Date.now();
   S.player.words=(S.player.words||[]).filter(w=>w&&w.fr).map(w=>normWord(w,now));
   /* v5: gate de prova — quem estava 🏆 sem 3 provas em dias diferentes volta pra ✍️ Active com 74 */
@@ -1434,7 +1481,7 @@ scene.background=new THREE.Color(0x1c1a28);
 scene.fog=new THREE.Fog(0x1c1a28,32,58);
 
 const camera=new THREE.PerspectiveCamera(35,innerWidth/innerHeight,0.1,90);
-const cam={yaw:Math.PI*0.22,pitch:0.86,dist:15,target:new THREE.Vector3(0,0.8,0)};
+const cam={yaw:Math.PI*0.22,pitch:0.86,dist:19,target:new THREE.Vector3(0,0.8,0)}; /* v6: zoom padrão ~25% mais longe */
 
 addEventListener('resize',()=>{
   camera.aspect=innerWidth/innerHeight;
@@ -1940,7 +1987,8 @@ const frigo=new THREE.Group();
   blockRect(6.95,-3.55,7.95,-2.6);
 }
 reg(frigo,{id:'frigo',fr:'le frigo',pt:'a geladeira',approach:{x:6.55,z:-3.05},actions:[
-  {emoji:'🥐',fr:'Manger un croissant',pt:'comer um croissant',run:()=>actCroissant()}
+  {emoji:'🥐',fr:'Manger un croissant',pt:'comer um croissant',run:()=>actCroissant()},
+  {emoji:'👀',fr:'Regarder dedans',pt:'ver o estoque',run:()=>openFrigo()}
 ]});
 /* cafeteira */
 const cafetiere=new THREE.Group();
@@ -2210,6 +2258,7 @@ function frame(x,y,z,ry,w,h,tex){
   p.position.z=0.03; g.add(p);
   g.position.set(x,y,z); g.rotation.y=ry;
   room.add(g);
+  return g; /* v6: quem quiser registrar interação no quadro, pode */
 }
 frame(-4.6,1.9,-5.86,0,0.7,0.9,paintingTex('#e8956b','#c9749e','#4a3f6b'));
 frame(3.0,1.95,-5.86,0,0.9,0.6,paintingTex('#8ab0e0','#f3d9a8','#7b9e8e'));
@@ -2583,7 +2632,7 @@ function minouGoal(){
 function tickMinou(t,dt){
   minouTail.rotation.z=Math.sin(t*3.1)*0.45;
   minouTail.rotation.x=-0.9+Math.sin(t*1.7)*0.15;
-  minouBubble.material.opacity=lerp(minouBubble.material.opacity,dueCount>=3?1:0,dt*4);
+  minouBubble.material.opacity=lerp(minouBubble.material.opacity,(dueCount>=3&&!minouUpset())?1:0,dt*4); /* v6: manhoso não avisa */
   minouBubble.position.y=0.78+Math.sin(t*2.8)*0.05;
   minouAI.t-=dt;
   if(minouAI.state==='sit'){
@@ -2964,13 +3013,35 @@ function tickMarker(dt){
 
 /* ========== câmera ========== */
 let camDistCur=cam.dist;
+let camFollow=false;   /* v6: estado da zona morta (histerese: liga na borda, desliga quando reenquadra) */
+let certView=null;     /* v6: close-up do certificado na parede */
 function tickCamera(dt){
-  /* assistindo TV: zoom suave em direção à tela */
-  const tx=tvWatching?(player.g.position.x*0.4+(-0.95)*0.6):player.g.position.x;
-  const tz=tvWatching?(player.g.position.z*0.4+(-0.55)*0.6):player.g.position.z;
-  const ty=tvWatching?0.9:0.85;
-  cam.target.lerp(new THREE.Vector3(tx,ty,tz),Math.min(1,dt*3.2));
-  camDistCur=lerp(camDistCur,tvWatching?8.2:cam.dist,Math.min(1,dt*2.6));
+  if(certView){
+    /* aproxima suave do quadro */
+    cam.yaw=lerp(cam.yaw,certView.yaw,Math.min(1,dt*3));
+    cam.pitch=lerp(cam.pitch,certView.pitch,Math.min(1,dt*3));
+    cam.target.lerp(new THREE.Vector3(certView.x,certView.y,certView.z),Math.min(1,dt*3.2));
+    camDistCur=lerp(camDistCur,certView.dist,Math.min(1,dt*3));
+  }else{
+    /* assistindo TV: zoom suave em direção à tela */
+    const tx=tvWatching?(player.g.position.x*0.4+(-0.95)*0.6):player.g.position.x;
+    const tz=tvWatching?(player.g.position.z*0.4+(-0.55)*0.6):player.g.position.z;
+    const ty=tvWatching?0.9:0.85;
+    if(tvWatching||S.camMode==='follow'){
+      cam.target.lerp(new THREE.Vector3(tx,ty,tz),Math.min(1,dt*3.2));
+      camFollow=false;
+    }else{
+      /* v6: câmera ESTÁVEL com zona morta — só desliza quando o player chega perto da borda
+         visível (~30% de margem) e para assim que o enquadra de novo. Sem oscilar: histerese. */
+      const p=new THREE.Vector3(player.g.position.x,0.85,player.g.position.z).project(camera);
+      const out=Math.abs(p.x)>0.62||Math.abs(p.y)>0.55;
+      const back=Math.abs(p.x)<0.14&&Math.abs(p.y)<0.16;
+      if(out) camFollow=true;
+      else if(back) camFollow=false;
+      if(camFollow) cam.target.lerp(new THREE.Vector3(tx,ty,tz),Math.min(1,dt*2.4));
+    }
+    camDistCur=lerp(camDistCur,tvWatching?8.2:cam.dist,Math.min(1,dt*2.6));
+  }
   const cx=cam.target.x+Math.sin(cam.yaw)*Math.cos(cam.pitch)*camDistCur;
   const cz=cam.target.z+Math.cos(cam.yaw)*Math.cos(cam.pitch)*camDistCur;
   const cy=cam.target.y+Math.sin(cam.pitch)*camDistCur;
@@ -3196,6 +3267,8 @@ function openRadial(x,y,def,root){
     acts=[{emoji:'👋',fr:'Ouvrir à Léa',pt:'abrir pra vizinha',run:()=>openLea()},...def.actions];
   if(def.id==='camille'&&S.pendingTest)
     acts=[{emoji:'🎓',fr:'Petit test !',pt:'prova de nível '+S.pendingTest,run:()=>openTest()},...def.actions];
+  if(def.id==='frigo'&&COOK.on)
+    acts=[{emoji:'🧺',fr:"Prendre l'ingrédient",pt:'o passo da receita',run:()=>cookFrigoPick()},...def.actions];
   if(def.id==='vase_ev')
     acts=def.actions;
   const n=acts.length;
@@ -3252,6 +3325,7 @@ canvas.addEventListener('pointerup',e=>{
   if(moved>6) return;
   ac();
   if(radialOpen){ closeRadial(); return; }
+  if(certView){ closeCert(); return; } /* v6: qualquer clique na cena fecha o close-up */
   if(chatOpen) return;
   if(JT.active||PTEST.active||phoneOpen) return;
   if(WORK.active&&$('wtmodal').classList.contains('open')) return;
@@ -3315,7 +3389,7 @@ function updateHUD(){
   const pct=clamp((S.player.xp-lo)/(hi-lo)*100,3,100);
   $('xpfill').style.width=pct+'%';
   $('wordcount').textContent=S.player.words.length;
-  for(const k of ['energie','humeur','social','confiance']){
+  for(const k of ['energie','humeur','social','confiance','faim','hygiene']){
     const v=S.needs[k];
     const el=$('n-'+k);
     el.style.width=clamp(v,0,100)+'%';
@@ -3345,6 +3419,8 @@ function payMoney(n){
   updateHUD(); save();
 }
 function bump(need,amt){
+  /* v6: hygiène baixa → o social rende menos */
+  if(need==='social'&&amt>0&&S.needs.hygiene<25) amt=Math.max(1,Math.round(amt*0.5));
   S.needs[need]=clamp(S.needs[need]+amt,0,100);
   updateHUD();
 }
@@ -3364,12 +3440,15 @@ function gainXP(n){
 function tickClock(dt){
   S.min+=dt*1.5; /* 1,5 min de jogo por segundo real */
   if(S.stats) S.stats.time=(S.stats.time||0)+dt; /* v4.1: tempo de jogo real */
-  if(S.min>=24*60){ S.min-=24*60; S.dia++; checkDaily(); }
-  /* needs decaem devagar */
-  bumpQuiet('energie',-dt*0.10);
-  bumpQuiet('humeur',-dt*0.07);
+  if(S.min>=24*60){ S.min-=24*60; S.dia++; dayTickCare(); checkDaily(); }
+  /* needs decaem devagar (v6: faim baixa acelera o cansaço; roupa limpa em dia segura o humor) */
+  bumpQuiet('energie',-dt*(0.10+(S.needs.faim<25?0.08:0)));
+  bumpQuiet('humeur',-dt*((S.laundry&&S.laundry.dirty<35)?0.05:0.07));
   bumpQuiet('social',-dt*0.09);
   bumpQuiet('confiance',-dt*0.05);
+  bumpQuiet('faim',-dt*0.075);
+  bumpQuiet('hygiene',-dt*0.045);
+  if(S.bio) S.bio.wc=clamp(S.bio.wc+dt*0.06,0,100);
 }
 function bumpQuiet(k,amt){ S.needs[k]=clamp(S.needs[k]+amt,0,100); }
 let hudTimer=0;
@@ -3380,6 +3459,10 @@ function tickHUDClock(dt){
   const h=Math.floor(S.min/60), m=Math.floor(S.min%60);
   $('clock').textContent=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');
   $('daylabel').textContent='Jour '+S.dia;
+  /* v6: indicador discreto de "aperta" + máquina de lavar/varal */
+  const wcEl=$('wc-need');
+  if(wcEl) wcEl.style.display=(S.bio&&S.bio.wc>=70)?'':'none';
+  if(S.seen) lingeTick();
   updateHUD();
 }
 
@@ -3490,8 +3573,9 @@ function actCroissant(){
   const wp=new THREE.Vector3(); frigo.getWorldPosition(wp);
   burst(wp.x-0.5,1.1,wp.z,0xf3c94e,12,0.5,1.4);
   thud();
-  bump('energie',20); bump('humeur',6);
-  toast('🥐 <b>Un croissant !</b> <span style="color:var(--ink2)">+Énergie · restam '+S.stock+'</span>');
+  /* v6: comer resolve FOME (dormir resolve energia); prato cozinhado alimenta muito mais */
+  bump('faim',22); bump('humeur',5);
+  toast('🥐 <b>Un croissant !</b> <span style="color:var(--ink2)">+Faim (lanchinho) · restam '+S.stock+'</span>');
   gainXP(2);
   save();
 }
@@ -3528,7 +3612,7 @@ function actShower(){
   burst(wp.x,1.8,wp.z,0xaac4e0,16,0.4,0.6);
   setTimeout(()=>burst(wp.x,1.4,wp.z,0xcfe0ea,10,0.35,0.5),300);
   blip(880,0.2,'sine',0.05);
-  bump('energie',10); bump('humeur',12);
+  bump('energie',10); bump('humeur',12); bump('hygiene',55); /* v6: +Hygiène forte */
   const [fr,pt]=PH_DOUCHE[phDoucheI%PH_DOUCHE.length]; phDoucheI++;
   setTimeout(()=>{
     showPhrase('🚿 sous la douche',fr,pt,'Voilà !',()=>gainXP(4));
@@ -3556,12 +3640,14 @@ function actSleep(){
   closeChat();
   if(tvWatching) tvOff(true);
   if(seated) standUp();
+  if(COOK.on) cookAbort(); /* v6 */
   const f=$('fade');
   f.classList.add('on');
   blip(320,0.4,'sine',0.05);
   save();
   setTimeout(()=>{
     S.dia++; S.min=8*60;
+    dayTickCare(); /* v6: cesto enche, casa empoeira, Minou tem fome */
     S.needs.energie=100;
     bump('humeur',12);
     player.g.position.set(-4.9,0,-4.5);
@@ -3702,6 +3788,7 @@ function openChat(npc='camille'){
 function closeChat(){
   if(!chatOpen) return;
   chatOpen=false;
+  dinerCtx=null; /* v6: o jantar termina quando o papo fecha */
   $('chat').classList.remove('open');
   blip(480);
 }
@@ -3854,6 +3941,7 @@ function chipRow(container,words){
 }
 
 /* ---- API ---- */
+let dinerCtx=null; /* v6: "dîner: <prato>" enquanto o jantar a dois rola */
 function playerInfo(){
   return {
     name:S.player.name||'Voyageur',
@@ -3892,9 +3980,9 @@ async function apiChat(npc,userText,channel){
   if(channel) body.channel=channel;
   /* v4.1: revisão invisível — o backend tece essas palavras na fala */
   body.review_words=reviewWordsForChat();
-  /* v4: contexto do momento (o backend ignora campos extras) */
+  /* v4: contexto do momento (o backend ignora campos extras) · v6: jantar a dois entra no contexto */
   body.context=(npc==='camille')
-    ?{activity:camActivityFr(),time_of_day:timeOfDay()}
+    ?{activity:(dinerCtx||camActivityFr()),time_of_day:timeOfDay()}
     :{time_of_day:timeOfDay()};
   const ctl=new AbortController();
   const to=setTimeout(()=>ctl.abort(),25000);
@@ -4588,17 +4676,19 @@ function defiEnd(){
   chime(); confettiRain();
   dailyHit('review');
   chapterHit('review');
-  /* v4.1: Exposées que foram bem 2x — o sistema empurra sozinho */
-  let pushed=0;
-  for(const e of [...S.exposed]){
-    if((e.good||0)<2||!e.pt||findWord(e.fr)) continue;
-    if((e.sug||0)>=2){ exposedIntoCarnet(e,true); }
-    else if(pushed<1){
-      pushed++;
-      e.sug=(e.sug||0)+1;
-      setTimeout(()=>toast('🐱 O Minou trouxe uma palavra nova pro teu Carnet: <b>'+e.fr+'</b> · coleta na aba Exposées, ou deixa que ele guarda sozinho.',5200),2400);
-    }else e.sug=(e.sug||0)+1;
-  }
+  /* v4.1: Exposées que foram bem 2x — o sistema empurra sozinho · v6: Minou manhoso não ajuda */
+  if(!minouUpset()){
+    let pushed=0;
+    for(const e of [...S.exposed]){
+      if((e.good||0)<2||!e.pt||findWord(e.fr)) continue;
+      if((e.sug||0)>=2){ exposedIntoCarnet(e,true); }
+      else if(pushed<1){
+        pushed++;
+        e.sug=(e.sug||0)+1;
+        setTimeout(()=>toast('🐱 O Minou trouxe uma palavra nova pro teu Carnet: <b>'+e.fr+'</b> · coleta na aba Exposées, ou deixa que ele guarda sozinho.',5200),2400);
+      }else e.sug=(e.sug||0)+1;
+    }
+  }else setTimeout(()=>toast('😾 Minou está de bico: a tigela dele anda vazia. Alimenta ele e ele volta a trazer palavras.',4600),2400);
   updateHUD(); save();
 }
 $('defi-close').addEventListener('click',()=>{ DEFI.active=false; $('defimodal').classList.remove('open'); blip(480); });
@@ -4801,7 +4891,7 @@ function openMarche(){
       lastCat=cat;
       const h=document.createElement('div');
       h.style.cssText='font-size:11px;font-weight:800;letter-spacing:1px;color:var(--terra);text-transform:uppercase;margin:4px 2px 8px';
-      h.textContent=cat==='meuble'?'🛋️ Meubles · monte os cômodos novos':'🧺 Le panier du jour';
+      h.textContent=cat==='meuble'?'🛋️ Meubles · monte os cômodos novos':cat==='aliment'?'🥖 Alimentation · ingredientes pra cozinhar de verdade':'🧺 Le panier du jour';
       list.appendChild(h);
     }
     const row=document.createElement('div'); row.className='mk-item';
@@ -4809,7 +4899,7 @@ function openMarche(){
     const mid=document.createElement('div');
     const mn=document.createElement('div'); mn.className='mn'; mn.textContent=it.fr;
     const mp=document.createElement('div'); mp.className='mp';
-    mp.textContent=it.pt+(it.id==='croissants'&&S.stock>0?' · tem '+S.stock:'');
+    mp.textContent=it.pt+(it.id==='croissants'&&S.stock>0?' · tem '+S.stock:'')+(it.cat==='aliment'&&S.pantry[it.id]?' · tem '+S.pantry[it.id]:'');
     mid.appendChild(mn); mid.appendChild(mp);
     const b=document.createElement('button'); b.className='mk-buy';
     const owned=!it.repeat&&S.purchases.includes(it.id);
@@ -4837,6 +4927,17 @@ function buyItem(it){
     toast('🥐 Croissants no frigo! <b>+3</b>');
     dailyHit('buy'); save();
     openMarche(); /* re-renderiza */
+    return;
+  }
+  /* v6: alimentação vai pro estoque do frigo */
+  if(it.cat==='aliment'){
+    S.pantry[it.id]=(S.pantry[it.id]||0)+1;
+    const wp=new THREE.Vector3(); frigo.getWorldPosition(wp);
+    burst(wp.x-0.4,1.2,wp.z,0x7fae6a,10,0.4,1.2);
+    toast('🧊 <b>'+it.fr+'</b> no frigo · tem '+S.pantry[it.id]);
+    exposedBump(it.fr,it.pt);
+    dailyHit('buy'); save();
+    openMarche();
     return;
   }
   S.purchases.push(it.id);
@@ -5039,6 +5140,12 @@ function tvTune(ch){
     speak("Aujourd'hui, "+r.nom+'. '+r.fr.join(' '));
     exposeFromText(r.nom+' '+r.fr.join(' '));
     chipRow($('tv-chips'),r.words);
+    /* v6: assistiu ao episódio → receita nova entra no fichário */
+    const lockedR=COOK_ORDER.filter(id=>!S.recipes.includes(id));
+    if(lockedR.length){
+      S.recipes.push(lockedR[0]);
+      setTimeout(()=>{ chime(); toast('📖 <b>Recette débloquée :</b> '+RECIPES[lockedR[0]].fr+' · já dá pra cozinhar no fogão!',5000); },1800);
+    }
   }else if(ch==='musique'){
     if(!lofi.on) lofiStart();
     $('tv-text').innerHTML='🎶 <i>Radio lo-fi de Paris… laisse-toi porter.</i>';
@@ -5285,6 +5392,17 @@ document.addEventListener('click',e=>{
   if(!e.target.closest('#gearmenu')&&!e.target.closest('#btn-gear')) $('gearmenu').classList.remove('open');
 });
 $('g-music').addEventListener('click',()=>{ actMusic(); $('gearmenu').classList.remove('open'); });
+/* v6: toggle da câmera (padrão: estável com zona morta) */
+function camModeLabel(){ $('g-cam').textContent='🎥 Câmera: '+(S.camMode==='follow'?'acompanhar':'estável'); }
+$('g-cam').addEventListener('click',()=>{
+  S.camMode=(S.camMode==='follow')?'stable':'follow';
+  camFollow=false;
+  camModeLabel();
+  toast(S.camMode==='follow'
+    ?'🎥 A câmera acompanha você o tempo todo.'
+    :'🎥 Câmera estável: ela só desliza quando você chega perto da borda.');
+  save(); blip(600);
+});
 $('g-reset').addEventListener('click',()=>{
   if(confirm('Apagar todo o progresso e recomeçar do zero?')){
     localStorage.removeItem(SAVE_KEY);
@@ -5668,6 +5786,7 @@ $('btn-gear').addEventListener('click',()=>{
   const gc=$('g-career');
   if(S.career.id){ gc.style.display=''; gc.textContent='💼 '+CAREERS[S.career.id].fr+' · '+JOB_LEVELS[S.career.level-1]; }
   else gc.style.display='none';
+  camModeLabel(); /* v6 */
 });
 
 /* números em francês (0-999) — o terror útil da contabilidade */
@@ -6099,7 +6218,7 @@ function rainSoundStop(){
 }
 let evTimer=30, camExcl=null;
 function anyUiBusy(){
-  return chatOpen||radialOpen||phoneOpen||tvWatching||inCafe||JT.active||PTEST.active||DEFI.active||WORK.active||!!document.querySelector('.modal.open');
+  return chatOpen||radialOpen||phoneOpen||tvWatching||inCafe||JT.active||PTEST.active||DEFI.active||WORK.active||COOK.on||!!certView||!!document.querySelector('.modal.open');
 }
 function tickEvents(dt){
   tickRain(dt);
@@ -6407,6 +6526,7 @@ function testEnd(){
     S.player.level=lvl;
     S.pendingTest=null;
     if(!S.certs.includes(lvl)) S.certs.push(lvl);
+    S.certInfo[lvl]={date:Date.now(),score:avg,words:S.player.words.length}; /* v6: dados do diploma */
     spawnCert(lvl);
     chapterHit('test');
     end.innerHTML='<div style="font-family:Fraunces,serif;font-size:34px;font-weight:900;color:var(--terra)">🎉 '+avg+'%</div><div style="font-size:14px;font-weight:800;margin-top:8px">Nível <b style="color:var(--paris)">'+lvl+'</b> conquistado!</div><div id="pt-unlocks" style="font-size:12px;color:var(--ink2);margin-top:8px;line-height:1.6"></div><button id="pt-fin" style="margin-top:14px;padding:10px 28px;border-radius:12px;font-size:14px;font-weight:800;background:linear-gradient(135deg,var(--terra),var(--terra2));color:#fff">Génial !</button>';
@@ -6451,9 +6571,33 @@ function spawnCert(lvl){
   if(certSpawned.has(lvl)) return;
   certSpawned.add(lvl);
   const x=(CERT_POS[lvl]!==undefined)?CERT_POS[lvl]:4.3;
-  frame(x,2.35,-5.86,0,0.42,0.32,certTex(lvl));
+  const g=frame(x,2.35,-5.86,0,0.42,0.32,certTex(lvl));
+  /* v6: certificado clicável — close-up + cartão */
+  reg(g,{id:'cert_'+lvl,fr:'le certificat '+lvl,pt:'teu diploma '+lvl,approach:{x:x,z:-4.9},actions:[
+    {emoji:'🎓',fr:'Regarder',pt:'ver de perto',run:()=>openCert(lvl,x)}
+  ]});
   burst(x,2.35,-5.6,0xd9a441,14,0.5,1.2);
 }
+/* v6: close-up do certificado */
+function openCert(lvl,x){
+  closeRadial(); clearHover();
+  certView={x,y:2.3,z:-5.5,dist:3.0,yaw:0,pitch:0.12,sy:cam.yaw,sp:cam.pitch};
+  const info=(S.certInfo&&S.certInfo[lvl])||{};
+  $('cert-lvl').textContent=lvl;
+  $('cert-date').textContent=info.date?new Date(info.date).toLocaleDateString('pt-BR'):'—';
+  $('cert-score').textContent=(typeof info.score==='number')?(info.score+'% no test'):'—';
+  $('cert-words').textContent=(typeof info.words==='number')?(info.words+' mots no Carnet'):'—';
+  setTimeout(()=>{ if(certView) $('certmodal').classList.add('open'); },500);
+  blip(700);
+}
+function closeCert(){
+  $('certmodal').classList.remove('open');
+  if(certView){ cam.yaw=certView.sy; cam.pitch=certView.sp; }
+  certView=null;
+  camFollow=true; /* volta a enquadrar o player suavemente */
+  blip(480);
+}
+$('cert-close').addEventListener('click',closeCert);
 
 /* ================================================================
    v5 · BLOCO 2 — AMBIENTES DE TRABALHO (mini-mundo por carreira)
@@ -6506,6 +6650,9 @@ function enterWorkEnv(id){
   if(tvWatching) tvOff(true);
   if(seated) standUp();
   closeChat(); closeRadial(); clearHover(); hideMarker(); closePod();
+  if(COOK.on) cookAbort();          /* v6: receita não atravessa o turno */
+  if(certView) closeCert();
+  machineHumStop();                  /* v6: o som da máquina fica no apê */
   move.walking=false; move.path=null; move.onArrive=null;
   WORK.musicWas=lofi.on;
   if(lofi.on) lofiStop();
@@ -6522,7 +6669,7 @@ function enterWorkEnv(id){
   env.group.visible=true;
   player.g.position.set(env.spawn.x,0,env.spawn.z);
   player.g.rotation.y=env.spawn.ry||0;
-  cam.yaw=Math.PI*0.22; cam.pitch=0.86; cam.dist=13.5;
+  cam.yaw=Math.PI*0.22; cam.pitch=0.86; cam.dist=17; /* v6: turno começa ~25% mais longe */
   cam.target.set(env.spawn.x,0.85,env.spawn.z);
 }
 function exitWorkEnv(){
@@ -6565,7 +6712,10 @@ function wtBanner(segs,say,sub){
   speak(say);
 }
 $('wt-spk').addEventListener('click',()=>{ if(WORK.say) speak(WORK.say); blip(700); });
-$('wt-quit').addEventListener('click',()=>{ if(WORK.active&&!WORK.finishing) wtEnd(true); });
+$('wt-quit').addEventListener('click',()=>{
+  if(COOK.on){ cookAbort(); return; } /* v6: a barra também serve à cozinha */
+  if(WORK.active&&!WORK.finishing) wtEnd(true);
+});
 function wtErr(msg){
   WORK.taskErr=true;
   thud();
@@ -6595,6 +6745,7 @@ function startShift(id){
   S.workUntil=gameNow()+120;
   WORK.total=(id==='bar')?6:7;
   WORK.done=0; WORK.hits=0; WORK.taskErr=false; WORK.words=[]; WORK.say='';
+  $('wt-quit').textContent='Encerrar turno'; /* v6: a barra é compartilhada com a cozinha */
   enterWorkEnv(id);
   toast('💼 <b>'+CAREERS[id].fr+'</b> · turno aberto. Escuta a instrução e vai ao lugar certo.',4200);
   setTimeout(()=>{ if(WORK.active) ENV_START[id](); },900);
@@ -7583,6 +7734,588 @@ async function podPlay(){
 }
 $('pod-play').addEventListener('click',podPlay);
 
+/* ================================================================
+   v6 · VIDA DOMÉSTICA — banheiro, lessive, ménage, cozinha, Minou
+   ================================================================ */
+/* ---- hitbox invisível (interação em móveis já construídos) ---- */
+function hitBox(x,y,z,w,h,d2){
+  const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d2),
+    new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false}));
+  m.position.set(x,y,z);
+  room.add(m);
+  return m;
+}
+/* ---- banheiro funcional ---- */
+const wcHit=hitBox(-3.7,0.45,-1.5,0.7,0.9,0.7);
+reg(wcHit,{id:'toilettes',fr:'les toilettes',pt:'o vaso sanitário',approach:{x:-4.6,z:-1.5},actions:[
+  {emoji:'🚽',fr:'Aller aux toilettes',pt:'rapidinho',run:()=>actWC()}
+]});
+const lavHit=hitBox(-7.55,0.55,-1.2,0.7,1.1,0.7);
+reg(lavHit,{id:'lavabo',fr:'le lavabo',pt:'a pia do banheiro',approach:{x:-6.8,z:-1.2},actions:[
+  {emoji:'🪥',fr:'Se brosser les dents',pt:'escovar os dentes',run:()=>actBrush()}
+]});
+const litHit=hitBox(-4.7,0.18,0.95,0.7,0.4,0.6);
+reg(litHit,{id:'litiere',fr:'la litière',pt:'a caixa de areia do Minou',approach:{x:-4.7,z:0.3},actions:[
+  {emoji:'🧹',fr:'Nettoyer la litière',pt:'limpar a caixinha',run:()=>actLitter()}
+]});
+function actWC(){
+  if(S.bio.wc<35){ toast("🚽 <i>Pas besoin pour l'instant.</i>"); return; }
+  const needed=S.bio.wc>=70;
+  S.bio.wc=0;
+  $('wc-need').style.display='none';
+  blip(600,0.08,'sine',0.06); setTimeout(()=>blip(480,0.1,'sine',0.05),380);
+  bump('humeur',needed?6:3);
+  showPhrase('🚽 les toilettes','Ouf… ça va mieux !','Ufa… bem melhor!','Voilà.',()=>gainXP(2));
+  exposedBump('les toilettes','o banheiro (vaso)');
+  save();
+}
+function actBrush(){
+  const h=S.min/60;
+  bump('hygiene',12);
+  let bonus=false;
+  if(h>=5&&h<11&&S.bio.brushAm!==S.dia){ S.bio.brushAm=S.dia; bonus=true; }
+  else if((h>=20||h<1)&&S.bio.brushPm!==S.dia){ S.bio.brushPm=S.dia; bonus=true; }
+  if(bonus){ bump('humeur',6); gainXP(3); }
+  burst(-7.5,1.1,-1.2,0xcfe0ea,10,0.3,0.9);
+  blip(820,0.08,'sine',0.06);
+  showPhrase('🪥 au lavabo','Je me brosse les dents.','Eu escovo os dentes.','Voilà !',()=>{
+    if(bonus) toast('✨ Escovar de manhã e à noite dá bônus. Dentista aprova.');
+  });
+  exposedBump('se brosser les dents','escovar os dentes');
+  save();
+}
+function actLitter(){
+  if((S.minouCare.litter||0)<30){ toast('✨ <i>La litière est propre.</i> Minou agradece.'); return; }
+  S.minouCare.litter=0;
+  burst(-4.7,0.4,0.95,0x8ab0e0,10,0.4,1.0);
+  blip(700);
+  bump('humeur',3); gainXP(2);
+  showPhrase('🐱 la litière','Je nettoie la litière de Minou.','Eu limpo a caixinha do Minou.','Voilà !');
+  exposedBump('la litière','a caixa de areia');
+  save();
+}
+/* ---- lessive: cesto no quarto, máquina no banheiro, varal na varanda ---- */
+const panier=new THREE.Group(); let panierLinge=null;
+{
+  panier.add(cyl(0.26,0.21,0.36,M(0xd9c6a8,{roughness:0.95}),0,0.18,0,12));
+  panierLinge=sph(0.2,Mfix(0x9fb8d8,{roughness:0.95}),0,0.36,0,8,6);
+  panierLinge.scale.set(1,0.55,1);
+  panier.add(panierLinge);
+  panier.position.set(-3.7,0,-5.35);
+  room.add(panier);
+}
+reg(panier,{id:'panier',fr:'le panier à linge',pt:'o cesto de roupa suja',approach:{x:-3.75,z:-4.6},actions:[
+  {emoji:'👀',fr:'Regarder',pt:'ver como está',run:()=>{
+    const d=S.laundry.dirty;
+    toast(d>=80?'🧺 <b>Le panier déborde !</b> Leva o linge pra máquina, no banheiro.'
+      :d>=30?'🧺 Roupa juntando ('+Math.round(d)+'%). A máquina do banheiro resolve.'
+      :'🧺 Quase vazio. Roupa limpa em dia!');
+  }}
+]});
+const laveLinge=new THREE.Group(); let tambour=null;
+{
+  laveLinge.add(box(0.62,0.72,0.6,M(0xf0efe8,{roughness:0.5}),0,0.36,0));
+  laveLinge.add(box(0.64,0.06,0.62,M(0xd8d5c8,{roughness:0.6}),0,0.75,0));
+  const hub=new THREE.Mesh(new THREE.TorusGeometry(0.17,0.035,8,20),Mfix(0x8a8f9a,{roughness:0.4,metalness:0.3}));
+  hub.position.set(0,0.4,0.31); laveLinge.add(hub);
+  tambour=cyl(0.14,0.14,0.03,Mfix(0x5e7a9a,{roughness:0.3}),0,0.4,0.30,14);
+  tambour.rotation.x=Math.PI/2;
+  laveLinge.add(tambour);
+  laveLinge.add(sph(0.02,Mfix(0xc9403a),0.22,0.68,0.31,6,5));
+  laveLinge.position.set(-5.9,0,-1.55);
+  room.add(laveLinge);
+  blockRect(-6.3,-1.9,-5.5,-1.25);
+}
+reg(laveLinge,{id:'lave_linge',fr:'la machine à laver',pt:'a máquina de lavar',approach:{x:-5.9,z:-0.75},actions:[
+  {emoji:'🧺',fr:'Mettre le linge',pt:'lavar a roupa do cesto',run:()=>actLinge()}
+]});
+const etendoir=new THREE.Group(); let etendClothes=null;
+{
+  const matP=M(0x6e7787,{roughness:0.6,metalness:0.3});
+  etendoir.add(cyl(0.025,0.03,1.5,matP,-1.9,0.75,-7.35,6));
+  etendoir.add(cyl(0.025,0.03,1.5,matP, 1.9,0.75,-7.35,6));
+  etendoir.add(box(3.8,0.018,0.018,Mfix(0xe8e2d4),0,1.48,-7.35));
+  etendClothes=new THREE.Group();
+  [0xc0576b,0x4a6fa5,0xf0e6d2,0x7fae6a].forEach((c,i)=>{
+    etendClothes.add(box(0.34,0.42,0.02,Mfix(c,{roughness:0.95}),-1.2+i*0.8,1.26,-7.35));
+  });
+  etendClothes.visible=false;
+  etendoir.add(etendClothes);
+  room.add(etendoir);
+}
+reg(etendoir,{id:'etendoir',fr:'le fil à linge',pt:'o varal da varanda',approach:{x:0,z:-6.7},actions:[
+  {emoji:'🌬️',fr:'Étendre / ramasser',pt:'estender ou recolher a roupa',run:()=>actEtendre()}
+]});
+let mchHum=null;
+function machineHumStart(){
+  const c=ac(); if(!c||mchHum) return;
+  const len=2*c.sampleRate, buf=c.createBuffer(1,len,c.sampleRate), d=buf.getChannelData(0);
+  for(let i=0;i<len;i++) d[i]=(Math.random()*2-1);
+  const src=c.createBufferSource(); src.buffer=buf; src.loop=true;
+  const f=c.createBiquadFilter(); f.type='lowpass'; f.frequency.value=150;
+  const g=c.createGain(); g.gain.value=0.0001;
+  src.connect(f).connect(g).connect(c.destination); src.start();
+  g.gain.setTargetAtTime(0.012,c.currentTime,1.0);
+  mchHum={src,g};
+}
+function machineHumStop(){
+  if(!mchHum||!AC) return;
+  const h=mchHum; mchHum=null;
+  h.g.gain.setTargetAtTime(0.0001,AC.currentTime,0.5);
+  setTimeout(()=>{ try{h.src.stop();}catch(e){} },1600);
+}
+function actLinge(){
+  const L=S.laundry;
+  if(L.state==='washing'){ toast('🫧 <i>La machine travaille…</i> o tambor ainda gira.'); return; }
+  if(L.state==='washed'){ toast('🧺 O linge lavado espera: <b>étendre</b> no varal da varanda.'); return; }
+  if(L.state==='drying'||L.state==='dry'){ toast('🌬️ O linge já está no varal.'); return; }
+  if(L.dirty<30){ toast('🧺 Pouca roupa suja ainda. Deixa juntar mais uns dias.'); return; }
+  L.state='washing'; L.doneAt=gameNow()+420; /* ~meio dia de jogo */
+  machineHumStart();
+  burst(-5.9,1.0,-1.5,0x8ab0e0,12,0.4,1.2);
+  blip(700);
+  showPhrase('🧺 la lessive','Je mets le linge dans la machine.','Eu coloco a roupa na máquina.',"C'est parti !",()=>gainXP(3));
+  exposedBump('le linge','a roupa lavada'); exposedBump('la lessive','lavar roupa');
+  updateHomeVisuals();
+  save();
+}
+function actEtendre(){
+  const L=S.laundry;
+  if(L.state==='washed'){
+    L.state='drying'; L.doneAt=gameNow()+300;
+    updateHomeVisuals();
+    burst(0,1.4,-7.3,0x9fb8d8,12,0.5,1.2);
+    showPhrase('🌬️ sur le balcon',"J'étends le linge sur le fil.",'Eu estendo a roupa no varal.','Voilà !',()=>gainXP(3));
+    exposedBump('étendre le linge','estender a roupa');
+  }else if(L.state==='dry'){
+    L.state='idle'; L.dirty=0;
+    updateHomeVisuals();
+    chime();
+    bump('humeur',12); gainXP(4);
+    toast('👕 <b>Linge propre !</b> Roupa limpa em dia segura o humor da casa.');
+  }else if(L.state==='drying'){
+    toast('🌬️ Ainda secando ao vento de Paris… volta daqui a pouco.');
+  }else toast('🧺 Nada no varal agora.'+(L.dirty>=30?' A roupa suja está no cesto do quarto.':''));
+  save();
+}
+function lingeTick(){
+  if(!S.laundry) return;
+  const L=S.laundry;
+  if(L.state==='washing'){
+    if(!WORK.active&&AC&&!mchHum) machineHumStart();
+    if(gameNow()>=L.doneAt){
+      L.state='washed';
+      machineHumStop();
+      blip(880,0.15,'sine',0.08); setTimeout(()=>blip(1174,0.12,'sine',0.06),160);
+      toast('🧺 <b>La machine a fini !</b> Agora: <i>étendre le linge</i> no varal da varanda.',4600);
+      save();
+    }
+  }else if(L.state==='drying'&&gameNow()>=L.doneAt){
+    L.state='dry';
+    toast('🌬️ <b>Le linge est sec !</b> Recolhe no varal da varanda.',3800);
+    save();
+  }
+  updateHomeVisuals();
+}
+/* ---- ménage: sujeira visível + vassoura de casa ---- */
+const HOME_DIRT={pieces:[]};
+const menageDone=new Set();
+let menageOn=false;
+function addDirtPiece(mesh,thr,fr,pt,ap){
+  mesh.userData.baseY=mesh.position.y;
+  mesh.userData.thr=thr;
+  mesh.visible=false; mesh.position.y=-60;
+  HOME_DIRT.pieces.push(mesh);
+  reg(mesh,{id:'dirt'+HOME_DIRT.pieces.length,fr,pt,direct:true,approach:ap,actions:[
+    {emoji:'🧹',fr:'Nettoyer',pt:'limpar (com o balai na mão)',run:()=>cleanDirt(mesh)}
+  ]});
+}
+{
+  const mkStainA=(x,z)=>{
+    const s=new THREE.Mesh(new THREE.CircleGeometry(0.32,12),new THREE.MeshBasicMaterial({color:0x5a4a30,transparent:true,opacity:0.55}));
+    s.rotation.x=-Math.PI/2; s.position.set(x,0.013,z);
+    room.add(s);
+    return s;
+  };
+  addDirtPiece(mkStainA(0.6,-1.6),30,'la tache par terre','a mancha no chão',{x:0.6,z:-0.9});
+  addDirtPiece(mkStainA(2.6,4.1),40,'la tache par terre','a mancha no chão',{x:2.6,z:3.4});
+  const dishes=new THREE.Group();
+  for(let i=0;i<3;i++) dishes.add(cyl(0.09-i*0.012,0.09-i*0.012,0.018,Mfix(0xe8e2d4,{roughness:0.6}),0,i*0.022,0,10));
+  dishes.add(cyl(0.045,0.035,0.09,Mfix(0xb8c0cd,{roughness:0.5}),0.14,0.05,0.06,8));
+  dishes.position.set(7.4,0.99,0.15);
+  room.add(dishes);
+  addDirtPiece(dishes,55,'la vaisselle sale','a louça suja na pia',{x:6.55,z:0.15});
+  const mkDust=(x,y,z)=>{
+    const d2=new THREE.Mesh(new THREE.CircleGeometry(0.16,10),new THREE.MeshBasicMaterial({color:0x9a8f80,transparent:true,opacity:0.5}));
+    d2.rotation.x=-Math.PI/2; d2.position.set(x,y,z);
+    room.add(d2);
+    return d2;
+  };
+  addDirtPiece(mkDust(-0.95,0.44,1.35),70,'la poussière','a poeira nos móveis',{x:-0.2,z:1.9});
+  addDirtPiece(mkDust(-0.95,0.40,-0.45),80,'la poussière','a poeira nos móveis',{x:-0.3,z:0.2});
+}
+const balaiMaison=new THREE.Group();
+{
+  balaiMaison.add(cyl(0.02,0.02,1.1,Mfix(0x8a5f3c),0,0.62,0,6));
+  balaiMaison.add(cyl(0.055,0.11,0.2,Mfix(0xd9a441,{roughness:0.9}),0,0.1,0,8));
+  balaiMaison.rotation.z=0.16;
+  balaiMaison.position.set(6.7,0,-4.9);
+  room.add(balaiMaison);
+}
+reg(balaiMaison,{id:'balai_maison',fr:'le balai',pt:'a vassoura de casa',approach:{x:6.2,z:-4.4},actions:[
+  {emoji:'🧹',fr:'Faire le ménage',pt:'limpar a casa',run:()=>actMenage()}
+]});
+function visibleDirt(){
+  return HOME_DIRT.pieces.filter(p=>(S.home.dirt||0)>=p.userData.thr&&!menageDone.has(p));
+}
+function actMenage(){
+  const alvos=visibleDirt();
+  if(!alvos.length){ toast('✨ <i>La maison est propre !</i> Nada pra limpar agora.'); return; }
+  menageOn=true;
+  blip(700);
+  showPhrase('🧹 le ménage','Je fais le ménage !','Vou limpar a casa!','Allez !',()=>{
+    toast('🧹 Com o <b>balai</b> na mão: clica nas sujeiras pela casa ('+visibleDirt().length+' pontos).',4600);
+  });
+  exposedBump('le balai','a vassoura'); exposedBump('faire le ménage','fazer a faxina');
+}
+function cleanDirt(mesh){
+  if(!menageOn){ toast('🧹 Primeiro pega o <b>balai</b>, encostado perto da cozinha.'); return; }
+  if(!mesh.visible||menageDone.has(mesh)) return;
+  menageDone.add(mesh);
+  const wp=new THREE.Vector3(); mesh.getWorldPosition(wp);
+  burst(wp.x,Math.max(0.4,wp.y+0.2),wp.z,0x8ab0e0,12,0.5,1.2);
+  blip(760);
+  const def=mesh.userData.inter;
+  if(def) exposedBump(def.fr,def.pt);
+  updateHomeVisuals();
+  const resto=visibleDirt().length;
+  if(resto>0){ toast('✨ Un point de moins ! Faltam '+resto+'.'); return; }
+  menageOn=false;
+  S.home.dirt=0;
+  menageDone.clear();
+  updateHomeVisuals();
+  chime();
+  bump('humeur',12);
+  gainXP(8);
+  toast('✨ <b>La maison brille !</b> +Humeur, e a vida floresce (+8 XP).',4200);
+  save();
+}
+/* ---- visuais que refletem o estado da casa ---- */
+function updateHomeVisuals(){
+  const d=(S.home&&S.home.dirt)||0;
+  for(const p of HOME_DIRT.pieces){
+    const show=d>=p.userData.thr&&!menageDone.has(p);
+    p.visible=show;
+    p.position.y=show?p.userData.baseY:-60;
+  }
+  if(panierLinge){
+    const k=clamp(((S.laundry&&S.laundry.dirty)||0)/100,0,1);
+    const inWash=S.laundry&&S.laundry.state!=='idle';
+    panierLinge.visible=!inWash&&k>0.12;
+    const s=0.45+0.75*k;
+    panierLinge.scale.set(s,0.55*s,s);
+  }
+  if(etendClothes) etendClothes.visible=!!(S.laundry&&(S.laundry.state==='drying'||S.laundry.state==='dry'));
+  if(gamelleFood) gamelleFood.visible=!!(S.minouCare&&S.minouCare.fedDay===S.dia);
+}
+/* ---- acúmulo diário + comentários da Camille ---- */
+function dayTickCare(){
+  if(!S.laundry) return;
+  if(S.laundry.state==='idle') S.laundry.dirty=clamp((S.laundry.dirty||0)+18,0,100);
+  S.home.dirt=clamp((S.home.dirt||0)+14,0,100);
+  S.minouCare.litter=clamp((S.minouCare.litter||0)+25,0,100);
+  if(S.bio) S.bio.wc=clamp(S.bio.wc+25,0,100);
+  updateHomeVisuals();
+}
+let careT=15;
+function tickCare(dt){
+  careT-=dt; if(careT>0) return;
+  careT=22;
+  if(!S.seen||anyUiBusy()) return;
+  const cd=S.careDay;
+  if(S.needs.hygiene<25&&cd.hyg!==S.dia&&!camR.away&&camR.pose!=='sleep'){
+    cd.hyg=S.dia;
+    toast('👃 Camille tapa o nariz rindo: « Hmm… une petite douche, peut-être ? » <i>(um banho, quem sabe?)</i>',4600);
+    return;
+  }
+  if(S.laundry.dirty>=80&&cd.linge!==S.dia){
+    cd.linge=S.dia;
+    bumpQuiet('humeur',-4);
+    toast('🧺 Camille: « Le panier à linge déborde ! » <i>(o cesto tá transbordando — máquina nele)</i>',4600);
+    return;
+  }
+  if(S.home.dirt>=75&&cd.menage!==S.dia){
+    cd.menage=S.dia;
+    toast('🧹 Camille passa o dedo na estante: « On fait le ménage ? » <i>(a casa pede uma faxina)</i>',4600);
+    return;
+  }
+  if(minouUpset()&&cd.minou!==S.dia){
+    cd.minou=S.dia;
+    toast('😾 Minou está manhoso: tigela vazia há dias. Ração tem no Marché.',4200);
+  }
+}
+/* ---- Minou: tigela de ração ---- */
+const gamelleHit=hitBox(6.7,0.15,1.3,0.5,0.35,0.5);
+const gamelleFood=sph(0.06,Mfix(0x8a5a2e,{roughness:0.9}),6.7,0.1,1.3,7,5);
+gamelleFood.visible=false;
+room.add(gamelleFood);
+reg(gamelleHit,{id:'gamelle',fr:'la gamelle de Minou',pt:'a tigela do gato',approach:{x:6.2,z:1.5},actions:[
+  {emoji:'😺',fr:'Nourrir Minou',pt:'dar ração',run:()=>actFeedMinou()}
+]});
+function minouUpset(){ return S.dia-((S.minouCare&&S.minouCare.fedDay)||S.dia)>=2; }
+function actFeedMinou(){
+  if(S.minouCare.fedDay===S.dia){ toast('😺 Minou já comeu hoje. <i>Ronron…</i>'); return; }
+  if(!(S.pantry.croquettes>0)){ toast('😿 Sem <b>croquettes</b>… o Marché tem, na seção alimentação (pelo laptop).',3800); return; }
+  S.pantry.croquettes--;
+  if(S.pantry.croquettes<=0) delete S.pantry.croquettes;
+  const wasUpset=minouUpset();
+  S.minouCare.fedDay=S.dia;
+  updateHomeVisuals();
+  purrSound(58);
+  burst(6.7,0.4,1.3,0xd9a441,10,0.35,1.0);
+  const p=findPath(minou.position.x,minou.position.z,6.3,1.3);
+  if(p){ minouAI.path=p; minouAI.pi=0; minouAI.state='walk'; minouAI.nextAct='eat'; }
+  bump('humeur',5); gainXP(2);
+  toast(wasUpset?'😻 <b>Minou perdoa tudo.</b> Ele volta a trazer palavras pro Carnet.':'😺 <b>Minou mange !</b> Amizade felina em dia.');
+  exposedBump('les croquettes','a ração de gato');
+  save();
+}
+/* ---- cozinha de verdade: despensa, receitas, mini-jogo ---- */
+const FOOD_DEFS=[
+  ['lait','🥛','Lait','leite',2],
+  ['oeufs','🥚','Œufs','ovos',3],
+  ['fromage','🧀','Fromage','queijo',3],
+  ['jambon','🥓','Jambon','presunto',3],
+  ['legumes','🥕','Légumes','legumes',3],
+  ['oignons','🧅','Oignons','cebolas',2],
+  ['beurre','🧈','Beurre','manteiga',2],
+  ['farine','🌾','Farine','farinha',2],
+  ['baguette','🥖','Baguette','baguete',2],
+  ['croquettes','😺','Croquettes','ração do Minou',4]
+];
+for(const [id,emoji,fr,pt,price] of FOOD_DEFS) MARKET.push({id,emoji,fr,pt,price,repeat:true,cat:'aliment'});
+function foodName(id){ const f=FOOD_DEFS.find(x=>x[0]===id); return f?f[2]:id; }
+const RECIPES={
+  omelette:{fr:"l'omelette au fromage",pt:'omelete de queijo',em:'🍳',faim:60,need:{oeufs:1,fromage:1,beurre:1},
+    words:[{fr:'les œufs',pt:'os ovos'},{fr:'le fromage',pt:'o queijo'},{fr:'la poêle',pt:'a frigideira'}],
+    steps:[
+      {t:'frigo',ing:'oeufs',fr:'Prends les œufs dans le frigo.',pt:'Pega os ovos na geladeira.'},
+      {t:'frigo',ing:'beurre',fr:'Prends le beurre.',pt:'Pega a manteiga.'},
+      {t:'stove',fr:'Mets le beurre dans la poêle.',pt:'Põe a manteiga na frigideira.'},
+      {t:'frigo',ing:'fromage',fr:'Prends le fromage.',pt:'Pega o queijo.'},
+      {t:'stove',fr:'Casse les œufs, ajoute le fromage… et voilà !',pt:'Quebra os ovos, junta o queijo… pronto!'}
+    ]},
+  crepes:{fr:'les crêpes',pt:'crepes',em:'🥞',faim:55,need:{farine:1,lait:1,oeufs:1},
+    words:[{fr:'la farine',pt:'a farinha'},{fr:'le lait',pt:'o leite'},{fr:'la pâte',pt:'a massa'}],
+    steps:[
+      {t:'frigo',ing:'farine',fr:'Prends la farine dans le frigo.',pt:'Pega a farinha.'},
+      {t:'frigo',ing:'oeufs',fr:'Prends les œufs.',pt:'Pega os ovos.'},
+      {t:'frigo',ing:'lait',fr:'Prends le lait.',pt:'Pega o leite.'},
+      {t:'stove',fr:'Mélange bien la pâte.',pt:'Mistura bem a massa.'},
+      {t:'stove',fr:'Fais sauter la crêpe !',pt:'Vira a crepe no ar!'}
+    ]},
+  croque:{fr:'le croque-monsieur',pt:'croque-monsieur',em:'🥪',faim:55,need:{baguette:1,jambon:1,fromage:1},
+    words:[{fr:'le jambon',pt:'o presunto'},{fr:'le pain',pt:'o pão'},{fr:'griller',pt:'grelhar'}],
+    steps:[
+      {t:'frigo',ing:'baguette',fr:'Prends la baguette.',pt:'Pega a baguete.'},
+      {t:'frigo',ing:'jambon',fr:'Prends le jambon.',pt:'Pega o presunto.'},
+      {t:'frigo',ing:'fromage',fr:'Prends le fromage.',pt:'Pega o queijo.'},
+      {t:'stove',fr:'Monte le croque-monsieur.',pt:'Monta o croque-monsieur.'},
+      {t:'stove',fr:'Fais-le griller à la poêle.',pt:'Grelha na frigideira.'}
+    ]},
+  ratatouille:{fr:'la ratatouille',pt:'ratatouille',em:'🍆',faim:65,need:{legumes:1,oignons:1},
+    words:[{fr:'les légumes',pt:'os legumes'},{fr:'couper',pt:'cortar'},{fr:'mijoter',pt:'cozinhar em fogo baixo'}],
+    steps:[
+      {t:'frigo',ing:'legumes',fr:'Prends les légumes dans le frigo.',pt:'Pega os legumes.'},
+      {t:'frigo',ing:'oignons',fr:'Prends les oignons.',pt:'Pega as cebolas.'},
+      {t:'stove',fr:'Coupe les légumes en morceaux.',pt:'Corta os legumes em pedaços.'},
+      {t:'stove',fr:'Fais revenir les oignons.',pt:'Refoga as cebolas.'},
+      {t:'stove',fr:'Laisse mijoter trente minutes.',pt:'Deixa apurar trinta minutos.'}
+    ]},
+  soupe:{fr:"la soupe à l'oignon",pt:'sopa de cebola',em:'🍲',faim:60,need:{oignons:1,beurre:1,baguette:1},
+    words:[{fr:'les oignons',pt:'as cebolas'},{fr:'le beurre',pt:'a manteiga'},{fr:'les croûtons',pt:'os croutons'}],
+    steps:[
+      {t:'frigo',ing:'beurre',fr:'Prends le beurre dans le frigo.',pt:'Pega a manteiga.'},
+      {t:'stove',fr:'Fais fondre le beurre dans la casserole.',pt:'Derrete a manteiga na panela.'},
+      {t:'frigo',ing:'oignons',fr:'Prends les oignons.',pt:'Pega as cebolas.'},
+      {t:'stove',fr:'Fais revenir les oignons doucement.',pt:'Doura as cebolas devagar.'},
+      {t:'frigo',ing:'baguette',fr:'Prends la baguette pour les croûtons.',pt:'Pega a baguete pros croutons.'},
+      {t:'stove',fr:'Laisse mijoter et ajoute les croûtons.',pt:'Deixa apurar e junta os croutons.'}
+    ]}
+};
+const COOK_ORDER=['omelette','crepes','croque','ratatouille','soupe'];
+const COOK={on:false,recipe:null,i:0,err:false};
+const stoveHit=hitBox(7.4,1.1,-1.7,0.7,0.35,0.62);
+reg(stoveHit,{id:'cuisiniere',fr:'la cuisinière',pt:'o fogão',approach:{x:6.55,z:-1.7},actions:[
+  {emoji:'🍳',fr:'Cuisiner',pt:'cozinhar uma receita',run:()=>actCuisiner()}
+]});
+function openFrigo(){
+  wtModal('🧊 Le frigo','',(q,area)=>{
+    const rows=[];
+    if(S.stock>0) rows.push(['🥐','Croissants',S.stock]);
+    for(const [id,em,fr] of FOOD_DEFS){ if(S.pantry[id]>0) rows.push([em,fr,S.pantry[id]]); }
+    if(!rows.length){
+      q.innerHTML='<div style="text-align:center;font-style:italic;color:var(--ink2)">Frigo vide… <b>faire les courses</b> no Marché (pelo laptop).</div>';
+      return;
+    }
+    q.innerHTML='<div style="font-size:11px;font-weight:800;color:var(--ink2);text-align:center;margin-bottom:8px">o teu estoque</div>';
+    rows.forEach(([em,fr,n])=>{
+      const d=document.createElement('div'); d.className='stat-row';
+      const s1=document.createElement('span'); s1.textContent=em+' '+fr;
+      const s2=document.createElement('b'); s2.textContent='×'+n;
+      d.appendChild(s1); d.appendChild(s2);
+      area.appendChild(d);
+    });
+  });
+}
+function actCuisiner(){
+  if(COOK.on){ cookStove(); return; }
+  wtModal('🍳 Cuisiner','',(q,area)=>{
+    q.innerHTML='<div style="font-size:11px;font-weight:800;color:var(--ink2);text-align:center;margin-bottom:8px">O canal <b>Cuisine</b> da TV destrava receitas novas.</div>';
+    for(const id of S.recipes){
+      const r=RECIPES[id]; if(!r) continue;
+      const row=document.createElement('div'); row.className='mk-item';
+      const mi=document.createElement('span'); mi.className='mi'; mi.textContent=r.em;
+      const mid=document.createElement('div');
+      const mn=document.createElement('div'); mn.className='mn'; mn.textContent=r.fr;
+      const falta=Object.keys(r.need).filter(k=>(S.pantry[k]||0)<r.need[k]);
+      const mp=document.createElement('div'); mp.className='mp';
+      mp.textContent=falta.length?('faltam: '+falta.map(foodName).join(', ')):'ingredientes ✓ · mata a fome de verdade';
+      mid.appendChild(mn); mid.appendChild(mp);
+      const b=document.createElement('button'); b.className='mk-buy'; b.textContent='Cuisiner';
+      if(falta.length) b.disabled=true;
+      else b.addEventListener('click',()=>{ wtModalClose(); cookStart(id); });
+      row.appendChild(mi); row.appendChild(mid); row.appendChild(b);
+      area.appendChild(row);
+    }
+    const locked=COOK_ORDER.filter(id=>!S.recipes.includes(id));
+    if(locked.length){
+      const d=document.createElement('div');
+      d.style.cssText='font-size:11px;color:var(--ink2);font-style:italic;text-align:center;margin-top:6px';
+      d.textContent='🔒 '+locked.length+' receita(s) ainda escondida(s) no canal Cuisine da TV…';
+      area.appendChild(d);
+    }
+  });
+}
+function cookStart(id){
+  const r=RECIPES[id];
+  const falta=Object.keys(r.need).filter(k=>(S.pantry[k]||0)<r.need[k]);
+  if(falta.length){ toast('🧊 Faltam ingredientes: '+falta.map(foodName).join(', ')); return; }
+  COOK.on=true; COOK.recipe=id; COOK.i=0; COOK.err=false;
+  toast(r.em+' <b>'+r.fr+'</b> · segue as instruções na barra do topo. O 🔊 repete.',4200);
+  cookBanner();
+}
+function cookBanner(){
+  const r=RECIPES[COOK.recipe], st=r.steps[COOK.i];
+  $('wt-count').textContent='Recette · '+r.fr+' · '+(COOK.i+1)+'/'+r.steps.length;
+  segSpans($('wt-instr'),[{fr:st.fr,pt:st.pt}],st.fr);
+  $('wt-sub').textContent='';
+  $('wt-quit').textContent='Parar';
+  WORK.say=st.fr;
+  $('wt-banner').classList.add('on');
+  exposeFromText(st.fr);
+  speak(st.fr);
+}
+function cookAdvance(){
+  COOK.i++;
+  if(COOK.i>=RECIPES[COOK.recipe].steps.length){ cookDone(); return; }
+  cookBanner();
+}
+function cookStove(){
+  const st=RECIPES[COOK.recipe].steps[COOK.i];
+  if(!st) return;
+  if(st.t!=='stove'){ thud(); COOK.err=true; toast('🧊 Esse passo é na geladeira: <i>'+st.fr+'</i>',2800); return; }
+  burst(7.4,1.35,-1.7,0xf3c94e,10,0.35,1.1);
+  blip(720,0.1,'sine',0.08);
+  cookAdvance();
+}
+function cookFrigoPick(){
+  if(!COOK.on) return;
+  const st=RECIPES[COOK.recipe].steps[COOK.i];
+  if(!st||st.t!=='frigo'){ toast('🍳 Agora o passo é no fogão.'); return; }
+  wtModal('🧊 Le frigo','<div style="font-size:12px;font-weight:800;text-align:center;margin-bottom:8px">Qual ingrediente a receita pede agora?</div>',(q,area,fb)=>{
+    const owned=FOOD_DEFS.filter(([id])=>S.pantry[id]>0&&id!=='croquettes');
+    let done=false;
+    owned.forEach(([id,em,fr])=>{
+      const b=document.createElement('button');
+      b.className='rev-opt'; b.textContent=em+' '+fr;
+      b.addEventListener('click',()=>{
+        if(done) return;
+        if(id===st.ing){
+          done=true; b.classList.add('good');
+          blip(760);
+          setTimeout(()=>{ wtModalClose(); cookAdvance(); },450);
+        }else{
+          b.classList.add('bad'); thud(); COOK.err=true;
+          fb.className='no'; fb.textContent='✏️ Non… escuta a instrução de novo no 🔊 da barra.';
+          setTimeout(()=>b.classList.remove('bad'),650);
+        }
+      });
+      area.appendChild(b);
+    });
+  });
+}
+function cookAbort(){
+  if(!COOK.on) return;
+  COOK.on=false; COOK.recipe=null;
+  $('wt-banner').classList.remove('on');
+  toast('🍳 Receita interrompida. Os ingredientes voltaram pro frigo.');
+}
+function cookDone(){
+  const r=RECIPES[COOK.recipe];
+  COOK.on=false;
+  $('wt-banner').classList.remove('on');
+  for(const k in r.need){ S.pantry[k]=(S.pantry[k]||0)-r.need[k]; if(S.pantry[k]<=0) delete S.pantry[k]; }
+  S.min+=25;
+  chime();
+  burst(7.4,1.45,-1.7,0xffd9a0,16,0.5,1.4);
+  gainXP(10);
+  const camHome=!camR.away&&camR.pose!=='sleep';
+  wtModal(r.em+' '+r.fr,'',(q,area)=>{
+    q.innerHTML='<div style="text-align:center;font-family:Fraunces,serif;font-size:18px;font-weight:700">C\'est prêt ! Ça sent très bon…</div><div style="text-align:center;font-size:11.5px;color:var(--ink2);margin-top:4px">prato feito alimenta MUITO mais que croissant</div>';
+    const chips=document.createElement('div'); chips.className='wchips'; chips.style.cssText='justify-content:center;margin:10px 0 4px';
+    chipRow(chips,r.words||[]);
+    area.appendChild(chips);
+    const b1=document.createElement('button');
+    b1.className='mk-buy'; b1.style.cssText='display:block;margin:8px auto 0;padding:9px 22px';
+    b1.textContent='🍽️ Manger';
+    b1.addEventListener('click',()=>{
+      wtModalClose();
+      bump('faim',r.faim); bump('humeur',8);
+      toast('😋 <b>Délicieux !</b> Fome resolvida de verdade.');
+      save();
+    });
+    area.appendChild(b1);
+    const b2=document.createElement('button');
+    b2.className='mk-buy'; b2.style.cssText='display:block;margin:8px auto 0;padding:9px 22px;background:linear-gradient(135deg,var(--paris),var(--paris2))';
+    b2.textContent='💬 Inviter Camille à dîner';
+    if(!camHome) b2.disabled=true;
+    else b2.addEventListener('click',()=>{ wtModalClose(); dinerCamille(r); });
+    area.appendChild(b2);
+    if(!camHome){
+      const d=document.createElement('div');
+      d.style.cssText='font-size:10.5px;color:var(--ink2);font-style:italic;text-align:center;margin-top:6px';
+      d.textContent='Camille não está por perto — o jantar a dois fica pra próxima.';
+      area.appendChild(d);
+    }
+  });
+  save(); updateHUD();
+}
+function dinerCamille(r){
+  bump('faim',r.faim); bump('social',30); bump('humeur',14);
+  gainXP(6);
+  camWake(); camPose('sit');
+  camille.g.position.set(2.53,0.18,2.41);
+  camille.g.rotation.y=Math.atan2(1.5-2.53,1.7-2.41);
+  camR.phase='paused'; camR.path=null;
+  sitAt(0.58,2.54,Math.atan2(1.5-0.58,1.7-2.54),0.12);
+  dinerCtx='dîner à deux : '+r.fr+' préparé par le joueur';
+  openChat('camille');
+  sendToCamille('(événement: le joueur a cuisiné '+r.fr+' et vous vous mettez à table pour dîner ensemble. Réagis avec joie, goûte le plat, parle du dîner)',true);
+  toast('🕯️ <b>Dîner à deux.</b> +Social forte.',3600);
+  save();
+}
+
 /* ========== loop principal ========== */
 const clock3=new THREE.Clock();
 function loop(){
@@ -7601,6 +8334,7 @@ function loop(){
       tickDust(t,dt);
       tickVie(dt);
       tickTV(dt);
+      if(S.laundry&&S.laundry.state==='washing'&&tambour) tambour.rotation.z+=dt*7; /* v6 */
     }
     tickCamera(dt);
     tickMarker(dt);
@@ -7608,7 +8342,7 @@ function loop(){
     tickHover();
     if(S.seen){
       tickClock(dt);
-      if(!WORK.active){ tickLea(dt); tickEvents(dt); tickPhone(dt); }
+      if(!WORK.active){ tickLea(dt); tickEvents(dt); tickPhone(dt); tickCare(dt); }
       tickAmbient(dt);
     }
     tickHUDClock(dt);
@@ -7636,6 +8370,7 @@ function loop(){
     addEventListener('pointerdown',once);
   }
   for(const id of S.purchases) spawnPurchase(id);
+  updateHomeVisuals(); /* v6: cesto, sujeira, varal e tigela refletem o save */
   checkDaily();
   renderDaily();
   /* v4.1: capítulos — veterano começa no 2 (já fez a chegada), novo no 1 */
