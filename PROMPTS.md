@@ -11,16 +11,19 @@ Fonte da verdade do código e dos prompts: `worker.js` (funções `buildSystem*`
 
 | Rota | Método | Resposta |
 |---|---|---|
-| `/api/health` | GET | `{"ok":true,"model":"<utilitárias>","model_chat":"<chat>","actions":[...as 7 actions]}` |
+| `/api/health` | GET | `{"ok":true,"model":"<utilitárias>","model_chat":"<chat>","actions":[...as 8 actions]}` |
 | `/api/chat` | POST | multi-action (campo `action`, default `"chat"`) — seção 2 |
+| `/api/tts` | POST | **v4** — voz da Camille (mp3). Rota REAL no `server.mjs` (seção 8); no worker CF puro devolve 501 amigável |
 | `/api/*` | OPTIONS | 204 (preflight CORS) |
 | qualquer outra | * | `env.ASSETS` se existir; senão `EMBEDDED_HTML`; senão 404 JSON |
 
 - CORS: `Access-Control-Allow-Origin: *` (MVP sem login; restringir quando houver domínio fixo).
 - Config de deploy:
   - `ANTHROPIC_API_KEY` — secret obrigatório (`wrangler secret put ANTHROPIC_API_KEY`).
-  - `MODEL` — var opcional; default `claude-haiku-4-5-20251001`. Vale para as actions utilitárias (translate_help, mirror_check, work_email, phone_message, job_task).
+  - `MODEL` — var opcional; default `claude-haiku-4-5-20251001`. Vale para as actions utilitárias (translate_help, mirror_check, work_email, phone_message, job_task, chapter_brief).
   - `MODEL_CHAT` — var opcional; default `claude-sonnet-5`. Vale para `chat` (conversa dos NPCs — v2.1) e `eval_answer` (julgamento fino de score — v3). O roteamento é `MODEL_BY_ACTION(env, action)` no `worker.js`.
+  - `OPENAI_API_KEY` — **v4**, só no `server.mjs` (VPS): habilita a voz da Camille em `/api/tts`. O deploy usa `--env-file /root/reve/.env`; o `.env` da VPS precisa ganhar a linha `OPENAI_API_KEY=...`. Sem ela, `/api/tts` responde 500 com mensagem clara (o resto do jogo não é afetado).
+  - `TTS_MODEL` — var opcional do `server.mjs`; default `gpt-4o-mini-tts` (testado em 15/08/2026, devolve mp3). Se a conta perder o modelo, trocar para `tts-1` (o código já omite `instructions`, que o tts-1 não aceita).
 - Front-end: duas opções, nesta ordem:
   1. Workers Assets (`env.ASSETS`) — deploy com pasta de assets.
   2. HTML embutido: a linha `const EMBEDDED_HTML = null; // __HTML_SLOT__` no topo do `worker.js` é o slot. Outro processo substitui essa linha por `const EMBEDDED_HTML = "<html...>";`. Não remover nem editar o marcador `// __HTML_SLOT__`.
@@ -48,11 +51,17 @@ Request:
     "memories": ["string"],
     "lang": "pt-BR"
   },
-  "history": [ { "role": "user" | "assistant", "content": "string" } ]
+  "history": [ { "role": "user" | "assistant", "content": "string" } ],
+  "review_words": [ { "fr": "string", "pt": "string" } ],
+  "context": { "activity": "string (máx. 80)", "time_of_day": "string (máx. 40)" }
 }
 ```
 
-Tolerâncias: `npc` ausente → `camille`; inválido → 400. `channel` ausente/vazio → conversa normal; `"sms"` → modo mensagem; outro valor → 400. `history` → últimas 12, cada uma cortada em 600 chars. `words_known` → últimas 150; `memories` → últimas 20 (até 140 chars cada).
+Tolerâncias: `npc` ausente → `camille`; inválido → 400. `channel` ausente/vazio → conversa normal; `"sms"` → modo mensagem; outro valor → 400. `history` → últimas 12, cada uma cortada em 600 chars. `words_known` → últimas 150; `memories` → últimas 20 (até 140 chars cada). `review_words` e `context` (v4) são opcionais e nunca dão 400: lixo é filtrado, listas cortadas.
+
+**Revisão invisível (v4, `review_words`)**: o front manda até 6 pares `{fr, pt}` — as palavras do SRS que estão pra vencer. O bloco `reviewRules` entra no system e manda o NPC TECER 1-2 delas na `reply_fr` do turno, dentro do assunto, sem nunca anunciar que é revisão (proibido "tu te souviens de...?"), e priorizar em `new_words` a palavra que o jogador demonstrar ter esquecido. Vale para Camille, Hugo, Léa e Patron; o **Minou fica de fora** (contrato rígido de miados, new_words 0-1). Validado em teste real: com `["faire les courses","le marché","la boulangerie"]`, a Camille respondeu "...je suis allée **faire les courses** au **marché** ce matin..." — duas palavras tecidas, zero cara de aula.
+
+**Contexto de cena (v4, `context`)**: `activity` = o que o NPC está fazendo AGORA (o front v4 manda; ex.: "cozinhando um ratatouille"); `time_of_day` opcional. O bloco `nowContextRules` faz a resposta ABRIR coerente com a atividade (um detalhe concreto: cheiro, ingrediente) sem repetir a mesma abertura em turnos seguidos (o modelo confere o histórico). Também fora do Minou.
 
 Modo SMS (v3, `"channel":"sms"`): mesma persona, MESMO contrato de resposta — muda só o estilo via bloco `smsRules` anexado ao system: reply_fr máx. 2 frases curtas, pontuação informal, emoji ocasional, PROIBIDO narração de cena; suggested_replies de 2-6 palavras. segments, corrections, new_words (2-4), memory_notes etc. continuam iguais.
 
@@ -149,17 +158,41 @@ Response: `{"score":0-100,"feedback_pt":"1-2 frases","better_fr":"como um nativo
 - Obrigatórios: `feedback_pt`, `better_fr`, `score` numérico (clamp 0-100) — senão retry/502.
 - **Sonnet** (`MODEL_CHAT`) por ser julgamento fino: mesmas peculiaridades do chat — sem temperature, sem prefill, max_tokens 2000 (thinking dentro do teto).
 
+### 2.8 action `"chapter_brief"` (v4)
+
+Briefing do capítulo de história: arco leve pré-definido, texto gerado personalizado com as memórias do jogador. **Nunca falha**: qualquer erro da IA (502/504/429, JSON inválido após retry) cai no fallback local completo dos 6 capítulos (`fallbackChapter`, mesmo contrato, interpola o nome do jogador).
+
+Request: `{"action":"chapter_brief","chapter_number":1-6,"player":{...},"done_summary":"o que ele fez no capítulo anterior, em pt (máx. 400)"}`
+Response:
+
+```json
+{
+  "title_fr": "L'arrivée",
+  "title_pt": "A chegada",
+  "intro_pt": "2-3 frases situando (pode mencionar Paris, a Camille, o momento de vida)",
+  "goals": [ { "id": "c1g1", "desc_pt": "...", "desc_fr": "...", "kind": "talk|work|review|visit|buy|test", "target": 3 } ],
+  "reward_xp": 80,
+  "reward_pt": "1 frase do que destrava"
+}
+```
+
+- `chapter_number` fora de 1-6 → 400. `done_summary` opcional (entra na mensagem user).
+- Arco fixo no prompt (`CHAPTER_ARC`): 1 chegada e primeiros passos · 2 rotina e primeiro emprego · 3 amizades · 4 dominando o dia a dia · 5 um desafio (imprevisto) · 6 em casa em Paris. O TEMA não muda; o TEXTO personaliza com MEMÓRIAS + done_summary.
+- Validação dura (`sanitizeChapterBrief`): `title_fr`, `title_pt`, `intro_pt`, `reward_pt` presentes; `goals` EXATAMENTE 3, cada um com `desc_pt` e `kind` válido (`GOAL_KINDS`), `target` clamp 1-10, `id` default `c<N>g<i>`; `reward_xp` clamp 20-500 (default 50+30·N). Falhou → retry → fallback local (nunca 502).
+- Haiku (`MODEL`), temperature 0.9, max_tokens 1000, prefill sim — utilitário estruturado, não precisa do sonnet.
+
 ### Erros (status ≠ 200, corpo `{"error":"mensagem curta em pt-BR"}`)
 
 | Status | Quando |
 |---|---|
-| 400 | JSON inválido, `action`/`npc`/`channel`/`career`/`job_level`/`level` inválidos, `user_text`/`pt_text`/`target_fr`/`heard_fr`/`context.trigger`/`situation_pt` vazios ou acima do limite |
+| 400 | JSON inválido, `action`/`npc`/`channel`/`career`/`job_level`/`level`/`chapter_number` inválidos, `user_text`/`pt_text`/`target_fr`/`heard_fr`/`context.trigger`/`situation_pt` vazios ou acima do limite |
 | 404 | rota de API inexistente |
-| 405 | método errado em `/api/chat` |
+| 405 | método errado em `/api/chat` (e em `/api/tts` no server.mjs) |
 | 413 | corpo > ~12 KB |
 | 429 | rate limit da Anthropic repassado |
 | 500 | sem `ANTHROPIC_API_KEY` configurada / erro interno |
-| 502 | chave recusada, upstream instável, ou JSON do modelo inválido após retry |
+| 501 | `/api/tts` no worker CF puro (a rota real é do `server.mjs`) |
+| 502 | chave recusada, upstream instável, ou JSON do modelo inválido após retry (exceto `chapter_brief`, que cai no fallback local) |
 | 504 | timeout de 20 s na Anthropic |
 
 ## 3. Como o JSON de saída é forçado (4 camadas)
@@ -182,6 +215,7 @@ Chamada Anthropic: `POST /v1/messages`, `anthropic-version: 2023-06-01`, timeout
 | phone_message | `MODEL` (haiku 4.5) | 400 | 1.0 | sim |
 | job_task | `MODEL` (haiku 4.5) | 1200 | 1.0 | sim |
 | eval_answer | `MODEL_CHAT` (claude-sonnet-5) | 2000 | omitida | não |
+| chapter_brief | `MODEL` (haiku 4.5) | 1000 | 0.9 | sim |
 
 ## 4. System prompts dos NPCs de chat
 
@@ -252,3 +286,19 @@ Os NPCs humanos (Camille, Hugo, Léa) compartilham os blocos montados por helper
 | Gatilhos do phone_message | lista de gatilhos em `buildSystemPhoneMessage` (front pode inventar novos: gatilho desconhecido é interpretado pelo nome) |
 | Regras/dificuldade de uma carreira do job_task | `jobTaskSpec` (prompt) + `sanitizeJobTask` (validação dura) |
 | Régua de score do petit test | faixas em `buildSystemEvalAnswer` |
+| Regras da revisão invisível (v4) | `reviewRules` |
+| Abertura coerente com a atividade do NPC (v4) | `nowContextRules` |
+| Tema fixo dos capítulos | `CHAPTER_ARC` (o texto é sempre gerado; só o tema é fixo) |
+| Texto dos capítulos de emergência | `fallbackChapter` |
+| Voz da Camille (modelo, voz, instruções, cache) | `server.mjs` (constantes `TTS_*`) — nada no worker além do 501 |
+
+## 8. `/api/tts` — voz da Camille (v4, só no `server.mjs`)
+
+A rota vive no **adapter Node** (`server.mjs`), interceptada ANTES do worker; o worker mantém um 501 amigável para o caso de rodar como CF Worker puro. Motivo: o cache é em DISCO — papel do servidor, não do worker.
+
+Request: `POST /api/tts` com `{"text":"string (máx. 300)","voice":"camille"}` (`voice` opcional, default `camille`; outro valor → 400). Response 200: o mp3 cru, `Content-Type: audio/mpeg`, `Cache-Control: public, max-age=31536000, immutable`, header de diagnóstico `X-Tts-Cache: hit|miss`.
+
+- **Cache em disco (essencial pro custo)**: `./tts-cache/<sha1(text+"\n"+voice)>.mp3` ao lado do `server.mjs` (no container, `/app/tts-cache` → volume `/root/reve/tts-cache` na VPS). Cada frase é paga UMA vez; a segunda chamada sai do disco. Escrita atômica (tmp + rename). Sem limpeza: frases de jogo são curtas, o cache cresce pouco.
+- **Upstream**: OpenAI `POST /v1/audio/speech`, model `gpt-4o-mini-tts` (override: env `TTS_MODEL`), voice `nova`, `response_format: mp3`, instructions "Fale em francês nativo parisiense, tom caloroso e vivo de uma amiga de 28 anos". Com `TTS_MODEL=tts-1*`, `instructions` é omitido (o modelo antigo rejeita o campo). Timeout 30 s.
+- **Erros**: 400 (JSON/`text`/`voice` inválidos), 405 (método), 429 (rate limit repassado), 500 (sem `OPENAI_API_KEY`), 502 (chave recusada/upstream/áudio vazio), 504 (timeout).
+- **Validado em teste real (15/08/2026)**: frase de 64 chars → 200 `audio/mpeg`, arquivo `MPEG ADTS layer III, 24 kHz` (mp3 de verdade); segunda chamada idêntica → `X-Tts-Cache: hit`, bytes iguais, zero custo; GET → 405; sem `text` → 400; 301 chars → 400.

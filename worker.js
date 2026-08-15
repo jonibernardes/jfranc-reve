@@ -5,13 +5,17 @@
  *   GET     /api/health  -> {"ok":true,"model":"...","model_chat":"...","actions":[...]}
  *   POST    /api/chat    -> multi-action (campo "action", default "chat"):
  *                           chat           -> Camille | Minou | Hugo | Léa | Patron (JSON, sem
- *                                             streaming; "channel":"sms" = modo mensagem)
+ *                                             streaming; "channel":"sms" = modo mensagem;
+ *                                             v4: review_words + context.activity)
  *                           translate_help -> pt-BR -> francês cotidiano + dica
  *                           mirror_check   -> avalia fala (STT) contra frase-alvo
  *                           work_email     -> mini-desafio de e-mail de trabalho
  *                           phone_message  -> mensagem de celular espontânea de um NPC
  *                           job_task       -> tarefa de turno de trabalho por carreira
  *                           eval_answer    -> avalia resposta aberta do petit test
+ *                           chapter_brief  -> briefing do capítulo de história (v4, com
+ *                                             fallback local completo dos 6 capítulos)
+ *   POST    /api/tts     -> 501 aqui (a rota real vive no server.mjs, com cache em disco)
  *   OPTIONS /api/*       -> preflight CORS (204)
  *   demais rotas         -> env.ASSETS; senão EMBEDDED_HTML; senão 404 JSON
  *
@@ -59,6 +63,7 @@ const MAX_TOKENS_BY_ACTION = {
   phone_message: 400,
   job_task: 1200,
   eval_answer: 2000, // sonnet-5: thinking dentro do max_tokens (mesmo motivo do chat)
+  chapter_brief: 1000,
 };
 
 const LEVELS = ["A0", "A1", "A2", "B1", "B2"];
@@ -74,6 +79,11 @@ const MAX_TIME_OF_DAY = 40; // phone_message: context.time_of_day
 const MAX_THREAD_TAIL = 4; // phone_message: últimas mensagens da thread
 const MAX_THREAD_ITEM = 200; // corte por mensagem da thread
 const MAX_SITUATION = 300; // eval_answer: situation_pt
+const MAX_REVIEW_WORDS = 6; // chat v4: palavras da revisão invisível
+const MAX_ACTIVITY = 80; // chat v4: context.activity
+const CHAPTERS = [1, 2, 3, 4, 5, 6]; // chapter_brief
+const GOAL_KINDS = ["talk", "work", "review", "visit", "buy", "test"];
+const MAX_DONE_SUMMARY = 400; // chapter_brief: done_summary
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -421,6 +431,35 @@ MODO SMS — ESTE TURNO É TROCA DE MENSAGENS DE CELULAR (OBRIGATÓRIO)
 - TODO o resto do contrato continua igual: segments, corrections, new_words, mood, xp_gain, level_estimate, memory_notes — o JSON completo, sempre.`;
 }
 
+// v4 — REVISÃO INVISÍVEL: o front manda as palavras que estão pra vencer no
+// SRS e o NPC as tece na conversa sem nunca anunciar que é revisão.
+function reviewRules(name, words) {
+  const list = words
+    .map((w) => "- " + w.fr + (w.pt ? " (" + w.pt + ")" : ""))
+    .join("\n");
+  return `
+
+REVISÃO INVISÍVEL — ESTE TURNO (obrigatório, e ${name} NUNCA pode perceber)
+Palavras que ${name} aprendeu e está prestes a esquecer:
+${list}
+- TEÇA com naturalidade 1 ou 2 dessas palavras na sua reply_fr, dentro do assunto atual — como quem usa a palavra por acaso, falando da própria vida ou puxando o assunto até ela caber.
+- PROIBIDO anunciar que é revisão, virar aula, listar as palavras ou perguntar "tu te souviens de...?" — nada pode denunciar a intenção.
+- Se ${name} demonstrar que ESQUECEU uma delas (perguntar o significado, usar errado, traduzir errado), priorize essa palavra em new_words (com a tradução), mesmo que já esteja na lista "já conhece".
+- As demais regras (nível, estilo, formato) continuam valendo — a revisão nunca justifica frase artificial.`;
+}
+
+// v4 — CONTEXTO DE AGORA: o front diz o que o NPC está fazendo neste momento
+// (a Camille cozinhando, por exemplo) e a resposta ABRE coerente com isso.
+function nowContextRules(activity, timeOfDay) {
+  return `
+
+AGORA MESMO (contexto desta cena — o front acabou de informar)
+${activity ? "- O que VOCÊ está fazendo agora: " + activity : ""}
+${timeOfDay ? "- Hora do dia: " + timeOfDay : ""}
+- Sua resposta ABRE coerente com essa atividade: se está cozinhando, fala do que está preparando, de um cheiro, de um ingrediente — UM detalhe concreto, no nível do jogador, antes (ou junto) de responder ao que ele disse.
+- Não repita a mesma abertura de cena em turnos seguidos (confira o histórico); se a atividade já foi comentada, apenas mantenha a cena viva com naturalidade.`;
+}
+
 export function buildSystemMinou(player) {
   const name = player.name;
   const words = player.words_known.length
@@ -615,6 +654,179 @@ CRITÉRIO — GENEROSO E PEDAGÓGICO
 - better_fr: a frase como um nativo diria — SIMPLES, no nível ${level}, resolvendo a mesma situação. Se a resposta já estava ótima, apenas a versão polida dela.
 Responda SOMENTE com o objeto JSON válido, nada antes ou depois, aspas duplas em tudo:
 {"score":85,"feedback_pt":"1-2 frases em pt-BR","better_fr":"a frase como um nativo diria"}`;
+}
+
+/* -------------------- chapter_brief (v4) -------------------------- */
+
+// Arco leve pré-definido: o TEMA de cada capítulo é fixo; o texto é gerado
+// personalizado com as memórias do jogador e o done_summary.
+const CHAPTER_ARC = {
+  1: "A chegada — primeiros dias em Paris, conhecer a Camille e o apartamento, primeiros passos no francês",
+  2: "A rotina — o dia a dia se formando e o PRIMEIRO EMPREGO do jogador",
+  3: "As amizades — o bairro vira casa: Hugo no café, Léa no prédio, gente nova",
+  4: "Dominando o dia a dia — mercado, contas, metrô, trabalho: resolver a vida sozinho em francês",
+  5: "Um desafio — um imprevisto sacode a rotina e o jogador precisa se virar em francês de verdade",
+  6: "Em casa em Paris — o jogador percebe que Paris virou casa; colher o que plantou",
+};
+
+function buildSystemChapterBrief(chapterNumber, player, doneSummary) {
+  const name = player.name;
+  return `Você escreve o BRIEFING do capítulo ${chapterNumber} de 6 da história do jogo RÊVE: ${name}, brasileiro, foi morar em Paris num apartamento dividido com Camille (28 anos, fotógrafa, sua amiga e professora informal de francês) e o gato Minou. Público: todas as idades. Tom: caloroso, concreto, zero clichê de cartão-postal.
+
+ARCO FIXO (o TEMA do capítulo não muda; o TEXTO é personalizado para ${name}):
+1. ${CHAPTER_ARC[1]}
+2. ${CHAPTER_ARC[2]}
+3. ${CHAPTER_ARC[3]}
+4. ${CHAPTER_ARC[4]}
+5. ${CHAPTER_ARC[5]}
+6. ${CHAPTER_ARC[6]}
+
+CAMPOS
+- title_fr: título curto do capítulo em francês (2-5 palavras) + title_pt: tradução.
+- intro_pt: 2-3 frases em pt-BR situando ${name} no capítulo ${chapterNumber} (pode mencionar Paris, a Camille, o momento de vida). Personalize com as MEMÓRIAS da ficha e com o que ele fez no capítulo anterior${doneSummary ? " (resumo abaixo)" : ""} — cite 1 detalhe concreto da vida DELE quando houver.
+- goals: EXATAMENTE 3 objetivos jogáveis do tema do capítulo. Cada um: id curto ("c${chapterNumber}g1", "c${chapterNumber}g2", "c${chapterNumber}g3"); desc_pt curta e concreta ("Converse 3 vezes com o Hugo"); desc_fr a mesma em francês SIMPLES no nível ${player.level}; kind um de: talk (conversar com um NPC), work (turnos de trabalho), review (revisar palavras aprendidas), visit (visitar um lugar), buy (comprar algo), test (fazer o petit test); target = número de vezes (1 a 10) coerente com a desc.
+- reward_xp: XP inteiro do capítulo, crescendo com o número (cap 1 ≈ 80, cap 6 ≈ 250).
+- reward_pt: 1 frase em pt-BR do que o capítulo destrava (algo do jogo ou da vida em Paris — concreto).
+Responda SOMENTE com o objeto JSON válido, nada antes ou depois, aspas duplas em tudo, todas as chaves presentes:
+{"title_fr":"...","title_pt":"...","intro_pt":"2-3 frases","goals":[{"id":"c${chapterNumber}g1","desc_pt":"...","desc_fr":"...","kind":"talk","target":3},{"id":"c${chapterNumber}g2","desc_pt":"...","desc_fr":"...","kind":"work","target":2},{"id":"c${chapterNumber}g3","desc_pt":"...","desc_fr":"...","kind":"review","target":5}],"reward_xp":100,"reward_pt":"1 frase"}
+
+${playerCard(player)}`;
+}
+
+function sanitizeChapterBrief(parsed, chapterNumber) {
+  const title_fr = typeof parsed.title_fr === "string" ? parsed.title_fr.trim() : "";
+  const title_pt = typeof parsed.title_pt === "string" ? parsed.title_pt.trim() : "";
+  const intro_pt = typeof parsed.intro_pt === "string" ? parsed.intro_pt.trim() : "";
+  const reward_pt = typeof parsed.reward_pt === "string" ? parsed.reward_pt.trim() : "";
+  if (!title_fr || !title_pt || !intro_pt || !reward_pt) return null;
+
+  const goals = Array.isArray(parsed.goals)
+    ? parsed.goals
+        .filter(
+          (g) =>
+            g &&
+            typeof g === "object" &&
+            typeof g.desc_pt === "string" &&
+            g.desc_pt.trim() &&
+            GOAL_KINDS.includes(g.kind)
+        )
+        .map((g, i) => {
+          let target = Math.round(Number(g.target));
+          if (!Number.isFinite(target)) target = 1;
+          target = Math.min(10, Math.max(1, target));
+          const id =
+            typeof g.id === "string" && g.id.trim()
+              ? g.id.trim().slice(0, 20)
+              : "c" + chapterNumber + "g" + (i + 1);
+          return {
+            id,
+            desc_pt: g.desc_pt.trim().slice(0, 160),
+            desc_fr: String(g.desc_fr ?? "").trim().slice(0, 160),
+            kind: g.kind,
+            target,
+          };
+        })
+        .slice(0, 3)
+    : [];
+  if (goals.length !== 3) return null; // exatamente 3 objetivos
+
+  let reward_xp = Math.round(Number(parsed.reward_xp));
+  if (!Number.isFinite(reward_xp)) reward_xp = 50 + chapterNumber * 30;
+  reward_xp = Math.min(500, Math.max(20, reward_xp));
+
+  return { title_fr, title_pt, intro_pt, goals, reward_xp, reward_pt };
+}
+
+// Fallback local completo: se a IA falhar (instabilidade, JSON inválido,
+// timeout), o capítulo sai daqui — a história nunca trava.
+function fallbackChapter(n, playerName) {
+  const g = (i, desc_pt, desc_fr, kind, target) => ({
+    id: "c" + n + "g" + i,
+    desc_pt,
+    desc_fr,
+    kind,
+    target,
+  });
+  switch (n) {
+    case 1:
+      return {
+        title_fr: "L'arrivée",
+        title_pt: "A chegada",
+        intro_pt: `${playerName}, você acabou de chegar a Paris com as malas e um punhado de palavras em francês. A Camille te esperou com café fresco no apartamento do 11e — e o Minou já dormiu em cima do seu casaco. Hora dos primeiros passos.`,
+        goals: [
+          g(1, "Converse 3 vezes com a Camille", "Parle 3 fois avec Camille", "talk", 3),
+          g(2, "Diga 2 frases em voz alta no espelho", "Dis 2 phrases à voix haute", "talk", 2),
+          g(3, "Revise 5 palavras novas", "Révise 5 mots nouveaux", "review", 5),
+        ],
+        reward_xp: 80,
+        reward_pt: "Destrava o celular do jogo: os NPCs começam a te mandar mensagens.",
+      };
+    case 2:
+      return {
+        title_fr: "Le premier boulot",
+        title_pt: "O primeiro trabalho",
+        intro_pt: `A vida em Paris começou a virar rotina: o café da manhã com a Camille, o metrô, o mercado. Agora falta o principal — ${playerName} precisa do primeiro emprego para pagar as contas e destravar o francês do trabalho.`,
+        goals: [
+          g(1, "Complete 2 turnos de trabalho", "Fais 2 services au travail", "work", 2),
+          g(2, "Converse 2 vezes com o patrão", "Parle 2 fois avec le patron", "talk", 2),
+          g(3, "Revise 6 palavras aprendidas", "Révise 6 mots appris", "review", 6),
+        ],
+        reward_xp: 110,
+        reward_pt: "Destrava o salário: dinheiro do jogo para gastar no bairro.",
+      };
+    case 3:
+      return {
+        title_fr: "Les amis du quartier",
+        title_pt: "Os amigos do bairro",
+        intro_pt: `O bairro começou a reconhecer ${playerName}: o Hugo já sabe seu pedido no Café du coin e a Léa puxa papo no corredor do prédio. É o capítulo de transformar vizinhos em amigos — em francês.`,
+        goals: [
+          g(1, "Converse 3 vezes com o Hugo no café", "Parle 3 fois avec Hugo au café", "talk", 3),
+          g(2, "Converse 2 vezes com a Léa", "Parle 2 fois avec Léa", "talk", 2),
+          g(3, "Compre algo no café", "Achète quelque chose au café", "buy", 1),
+        ],
+        reward_xp: 140,
+        reward_pt: "Destrava os convites: os amigos passam a te chamar para sair.",
+      };
+    case 4:
+      return {
+        title_fr: "Comme un Parisien",
+        title_pt: "Como um parisiense",
+        intro_pt: `${playerName} já resolve a vida sozinho: mercado, contas, metrô lotado, trabalho. A Camille até brincou que você reclama do metrô como um parisiense de verdade. Hora de dominar o dia a dia.`,
+        goals: [
+          g(1, "Complete 3 turnos de trabalho", "Fais 3 services au travail", "work", 3),
+          g(2, "Revise 8 palavras aprendidas", "Révise 8 mots appris", "review", 8),
+          g(3, "Faça 1 petit test", "Fais 1 petit test", "test", 1),
+        ],
+        reward_xp: 180,
+        reward_pt: "Destrava o nível seguinte do emprego: tarefas e salário maiores.",
+      };
+    case 5:
+      return {
+        title_fr: "L'imprévu",
+        title_pt: "O imprevisto",
+        intro_pt: `Nada como um imprevisto para medir o seu francês: a semana de ${playerName} sai dos trilhos e vai ser preciso se virar — explicar, negociar, resolver — tudo em francês, sem colinha. A Camille garante que você dá conta.`,
+        goals: [
+          g(1, "Resolva 3 turnos de trabalho difíceis", "Fais 3 services difficiles", "work", 3),
+          g(2, "Converse 3 vezes para resolver o problema", "Parle 3 fois pour régler le problème", "talk", 3),
+          g(3, "Faça 1 petit test", "Fais 1 petit test", "test", 1),
+        ],
+        reward_xp: 220,
+        reward_pt: "Destrava a confiança: os NPCs passam a falar com você num francês mais natural.",
+      };
+    default:
+      return {
+        title_fr: "Chez soi à Paris",
+        title_pt: "Em casa em Paris",
+        intro_pt: `Um dia você percebe: pediu o café sem pensar, riu de uma piada do Hugo, reclamou da ligne 13 com convicção. Paris virou casa, ${playerName}. Este capítulo é para colher o que você plantou — em francês.`,
+        goals: [
+          g(1, "Converse 4 vezes com os seus amigos", "Parle 4 fois avec tes amis", "talk", 4),
+          g(2, "Revise 10 palavras aprendidas", "Révise 10 mots appris", "review", 10),
+          g(3, "Faça 1 petit test", "Fais 1 petit test", "test", 1),
+        ],
+        reward_xp: 250,
+        reward_pt: "Destrava o modo livre: Paris inteira aberta, no seu ritmo.",
+      };
+  }
 }
 
 /* ------------------------------------------------------------------ */
@@ -948,6 +1160,20 @@ async function handleChat(request, env) {
       return fail("Mensagem longa demais (máx. 500 caracteres).", 400);
     }
 
+    // v4: revisão invisível + contexto de cena (campos opcionais; o Minou
+    // fica de fora — o contrato dele é rígido e miado não revisa palavra).
+    const reviewWords = cleanPairList(body.review_words, MAX_REVIEW_WORDS);
+    const chatCtx =
+      body.context && typeof body.context === "object" && !Array.isArray(body.context)
+        ? body.context
+        : {};
+    const activity =
+      typeof chatCtx.activity === "string" ? chatCtx.activity.trim().slice(0, MAX_ACTIVITY) : "";
+    const chatTimeOfDay =
+      typeof chatCtx.time_of_day === "string"
+        ? chatCtx.time_of_day.trim().slice(0, MAX_TIME_OF_DAY)
+        : "";
+
     let system =
       npc === "minou"
         ? buildSystemMinou(player)
@@ -959,6 +1185,10 @@ async function handleChat(request, env) {
               ? buildSystemPatron(player)
               : buildSystemCamille(player);
     if (channel === "sms") system += smsRules(player.name);
+    if (npc !== "minou") {
+      if (activity || chatTimeOfDay) system += nowContextRules(activity, chatTimeOfDay);
+      if (reviewWords.length) system += reviewRules(player.name, reviewWords);
+    }
 
     const npcLabel =
       npc === "minou"
@@ -1135,8 +1365,38 @@ async function handleChat(request, env) {
     });
   }
 
+  /* -------------------- action "chapter_brief" (v4) ---------------- */
+  if (action === "chapter_brief") {
+    const chapterNumber = Number(body.chapter_number);
+    if (!CHAPTERS.includes(chapterNumber)) {
+      return fail("chapter_number inválido: use 1 a 6.", 400);
+    }
+    const doneSummary =
+      typeof body.done_summary === "string"
+        ? body.done_summary.trim().slice(0, MAX_DONE_SUMMARY)
+        : "";
+
+    const userMsg =
+      "Capítulo: " + chapterNumber + "." +
+      (doneSummary ? "\nO que " + player.name + " fez no capítulo anterior: " + doneSummary : "") +
+      "\nGere o briefing agora. Sorteio de variação: #" + Math.floor(Math.random() * 1e6) + ".";
+
+    const res = await runAction(env, {
+      model: MODEL_BY_ACTION(env, "chapter_brief"),
+      system: buildSystemChapterBrief(chapterNumber, player, doneSummary),
+      messages: [{ role: "user", content: userMsg }],
+      temperature: 0.9,
+      maxTokens: MAX_TOKENS_BY_ACTION.chapter_brief,
+      sanitize: (p) => sanitizeChapterBrief(p, chapterNumber),
+    });
+    // A história nunca trava: qualquer falha (502/504/429...) cai no
+    // capítulo local pré-escrito — mesmo contrato, sem personalização.
+    if (res.status === 200) return res;
+    return json(fallbackChapter(chapterNumber, player.name));
+  }
+
   return fail(
-    'action inválida: use "chat", "translate_help", "mirror_check", "work_email", "phone_message", "job_task" ou "eval_answer".',
+    'action inválida: use "chat", "translate_help", "mirror_check", "work_email", "phone_message", "job_task", "eval_answer" ou "chapter_brief".',
     400
   );
 }
@@ -1166,6 +1426,7 @@ export default {
             "phone_message",
             "job_task",
             "eval_answer",
+            "chapter_brief",
           ],
         });
       }
@@ -1176,6 +1437,12 @@ export default {
         } catch (_) {
           return fail("Erro interno do servidor.", 500);
         }
+      }
+      if (pathname === "/api/tts") {
+        // A rota real (OpenAI TTS + cache em disco) vive no server.mjs, que
+        // intercepta /api/tts ANTES do worker. Rodando como CF Worker puro,
+        // a voz da Camille fica indisponível — aviso honesto, sem quebrar.
+        return fail("Voz indisponível neste deploy: /api/tts é atendida pelo servidor Node (server.mjs).", 501);
       }
       return fail("Rota de API não encontrada.", 404);
     }
