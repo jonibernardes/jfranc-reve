@@ -561,6 +561,37 @@ input{font-family:inherit}
 @keyframes rot90{from{transform:rotate(0)}to{transform:rotate(90deg)}}
 #rotateov b{font-family:'Fraunces',serif;font-size:22px;color:#f3d9a8}
 #rotateov span{font-size:14px;color:#b9a8c9;line-height:1.5}
+/* ====== v7: vista da janela ====== */
+#vista{position:fixed;inset:0;z-index:44;display:none;pointer-events:none}
+#vista.on{display:block}
+#vista-panel{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);padding:13px 18px;min-width:320px;max-width:min(560px,92vw);pointer-events:auto;animation:pop .35s}
+#vista-wx{display:flex;align-items:center;gap:9px;font-size:13px;font-weight:800;margin-bottom:7px}
+#vista-ico{font-size:20px}
+#vista-temp{font-family:'Fraunces',serif;font-size:19px;font-weight:900;color:var(--paris)}
+#vista-cond{color:var(--ink2)}
+#vista-src{margin-left:auto;font-size:9.5px;font-weight:800;letter-spacing:.6px;color:var(--ink2);opacity:.75;text-transform:uppercase}
+#vista-fr{font-family:'Fraunces',serif;font-size:16px;font-style:italic;line-height:1.5;color:var(--ink)}
+#vista-tools{display:flex;gap:8px;margin-top:9px}
+#vista-tools button{font-size:12px;font-weight:800;padding:6px 13px;border-radius:10px;background:rgba(255,255,255,.5);transition:background .2s}
+#vista-tools button:hover{background:rgba(255,255,255,.85)}
+/* ====== v7: lexique do métier no celular ====== */
+#pn-lex{flex:1;overflow-y:auto;padding:8px 10px;display:flex;flex-direction:column;gap:6px}
+.lex-head{font-size:11.5px;font-weight:800;color:var(--terra);text-align:center;padding:4px 0 2px}
+.lex-bar{height:8px;background:rgba(90,70,50,.14);border-radius:99px;overflow:hidden;margin:0 6px 6px}
+.lex-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--terra),var(--gold));transition:width .5s}
+.lex-row{display:flex;align-items:center;gap:8px;padding:6px 9px;border-radius:10px;background:rgba(255,255,255,.5);font-size:12px;font-weight:700}
+.lex-row.off{opacity:.42;filter:grayscale(.6)}
+.lex-row .lfr{color:var(--paris)}
+.lex-row .lpt{color:var(--ink2);font-size:10.5px;margin-left:auto;text-align:right}
+.lex-row button{font-size:12px;padding:2px 7px;border-radius:8px;background:rgba(74,111,165,.12)}
+.lex-lvl{font-size:9px;font-weight:900;color:#fff;background:var(--gold);border-radius:99px;padding:1px 6px;letter-spacing:.4px}
+/* ====== v7: guarda-roupa ====== */
+.arm-sec{font-size:11px;font-weight:800;letter-spacing:.8px;color:var(--terra);text-transform:uppercase;margin:10px 2px 6px}
+.arm-row{display:flex;gap:8px;flex-wrap:wrap}
+.arm-sw{width:34px;height:34px;border-radius:12px;border:3px solid rgba(255,255,255,.7);box-shadow:0 2px 8px rgba(70,45,25,.25);transition:transform .15s}
+.arm-sw:hover{transform:scale(1.12)}
+.arm-sw.cur{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold)}
+.arm-sw:disabled{opacity:.25;cursor:not-allowed;transform:none}
 </style>
 </head>
 <body>
@@ -778,6 +809,7 @@ input{font-family:inherit}
         <button id="pn-close">✕</button>
       </div>
       <div id="pn-career" style="display:none"></div>
+      <div id="pn-lex" style="display:none"></div>
       <div id="pn-threads"></div>
       <div id="pn-thread">
         <div id="sms-msgs"></div>
@@ -840,6 +872,15 @@ input{font-family:inherit}
   </div>
 </div>
 
+<!-- v7: vista da janela (Regarder Paris) -->
+<div id="vista">
+  <div id="vista-panel" class="glass">
+    <div id="vista-wx"><span id="vista-ico">🗼</span><span id="vista-temp"></span><span id="vista-cond"></span><span id="vista-src"></span></div>
+    <div id="vista-fr"></div>
+    <div id="vista-tools"><button id="vista-spk">🔊 Écouter</button><button id="vista-close">Fermer ✕</button></div>
+  </div>
+</div>
+
 <!-- toast -->
 <div id="toast" class="glass"></div>
 
@@ -891,7 +932,7 @@ const S={
   daily:{day:0,list:[],done:{}},
   workUntil:0, cafeMission:0, leaDay:0,
   phone:{threads:{camille:[],hugo:[],lea:[],patron:[]},unread:{camille:0,hugo:0,lea:0,patron:0},day:0,count:0,greetDay:0},
-  career:{id:null,level:1,turns:0,perf:[]},
+  career:{id:null,level:1,turns:0,perf:[],lex:{},exam:false},
   certs:[], pendingTest:null,
   events:{day:0,count:0,cool:{}},
   lastReal:0,
@@ -908,7 +949,10 @@ const S={
   bio:{wc:20,brushAm:0,brushPm:0},
   camMode:'stable',
   certInfo:{},
-  careDay:{hyg:0,linge:0,menage:0,minou:0}
+  careDay:{hyg:0,linge:0,menage:0,minou:0},
+  /* v7 */
+  outfit:{shirt:null,pants:null,hair:null},
+  delivery:{at:0,item:null,stock:[]}
 };
 function srsNew(now){ return {added:now,due:now+DAY_MS,interval_d:1,ease:2.5}; }
 /* v4.1: domínio estimado pra save antigo, a partir do intervalo SRS */
@@ -960,7 +1004,7 @@ function applySaveData(d){
     }
     S.phone.day=d.phone.day||0; S.phone.count=d.phone.count||0; S.phone.greetDay=d.phone.greetDay||0;
   }
-  if(d.career&&typeof d.career==='object') S.career={id:d.career.id||null,level:clamp(d.career.level||1,1,3),turns:d.career.turns||0,perf:Array.isArray(d.career.perf)?d.career.perf.slice(-10):[]};
+  if(d.career&&typeof d.career==='object') S.career={id:d.career.id||null,level:clamp(d.career.level||1,1,3),turns:d.career.turns||0,perf:Array.isArray(d.career.perf)?d.career.perf.slice(-10):[],lex:(d.career.lex&&typeof d.career.lex==='object')?d.career.lex:{},exam:!!d.career.exam};
   if(Array.isArray(d.certs)) S.certs=d.certs.slice();
   if(typeof d.pendingTest==='string') S.pendingTest=d.pendingTest;
   if(d.events&&typeof d.events==='object') S.events={day:d.events.day||0,count:d.events.count||0,cool:(d.events.cool&&typeof d.events.cool==='object')?d.events.cool:{}};
@@ -983,6 +1027,9 @@ function applySaveData(d){
   if(d.camMode==='follow') S.camMode='follow';
   if(d.certInfo&&typeof d.certInfo==='object') S.certInfo=d.certInfo;
   if(d.careDay&&typeof d.careDay==='object') S.careDay=Object.assign({hyg:0,linge:0,menage:0,minou:0},d.careDay);
+  /* v7: campos novos, sempre com default */
+  if(d.outfit&&typeof d.outfit==='object') S.outfit={shirt:d.outfit.shirt||null,pants:d.outfit.pants||null,hair:d.outfit.hair||null};
+  if(d.delivery&&typeof d.delivery==='object') S.delivery={at:(typeof d.delivery.at==='number')?d.delivery.at:0,item:d.delivery.item||null,stock:Array.isArray(d.delivery.stock)?d.delivery.stock.filter(x=>typeof x==='string').slice(0,6):[]};
   /* migração sem punição: Minou conta como alimentado hoje; cesto/sujeira ficam em 0 no save antigo */
   if(!S.minouCare.fedDay) S.minouCare.fedDay=S.dia;
   const now=Date.now();
@@ -1953,6 +2000,23 @@ let chambreLamp=null;
   blockRect(-7.85,-2.9,-7.25,-2.3);
   chambreLamp=lamp(-7.5,1.1,-2.6,0xffc27a,0.9,3.5);
 }
+/* ---- v7: l'armoire (guarda-roupa do quarto) ---- */
+const armoire=new THREE.Group();
+{
+  const matArm=M(0x9c6b42,{roughness:0.8});
+  const matArm2=M(0x8a5a36,{roughness:0.8});
+  armoire.add(box(1.1,1.9,0.5,matArm,0,0.95,0));
+  armoire.add(box(1.16,0.07,0.56,matArm2,0,1.93,0));
+  armoire.add(box(0.02,1.7,0.03,matArm2,0,0.92,0.26));            /* vinco das portas */
+  armoire.add(sph(0.028,Mfix(0xd9a441,{metalness:0.5,roughness:0.4}),-0.08,1.0,0.27,7,5));
+  armoire.add(sph(0.028,Mfix(0xd9a441,{metalness:0.5,roughness:0.4}), 0.08,1.0,0.27,7,5));
+  armoire.position.set(-4.6,0,-5.6);
+  room.add(armoire);
+  blockRect(-5.2,-5.9,-4.0,-5.25);
+}
+reg(armoire,{id:'armoire',fr:"l'armoire",pt:'o guarda-roupa',approach:{x:-4.6,z:-4.85},actions:[
+  {emoji:'👗',fr:"Ouvrir l'armoire",pt:'trocar roupa e cabelo',run:()=>openArmoire()}
+]});
 
 /* ---- cozinha (parede direita x=8) ---- */
 const matCounter=M(0x7b9e8e,{roughness:0.8});
@@ -2157,7 +2221,8 @@ const miroir=new THREE.Group();
   blockRect(-7.85,-0.15,-7.15,0.45);
 }
 reg(miroir,{id:'miroir',fr:'le miroir',pt:'o espelho do banheiro',approach:{x:-6.6,z:0.15},actions:[
-  {emoji:'🗣️',fr:'Se parler',pt:'praticar em voz alta',run:()=>actMirror()}
+  {emoji:'🗣️',fr:'Se parler',pt:'praticar em voz alta',run:()=>actMirror()},
+  {emoji:'👗',fr:'Changer de look',pt:'trocar roupa e cabelo',run:()=>openArmoire()} /* v7 */
 ]});
 /* ---- salle de bain: lavabo, chuveiro, vaso, caixinha do Minou ---- */
 const douche=new THREE.Group();
@@ -2523,7 +2588,7 @@ function makeHuman({skin=0xf0c8a0,shirt=0xd9a441,pants=0x4a6fa5,hair=0x5c4030,sh
   head.position.y=1.12;
   g.add(head);
   g.traverse(o=>{ if(o.isMesh){o.castShadow=true;} });
-  return {g,lLeg,rLeg,lArm,rArm,torso,head};
+  return {g,lLeg,rLeg,lArm,rArm,torso,head,mats:{shirt:matShirt,pants:matPants,hair:matHair}};
 }
 
 /* ---- player ---- */
@@ -2934,6 +2999,7 @@ function goTo(x,z,onArrive=null){
     if($('workmodal').classList.contains('open')){ $('workmodal').classList.remove('open'); setLaptop(false); }
   }
   const p=findPath(player.g.position.x,player.g.position.z,x,z);
+  camPanned=false; /* v7: clique de movimento devolve o enquadre automático */
   if(!p){ if(onArrive) onArrive(); return; }
   move.path=p; move.pi=0; move.onArrive=onArrive; move.walking=true;
   showMarker(x,z);
@@ -3015,24 +3081,27 @@ function tickMarker(dt){
 let camDistCur=cam.dist;
 let camFollow=false;   /* v6: estado da zona morta (histerese: liga na borda, desliga quando reenquadra) */
 let certView=null;     /* v6: close-up do certificado na parede */
+let vistaView=null;    /* v7: vista da janela (Regarder Paris) */
 function tickCamera(dt){
-  if(certView){
-    /* aproxima suave do quadro */
-    cam.yaw=lerp(cam.yaw,certView.yaw,Math.min(1,dt*3));
-    cam.pitch=lerp(cam.pitch,certView.pitch,Math.min(1,dt*3));
-    cam.target.lerp(new THREE.Vector3(certView.x,certView.y,certView.z),Math.min(1,dt*3.2));
-    camDistCur=lerp(camDistCur,certView.dist,Math.min(1,dt*3));
+  if(certView||vistaView){
+    const cv=certView||vistaView;
+    /* aproxima suave do quadro / da janela */
+    cam.yaw=lerp(cam.yaw,cv.yaw,Math.min(1,dt*3));
+    cam.pitch=lerp(cam.pitch,cv.pitch,Math.min(1,dt*3));
+    cam.target.lerp(new THREE.Vector3(cv.x,cv.y,cv.z),Math.min(1,dt*3.2));
+    camDistCur=lerp(camDistCur,cv.dist,Math.min(1,dt*3));
   }else{
     /* assistindo TV: zoom suave em direção à tela */
     const tx=tvWatching?(player.g.position.x*0.4+(-0.95)*0.6):player.g.position.x;
     const tz=tvWatching?(player.g.position.z*0.4+(-0.55)*0.6):player.g.position.z;
     const ty=tvWatching?0.9:0.85;
-    if(tvWatching||S.camMode==='follow'){
+    if(tvWatching||(S.camMode==='follow'&&!camPanned)){
       cam.target.lerp(new THREE.Vector3(tx,ty,tz),Math.min(1,dt*3.2));
       camFollow=false;
-    }else{
+    }else if(!camPanned){
       /* v6: câmera ESTÁVEL com zona morta — só desliza quando o player chega perto da borda
-         visível (~30% de margem) e para assim que o enquadra de novo. Sem oscilar: histerese. */
+         visível (~30% de margem) e para assim que o enquadra de novo. Sem oscilar: histerese.
+         v7: um pan manual desliga isso até o próximo clique de movimento. */
       const p=new THREE.Vector3(player.g.position.x,0.85,player.g.position.z).project(camera);
       const out=Math.abs(p.x)>0.62||Math.abs(p.y)>0.55;
       const back=Math.abs(p.x)<0.14&&Math.abs(p.y)<0.16;
@@ -3056,23 +3125,42 @@ const keys={};
 addEventListener('keydown',e=>{
   if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA') return;
   keys[e.key.toLowerCase()]=true;
+  if(e.key.startsWith('Arrow')) e.preventDefault(); /* v7: setas são da câmera */
 });
 addEventListener('keyup',e=>{ keys[e.key.toLowerCase()]=false; });
 let rdrag=null;
+/* v7: PAN manual — botão esquerdo arrastando (threshold 6px pra não matar o click-to-move) */
+let ldrag=null, camPanned=false;
+function camPanScreen(mx,my){
+  /* mx>0 = a vista anda pra direita da tela; my>0 = anda pro fundo da cena */
+  const sy=Math.sin(cam.yaw), cy=Math.cos(cam.yaw);
+  cam.target.x=clamp(cam.target.x+cy*mx-sy*my,-15,15);
+  cam.target.z=clamp(cam.target.z-sy*mx-cy*my,-17,11);
+  camPanned=true; camFollow=false;
+}
 canvas.addEventListener('contextmenu',e=>e.preventDefault());
 canvas.addEventListener('pointerdown',e=>{
   if(e.button===2){ rdrag={x:e.clientX,yaw:cam.yaw,pitch:cam.pitch,y:e.clientY}; }
+  else if(e.button===0&&e.pointerType!=='touch'){ ldrag={x0:e.clientX,y0:e.clientY,x:e.clientX,y:e.clientY,on:false}; }
 });
 addEventListener('pointermove',e=>{
   if(rdrag){
     cam.yaw=rdrag.yaw+(e.clientX-rdrag.x)*0.008;
     cam.pitch=clamp(rdrag.pitch+(e.clientY-rdrag.y)*0.004,0.5,1.25);
   }
+  if(ldrag){
+    if(!ldrag.on&&Math.hypot(e.clientX-ldrag.x0,e.clientY-ldrag.y0)>6) ldrag.on=true;
+    if(ldrag.on&&!certView&&!vistaView){
+      const k=camDistCur*0.0016;
+      camPanScreen(-(e.clientX-ldrag.x)*k,(e.clientY-ldrag.y)*k);
+    }
+    ldrag.x=e.clientX; ldrag.y=e.clientY;
+  }
 });
-addEventListener('pointerup',()=>{ rdrag=null; });
+addEventListener('pointerup',()=>{ rdrag=null; ldrag=null; });
 /* ===== toque: 1 dedo arrasta = orbitar suave · 2 dedos = pinch zoom ===== */
 const tPts=new Map();
-let pinchD0=0,pinchDist0=0,orbit0=null,hadMulti=false;
+let pinchD0=0,pinchDist0=0,orbit0=null,hadMulti=false,pinchC0=null;
 canvas.addEventListener('pointerdown',e=>{
   if(e.pointerType!=='touch') return;
   tPts.set(e.pointerId,{x:e.clientX,y:e.clientY});
@@ -3084,6 +3172,7 @@ canvas.addEventListener('pointerdown',e=>{
     const [a,b]=[...tPts.values()];
     pinchD0=Math.hypot(a.x-b.x,a.y-b.y);
     pinchDist0=cam.dist;
+    pinchC0={x:(a.x+b.x)/2,y:(a.y+b.y)/2}; /* v7: centro pro pan de 2 dedos */
   }
 });
 canvas.addEventListener('pointermove',e=>{
@@ -3100,12 +3189,19 @@ canvas.addEventListener('pointermove',e=>{
     const [a,b]=[...tPts.values()];
     const d=Math.hypot(a.x-b.x,a.y-b.y);
     if(d>10) cam.dist=clamp(pinchDist0*pinchD0/d,8,24);
+    /* v7: 2 dedos arrastando juntos = pan (o pinch continua funcionando) */
+    const c2={x:(a.x+b.x)/2,y:(a.y+b.y)/2};
+    if(pinchC0&&!certView&&!vistaView){
+      const k=camDistCur*0.0016;
+      camPanScreen(-(c2.x-pinchC0.x)*k,(c2.y-pinchC0.y)*k);
+    }
+    pinchC0=c2;
   }
 });
 const tEnd=e=>{
   if(e.pointerType!=='touch') return;
   tPts.delete(e.pointerId);
-  if(tPts.size<2) pinchD0=0;
+  if(tPts.size<2){ pinchD0=0; pinchC0=null; }
   if(tPts.size===0) orbit0=null;
 };
 addEventListener('pointerup',tEnd);
@@ -3265,6 +3361,10 @@ function openRadial(x,y,def,root){
     acts=[{emoji:'🎯',fr:'Le Défi !',pt:'treino de palavras',run:()=>{ purrSound(72); openDefi(); }},...def.actions];
   if(def.id==='porte'&&leaWaiting)
     acts=[{emoji:'👋',fr:'Ouvrir à Léa',pt:'abrir pra vizinha',run:()=>openLea()},...def.actions];
+  if(def.id==='porte'&&delivWaiting)
+    acts=[{emoji:'🛵',fr:'Ouvrir au livreur',pt:'receber a entrega',run:()=>delivDoor()},...acts];
+  if(def.id==='frigo'&&S.delivery&&S.delivery.stock.length&&DELIV_MENU[S.delivery.stock[0]])
+    acts=[{emoji:'🍽️',fr:'Manger '+DELIV_MENU[S.delivery.stock[0]].fr,pt:'a refeição entregue',run:()=>delivEat()},...acts];
   if(def.id==='camille'&&S.pendingTest)
     acts=[{emoji:'🎓',fr:'Petit test !',pt:'prova de nível '+S.pendingTest,run:()=>openTest()},...def.actions];
   if(def.id==='frigo'&&COOK.on)
@@ -3326,6 +3426,7 @@ canvas.addEventListener('pointerup',e=>{
   ac();
   if(radialOpen){ closeRadial(); return; }
   if(certView){ closeCert(); return; } /* v6: qualquer clique na cena fecha o close-up */
+  if(vistaView){ closeVista(); return; } /* v7: clique na cena fecha a vista */
   if(chatOpen) return;
   if(JT.active||PTEST.active||phoneOpen) return;
   if(WORK.active&&$('wtmodal').classList.contains('open')) return;
@@ -3463,6 +3564,8 @@ function tickHUDClock(dt){
   const wcEl=$('wc-need');
   if(wcEl) wcEl.style.display=(S.bio&&S.bio.wc>=70)?'':'none';
   if(S.seen) lingeTick();
+  if(S.seen) delivTick();      /* v7: entregador toca a porta na hora */
+  cityLightsTick();            /* v7: luzes de Paris ao anoitecer */
   updateHUD();
 }
 
@@ -3564,7 +3667,8 @@ function actCafe(){
 }
 function actCroissant(){
   if(S.stock<=0){
-    toast('🥶 <i>Frigo vide…</i> il faut faire les courses. Abrindo o Marché.');
+    if(S.delivery&&S.delivery.stock.length){ delivEat(); return; }
+    toast('🥶 <i>Frigo vide…</i> Marché (pelo laptop) OU o app <b>Livraison 🛵</b> do celular. Abrindo o Marché.');
     blip(380,0.12,'triangle',0.06);
     setTimeout(openMarche,700);
     return;
@@ -3583,8 +3687,8 @@ function actWindow(){
   burst(0,1.6,-5.6,0xffd9a0,16,0.8,1.6);
   blip(720,0.15,'sine',0.07);
   bump('humeur',22);
-  const [fr,pt]=PH_PARIS[phParisI%PH_PARIS.length]; phParisI++;
-  showPhrase('🗼 Paris te dit...',fr,pt,'C\'est beau...',()=>{ gainXP(5); missionDone('paris'); });
+  openVista(); /* v7: a janela abre a VISTA de Paris, com clima real */
+  gainXP(5); missionDone('paris');
 }
 const PH_BALCON=[
   ["Je respire l'air de Paris.",'Eu respiro o ar de Paris.'],
@@ -3730,9 +3834,10 @@ const MOODS={happy:'😊',amused:'😄',proud:'🥰',curious:'🤔',neutral:'�
 const NPCS={
   camille:{name:'Camille',sub:'ta coloc parisienne',face:'👩‍🦰'},
   hugo:{name:'Hugo',sub:'le serveur du café',face:'🧑‍🍳'},
-  lea:{name:'Léa',sub:'ta voisine du 4e',face:'👱‍♀️'}
+  lea:{name:'Léa',sub:'ta voisine du 4e',face:'👱‍♀️'},
+  patron:{name:'Le Patron',sub:'ton chef',face:'🧑‍💼'} /* v7 */
 };
-const npcHist={hugo:[],lea:[]};
+const npcHist={hugo:[],lea:[],patron:[]};
 const chatMsgs=$('chat-msgs');
 
 function setNpc(npc){
@@ -3789,6 +3894,7 @@ function closeChat(){
   if(!chatOpen) return;
   chatOpen=false;
   dinerCtx=null; /* v6: o jantar termina quando o papo fecha */
+  if(DINNER.on) endDinner(); /* v7 */
   $('chat').classList.remove('open');
   blip(480);
 }
@@ -3967,7 +4073,9 @@ async function apiAction(payload){
   }finally{ clearTimeout(to); }
 }
 async function apiChat(npc,userText,channel){
-  const history=(channel==='sms')
+  const history=(DINNER.on&&!channel)
+    ?DINNER.hist.slice(-12) /* v7: no jantar em grupo, a conversa da mesa é compartilhada */
+    :(channel==='sms')
     ?S.phone.threads[npc].slice(-8).map(m=>({role:m.who==='me'?'user':'assistant',content:m.fr}))
     :(npc==='camille')?S.chat.slice(-12):npcHist[npc].slice(-12);
   const body={
@@ -3980,10 +4088,13 @@ async function apiChat(npc,userText,channel){
   if(channel) body.channel=channel;
   /* v4.1: revisão invisível — o backend tece essas palavras na fala */
   body.review_words=reviewWordsForChat();
-  /* v4: contexto do momento (o backend ignora campos extras) · v6: jantar a dois entra no contexto */
+  /* v4: contexto do momento (o backend ignora campos extras) · v6: jantar a dois entra no contexto
+     v7: mini-conversa no trabalho + jantar em grupo valem pra qualquer NPC */
   body.context=(npc==='camille')
-    ?{activity:(dinerCtx||camActivityFr()),time_of_day:timeOfDay()}
-    :{time_of_day:timeOfDay()};
+    ?{activity:(dinerCtx||workChatCtx||camActivityFr()),time_of_day:timeOfDay()}
+    :{activity:(dinerCtx||workChatCtx||undefined),time_of_day:timeOfDay()};
+  /* v7: clima real de Paris entra no contexto (Camille comenta o tempo de vez em quando) */
+  if(REALWX.fr) body.context.weather=REALWX.fr+(typeof REALWX.temp==='number'?' ('+Math.round(REALWX.temp)+'°C)':'');
   const ctl=new AbortController();
   const to=setTimeout(()=>ctl.abort(),25000);
   try{
@@ -4053,7 +4164,15 @@ let sending=false;
 async function sendToCamille(text,hidden=false){
   if(sending) return;
   sending=true;
-  const npc=curNpc;
+  /* v7: jantar em grupo — a cada rodada UM dos presentes responde (alterna) */
+  let npc=curNpc;
+  if(DINNER.on&&!hidden&&DINNER.guests.length){
+    npc=DINNER.guests[DINNER.i%DINNER.guests.length];
+    DINNER.i++;
+    curNpc=npc;
+    const n=NPCS[npc]; $('npc-name').textContent=n.name; $('npc-face').textContent=n.face;
+    $('typing-who').textContent=n.name+' écrit';
+  }
   if(!hidden) bubbleUser(text);
   renderSuggestions([]);
   $('typing').classList.add('on');
@@ -4078,6 +4197,20 @@ function applyCamille(userText,data,npc='camille'){
     npcHist[npc].push({role:'user',content:userText});
     npcHist[npc].push({role:'assistant',content:data.reply_fr});
     npcHist[npc]=npcHist[npc].slice(-12);
+  }
+  /* v7: mesa compartilhada do jantar — os outros "ouvem" a última fala de cada um */
+  if(DINNER.on){
+    if(!userText.startsWith('(')) DINNER.hist.push({role:'user',content:userText});
+    DINNER.hist.push({role:'assistant',content:'['+(NPCS[npc]?NPCS[npc].name:npc)+'] '+data.reply_fr});
+    DINNER.hist=DINNER.hist.slice(-14);
+    const n=NPCS[npc]; if(n){ $('npc-name').textContent=n.name; $('npc-face').textContent=n.face; $('npc-sub').textContent='à table · dîner à '+(DINNER.guests.length+1); }
+  }
+  /* v7: mini-conversa no trabalho — respondeu de verdade, tarefa social cumprida */
+  if(WORK.active&&WORK.chatPending&&!userText.startsWith('(')){
+    WORK.chatPending=false;
+    gainXP(6); bump('social',8);
+    toast('💬 <b>Bien joué !</b> Papo de trabalho em francês · +6 XP',3000);
+    setTimeout(()=>{ closeChat(); workChatCtx=null; },2600);
   }
   clearOldChips();
   const bubble=bubbleCam(data.reply_fr,data.reply_pt,data.segments,npc==='camille');
@@ -5598,16 +5731,34 @@ function showThreads(){
   $('pn-face').style.display='none';
   $('pn-title').textContent='Messages';
   $('pn-thread').classList.remove('on');
+  $('pn-lex').style.display='none'; /* v7 */
   $('pn-threads').style.display='';
   const gc=$('pn-career');
   if(S.career.id){
     gc.style.display='';
-    gc.textContent='💼 '+CAREERS[S.career.id].fr+' · '+JOB_LEVELS[S.career.level-1];
-  }else gc.style.display='none';
+    gc.innerHTML='💼 '+CAREERS[S.career.id].fr+' · '+JOB_LEVELS[S.career.level-1]+
+      ' <span style="float:right;font-weight:800;color:var(--terra)">📒 Lexique '+lexCount()+'/'+lexPool().length+' ›</span>'+
+      '<div style="font-size:9.5px;color:var(--ink2);font-weight:700;margin-top:2px">'+promoReqText()+'</div>';
+    gc.onclick=()=>openLexique();
+  }else{ gc.style.display='none'; gc.onclick=null; }
   renderThreads();
 }
 function renderThreads(){
   const box=$('pn-threads'); box.innerHTML='';
+  /* v7: app Livraison 🛵 */
+  {
+    const b=document.createElement('button');
+    b.className='thr';
+    const tf=document.createElement('span'); tf.className='tf'; tf.textContent='🛵';
+    const mid=document.createElement('div');
+    const tn=document.createElement('div'); tn.className='tn'; tn.textContent='Livraison';
+    const tp=document.createElement('div'); tp.className='tp';
+    tp.textContent=(S.delivery&&S.delivery.at)?'…ta commande arrive (~1 h)':'pizza, sushis, burger… 8-14€';
+    mid.appendChild(tn); mid.appendChild(tp);
+    b.appendChild(tf); b.appendChild(mid);
+    b.addEventListener('click',()=>openLivraison());
+    box.appendChild(b);
+  }
   const ids=['camille','hugo','lea'];
   if(S.career.id) ids.push('patron');
   for(const id of ids){
@@ -5761,6 +5912,13 @@ function openJobs(){
     const p=document.createElement('div'); p.className='jp1';
     p.textContent=c.pt+' · '+c.lo+'-'+c.hi+'€ / service';
     mid.appendChild(t); mid.appendChild(p);
+    /* v7: o que falta pra promoção, preto no branco */
+    if(S.career.id===id){
+      const req=document.createElement('div');
+      req.style.cssText='font-size:9.5px;font-weight:800;color:var(--terra);margin-top:2px';
+      req.textContent=promoReqText();
+      mid.appendChild(req);
+    }
     const b=document.createElement('button');
     if(S.career.id===id){ b.textContent=JOB_LEVELS[S.career.level-1]+' ✓'; b.disabled=true; }
     else{
@@ -5775,7 +5933,7 @@ function openJobs(){
 }
 function chooseJob(id){
   const first=!S.career.id;
-  S.career={id,level:1,turns:0,perf:[]};
+  S.career={id,level:1,turns:0,perf:[],lex:{},exam:false};
   $('jobsmodal').classList.remove('open');
   chime();
   toast('💼 <b>'+CAREERS[id].fr+'</b> · '+(first?'Contratado! Você começa como Débutant.':'Boulot novo. Recomeça do nível Débutant.'),3600);
@@ -6218,7 +6376,7 @@ function rainSoundStop(){
 }
 let evTimer=30, camExcl=null;
 function anyUiBusy(){
-  return chatOpen||radialOpen||phoneOpen||tvWatching||inCafe||JT.active||PTEST.active||DEFI.active||WORK.active||COOK.on||!!certView||!!document.querySelector('.modal.open');
+  return chatOpen||radialOpen||phoneOpen||tvWatching||inCafe||JT.active||PTEST.active||DEFI.active||WORK.active||COOK.on||!!certView||!!vistaView||!!document.querySelector('.modal.open');
 }
 function tickEvents(dt){
   tickRain(dt);
@@ -6671,6 +6829,7 @@ function enterWorkEnv(id){
   player.g.rotation.y=env.spawn.ry||0;
   cam.yaw=Math.PI*0.22; cam.pitch=0.86; cam.dist=17; /* v6: turno começa ~25% mais longe */
   cam.target.set(env.spawn.x,0.85,env.spawn.z);
+  camPanned=false; camFollow=false;
 }
 function exitWorkEnv(){
   if(!WORK.active&&!WORK.env) return;
@@ -6693,7 +6852,11 @@ function exitWorkEnv(){
     cam.yaw=sv.cam.yaw; cam.pitch=sv.cam.pitch; cam.dist=sv.cam.dist;
     cam.target.set(sv.cam.tx,sv.cam.ty,sv.cam.tz);
   }
+  camPanned=false; camFollow=false;
   WORK.saved=null;
+  /* v7: nada do turno atravessa a porta */
+  workChatCtx=null; WORK.chatPending=false; WORK.surprise=null; WORK.audioSay=null;
+  if(WORK.surpTimer){ clearTimeout(WORK.surpTimer); WORK.surpTimer=null; }
   move.walking=false; move.path=null; move.onArrive=null;
   $('wt-banner').classList.remove('on');
   $('wt-tray').classList.remove('on');
@@ -6702,14 +6865,31 @@ function exitWorkEnv(){
   save();
 }
 /* ---- HUD do turno ---- */
-function wtBanner(segs,say,sub){
+function wtBanner(segs,say,sub,opts){
+  opts=opts||{};
   $('wt-count').textContent='Tâche '+Math.min(WORK.done+1,WORK.total)+' / '+WORK.total+' · '+CAREERS[WORK.career].fr;
-  segSpans($('wt-instr'),segs,say);
-  $('wt-sub').textContent=sub||'';
+  WORK.lastBanner={segs,say,sub};
+  /* v7 nível Expert: 1/3 das instruções chega SÓ EM ÁUDIO — treino de escuta */
+  const audio=!opts.noAudio&&WORK.active&&S.career.level>=3&&Math.random()<0.34;
+  if(audio){
+    $('wt-instr').innerHTML='<i style="font-weight:800">🎧 Instruction en audio — écoute bien !</i>';
+    $('wt-sub').textContent='Sem texto desta vez. O 🔊 Réécouter repete quantas vezes quiser.';
+    WORK.audioSay=say;
+  }else{
+    segSpans($('wt-instr'),segs,say);
+    $('wt-sub').textContent=sub||'';
+    WORK.audioSay=null;
+  }
+  $('wt-spk').textContent=audio?'🔊 Réécouter':'🔊 Écouter';
   WORK.say=say;
   $('wt-banner').classList.add('on');
   exposeFromText(say);
+  lexScan(say); /* v7: termos do métier que aparecem entram no lexique + Exposées */
   speak(say);
+}
+function wtBannerRestore(){
+  const b=WORK.lastBanner;
+  if(WORK.active&&b) wtBanner(b.segs,b.say,b.sub,{noAudio:true});
 }
 $('wt-spk').addEventListener('click',()=>{ if(WORK.say) speak(WORK.say); blip(700); });
 $('wt-quit').addEventListener('click',()=>{
@@ -6727,7 +6907,15 @@ function wtTask(ok){
   if(ok) blip(WORK.taskErr?700:880,0.12,'sine',0.09);
   else thud();
   WORK.taskErr=false;
+  /* v7: instrução que era só áudio revela o texto DEPOIS de concluída */
+  if(WORK.audioSay){ toast('📝 A instrução era: « '+WORK.audioSay+' »',4200); WORK.audioSay=null; }
   if(WORK.done>=WORK.total){ setTimeout(()=>wtEnd(false),1000); return true; }
+  /* v7: pinceladas de lexique + eventos-surpresa + mini-conversa (Expert) */
+  if(Math.random()<0.4) lexDrop();
+  if(S.career.level>=3){
+    if(!WORK.surpDone&&WORK.done===Math.floor(WORK.total/2)){ WORK.surpDone=true; setTimeout(runWorkSurprise,1600); }
+    if(!WORK.chatDone&&WORK.done===Math.max(2,Math.floor(WORK.total/4))){ WORK.chatDone=true; setTimeout(workMiniChat,1600); }
+  }
   return false;
 }
 function wtModal(title,qhtml,build){
@@ -6743,16 +6931,23 @@ $('wt-close').addEventListener('click',()=>{ wtModalClose(); blip(480); });
 function startShift(id){
   bump('energie',-25);
   S.workUntil=gameNow()+120;
-  WORK.total=(id==='bar')?6:7;
+  /* v7: complexidade sobe com o nível — Débutant como sempre, Confirmé 9-10, Expert 12 */
+  const lv=S.career.level;
+  WORK.total=(lv>=3)?12:(lv===2)?((id==='bar')?9:10):((id==='bar')?6:7);
   WORK.done=0; WORK.hits=0; WORK.taskErr=false; WORK.words=[]; WORK.say='';
+  WORK.audioSay=null; WORK.surpDone=false; WORK.chatDone=false; WORK.chatPending=false;
+  WORK.surprise=null; WORK.lastBanner=null; WORK.lexDrops=0;
   $('wt-quit').textContent='Encerrar turno'; /* v6: a barra é compartilhada com a cozinha */
   enterWorkEnv(id);
-  toast('💼 <b>'+CAREERS[id].fr+'</b> · turno aberto. Escuta a instrução e vai ao lugar certo.',4200);
+  if(S.career.exam) toast('🎓 <b>TURNO-PROVA de Expert!</b> Nota ≥ 80% te promove. Boa sorte.',5200);
+  else toast('💼 <b>'+CAREERS[id].fr+'</b> · '+JOB_LEVELS[lv-1]+' · '+WORK.total+' tâches. Escuta a instrução e vai ao lugar certo.',4200);
   setTimeout(()=>{ if(WORK.active) ENV_START[id](); },900);
 }
 function wtEnd(early){
   if(WORK.finishing) return;
   WORK.finishing=true;
+  WORK.surprise=null; WORK.chatPending=false;
+  if(WORK.surpTimer){ clearTimeout(WORK.surpTimer); WORK.surpTimer=null; }
   const c=CAREERS[WORK.career];
   const mult=JOB_MULT[S.career.level-1];
   const ratio=WORK.total?WORK.hits/WORK.total:0;
@@ -6762,11 +6957,23 @@ function wtEnd(early){
   const pct=Math.round(ratio*100);
   S.career.perf.push(pct); S.career.perf=S.career.perf.slice(-10);
   S.career.turns++;
-  let promo=false;
-  if(S.career.level<3&&S.career.turns%5===0){
+  /* v7: promoção agora exige VOCABULÁRIO do métier (e Expert exige turno-prova ≥80%) */
+  let promo=false, promoNote='';
+  const lexN=lexCount();
+  if(S.career.exam){
+    S.career.exam=false;
+    if(pct>=80){ S.career.level=3; promo=true; }
+    else{ S.career.exam=true; promoNote='🎓 Prova: '+pct+'% — precisa de 80%. O próximo turno é outra prova.'; }
+  }else if(S.career.level===1&&S.career.turns>=5&&S.career.turns%5===0){
     const last5=S.career.perf.slice(-5);
     const avg=last5.reduce((a,b)=>a+b,0)/last5.length;
-    if(avg>=70){ S.career.level++; promo=true; }
+    if(avg>=70&&lexN>=10){ S.career.level=2; promo=true; }
+    else if(avg>=70) promoNote='📒 Confirmé exige 10 mots du métier — você tem '+lexN+'/10. O Lexique fica no celular.';
+  }else if(S.career.level===2&&S.career.turns%5===0){
+    const last5=S.career.perf.slice(-5);
+    const avg=last5.reduce((a,b)=>a+b,0)/last5.length;
+    if(avg>=70&&lexN>=20){ S.career.exam=true; promoNote='🎓 <b>Prova de Expert desbloqueada!</b> O próximo turno é a prova: nota ≥ 80% promove.'; }
+    else if(avg>=70) promoNote='📒 Expert exige 20 mots du métier — você tem '+lexN+'/20.';
   }
   dailyHit('work'); chapterHit('work'); phoneFlagPatron();
   chime();
@@ -6774,7 +6981,7 @@ function wtEnd(early){
   $('wt-tray').classList.remove('on');
   const note=ratio>=0.99?'Parfait !':ratio>=0.7?'Beau travail !':ratio>=0.4?'Amanhã sai melhor.':'Dia duro, hein.';
   wtModal('💼 Fin du service','',(q,area)=>{
-    q.innerHTML='<div style="text-align:center"><div style="font-family:Fraunces,serif;font-size:30px;font-weight:900;color:var(--terra)">💶 +'+pay+'€</div><div style="font-size:13px;font-weight:800;color:var(--ink2);margin-top:6px">'+WORK.hits+' / '+WORK.total+' tarefas certas de primeira · '+note+(promo?'<br><b style="color:var(--gold)">PROMOTION ! Agora você é '+JOB_LEVELS[S.career.level-1]+'</b>':'')+(early?'<br><i>turno encerrado antes da hora</i>':'')+'</div></div>';
+    q.innerHTML='<div style="text-align:center"><div style="font-family:Fraunces,serif;font-size:30px;font-weight:900;color:var(--terra)">💶 +'+pay+'€</div><div style="font-size:13px;font-weight:800;color:var(--ink2);margin-top:6px">'+WORK.hits+' / '+WORK.total+' tarefas certas de primeira · '+note+(promo?'<br><b style="color:var(--gold)">PROMOTION ! Agora você é '+JOB_LEVELS[S.career.level-1]+'</b>':'')+(promoNote?'<br><span style="font-weight:700">'+promoNote+'</span>':'')+(early?'<br><i>turno encerrado antes da hora</i>':'')+'</div></div>';
     const chips=document.createElement('div');
     chips.className='wchips'; chips.style.justifyContent='center'; chips.style.marginTop='10px';
     const seen=new Set();
@@ -6794,7 +7001,13 @@ const BAR_ITEMS={
   cafe:{fr:'un café',pt:'um café',em:'☕',price:2},
   croissant:{fr:'un croissant',pt:'um croissant',em:'🥐',price:1},
   painchoc:{fr:'un pain au chocolat',pt:'um pão de chocolate',em:'🍫',price:2},
-  sandwich:{fr:'un sandwich',pt:'um sanduíche',em:'🥪',price:4}
+  sandwich:{fr:'un sandwich',pt:'um sanduíche',em:'🥪',price:4},
+  crepe:{fr:'une crêpe',pt:'uma crepe',em:'🥞',price:3} /* v7 */
+};
+/* v7: modificações do pedido (Confirmé+) — "SANS sucre", "AVEC du chocolat"… */
+const BAR_MODS={
+  cafe:['avec du sucre','sans sucre'],
+  crepe:['avec du chocolat','avec du sucre','nature']
 };
 const TABLE_FR=['un','deux','trois'];
 function buildBar(){
@@ -6821,12 +7034,14 @@ function buildBar(){
   const VIT=[
     ['croissant',-4.3,0xd9a441],
     ['painchoc',-3.4,0x8a5f3c],
-    ['sandwich',-2.5,0xc9a06b]
+    ['sandwich',-2.5,0xc9a06b],
+    ['crepe',-1.7,0xe8c078] /* v7 */
   ];
   for(const [vid,vx,colr] of VIT){
     const it=new THREE.Group();
     if(vid==='croissant'){ const s=sph(0.11,Mfix(colr,{roughness:0.8}),0,0.06,0,8,6); s.scale.set(1.5,0.7,0.8); it.add(s); }
     else if(vid==='painchoc'){ it.add(box(0.24,0.1,0.16,Mfix(colr,{roughness:0.8}),0,0.06,0)); }
+    else if(vid==='crepe'){ it.add(cyl(0.13,0.13,0.02,Mfix(colr,{roughness:0.85}),0,0.03,0,14)); }
     else{ const s=box(0.28,0.12,0.15,Mfix(colr,{roughness:0.8}),0,0.07,0); s.rotation.y=0.3; it.add(s); }
     it.position.set(vx,1.06,-4.35);
     env.group.add(it);
@@ -6872,94 +7087,228 @@ function buildBar(){
     env.tables.push({dirt,x:p[0],z:p[1]});
     wreg(env,tb,{id:'wb_table'+i,fr:'la table '+TABLE_FR[i],pt:'a mesa '+(i+1),approach:{x:p[0],z:p[1]+1.25},actions:[{emoji:'🫱',fr:'Servir / nettoyer',pt:'servir ou limpar',run:()=>barTable(i)}]});
   });
-  /* cliente */
+  /* clientes (v7: até 2 simultâneos, cada um com balão) */
   env.client=makeHuman({skin:0xe8c098,shirt:0x7b9e8e,pants:0x4a4a55,hair:0x3a2a1a});
   env.client.g.visible=false;
   env.group.add(env.client.g);
-  env.reset=()=>{ env.client.g.visible=false; for(const t of env.tables) t.dirt.visible=false; };
+  env.client2=makeHuman({skin:0xd8a878,shirt:0xc0576b,pants:0x33363f,hair:0x6b4226,hairBun:true});
+  env.client2.g.visible=false;
+  env.group.add(env.client2.g);
+  env.client.bub=bubbleSprite('🗨️'); env.client.bub.position.y=1.75; env.client.g.add(env.client.bub);
+  env.client2.bub=bubbleSprite('🗨️'); env.client2.bub.position.y=1.75; env.client2.g.add(env.client2.bub);
+  env.reset=()=>{ env.client.g.visible=false; env.client2.g.visible=false; for(const t of env.tables) t.dirt.visible=false; };
   WENVS.bar=env;
   return env;
 }
+/* v7: fila de clientes — 1 no Débutant, 2 SIMULTÂNEOS no Confirmé+ (cada mesa lembra o pedido) */
+function barOrderFr(o){ return BAR_ITEMS[o.id].fr+(o.mod?' '+o.mod.toUpperCase():''); }
+function barOrderKey(o){ return o.id+'|'+(o.mod||''); }
 function barStart(){
-  WORK.cafe={phase:'none',order:[],table:0,tray:[]};
+  WORK.cafe={clients:[],tray:[],spawned:0,models:[null,null]};
   $('wt-tray').classList.add('on');
   barTrayRender();
-  barNewClient();
+  barSpawn();
 }
 function barTrayRender(){
   const c=WORK.cafe;
-  $('wt-items').textContent=(c&&c.tray.length)?c.tray.map(id=>BAR_ITEMS[id].em).join(' '):'vide';
+  if(c&&c.tray.length)
+    $('wt-items').innerHTML=c.tray.map(o=>BAR_ITEMS[o.id].em+(o.mod?' <small style="font-size:9px;font-weight:800">'+o.mod+'</small>':'')).join(' · ');
+  else $('wt-items').textContent='vide';
 }
-function barNewClient(){
-  const c=WORK.cafe, env=WORK.env;
-  const ids=Object.keys(BAR_ITEMS);
-  c.order=[...ids].sort(()=>Math.random()-0.5).slice(0,1+Math.round(Math.random()));
-  c.table=Math.floor(Math.random()*3);
-  c.tray=[]; c.phase='order';
-  barTrayRender();
-  const t=env.tables[c.table];
-  env.client.g.visible=true;
-  env.client.g.position.set(t.x+0.9,0,t.z+0.35);
-  env.client.g.rotation.y=-Math.PI/2;
-  const listFr=c.order.map(id=>BAR_ITEMS[id].fr).join(' et ');
-  const segs=[{fr:'Bonjour !',pt:'Bom dia!'},
-    ...c.order.map((id,i)=>({fr:BAR_ITEMS[id].fr+(i<c.order.length-1?' et':','),pt:BAR_ITEMS[id].pt})),
-    {fr:"s'il vous plaît !",pt:'por favor!'}];
-  wtBanner(segs,'Bonjour ! '+listFr+", s'il vous plaît !",'Pega os itens no balcão e leva à mesa do cliente.');
-  WORK.words.push(...c.order.map(id=>({fr:BAR_ITEMS[id].fr,pt:BAR_ITEMS[id].pt})));
+function barActive(){ return WORK.cafe.clients.filter(c=>c.phase!=='done'); }
+function barMaxClients(){ return S.career.level>=2?2:1; }
+function barSpawn(){
+  const cafe=WORK.cafe, env=WORK.env, lv=S.career.level;
+  const totalClients=Math.floor(WORK.total/3);
+  while(barActive().length<barMaxClients()&&cafe.spawned<totalClients){
+    /* mesa livre */
+    const busy=new Set(barActive().map(c=>c.table));
+    const free=[0,1,2].filter(i=>!busy.has(i)&&!env.tables[i].dirt.visible);
+    if(!free.length) break;
+    const table=free[Math.floor(Math.random()*free.length)];
+    const ids=Object.keys(BAR_ITEMS);
+    const k=lv===1?1+Math.round(Math.random()):lv===2?2:2+Math.round(Math.random());
+    const order=[...ids].sort(()=>Math.random()-0.5).slice(0,k).map(id=>{
+      const mods=lv>=2?BAR_MODS[id]:null;
+      const mod=(mods&&Math.random()<0.55)?mods[Math.floor(Math.random()*mods.length)]:null;
+      return {id,mod};
+    });
+    /* v7: instrução composta (Confirmé+): antes de servir, débarrasser outra mesa */
+    let pre=null;
+    if(lv>=2&&Math.random()<0.35){
+      const others=[0,1,2].filter(i=>i!==table&&!busy.has(i));
+      if(others.length){
+        const pt2=others[Math.floor(Math.random()*others.length)];
+        pre={table:pt2,done:false};
+        env.tables[pt2].dirt.visible=true;
+      }
+    }
+    const model=(cafe.spawned%2===0)?env.client:env.client2;
+    const t=env.tables[table];
+    model.g.visible=true;
+    model.g.position.set(t.x+0.9,0,t.z+0.35);
+    model.g.rotation.y=-Math.PI/2;
+    model.bub.material.opacity=1;
+    const cl={order,table,phase:'order',pre,model};
+    cafe.clients.push(cl); cafe.spawned++;
+    barAnnounce(cl);
+    WORK.words.push(...order.map(o=>({fr:barOrderFr(o),pt:BAR_ITEMS[o.id].pt+(o.mod?' ('+o.mod+')':'')})));
+    if(barActive().length>=barMaxClients()||cafe.spawned>=totalClients) break;
+  }
+}
+function barAnnounce(cl){
+  const listFr=cl.order.map(barOrderFr).join(' et ');
+  const segs=[];
+  if(cl.pre&&!cl.pre.done){
+    segs.push({fr:'Avant de servir la table '+TABLE_FR[cl.table]+',',pt:'Antes de servir a mesa '+(cl.table+1)+','},
+      {fr:'débarrasse la table '+TABLE_FR[cl.pre.table]+'.',pt:'tira a louça da mesa '+(cl.pre.table+1)+'.'});
+  }
+  segs.push({fr:'Table '+TABLE_FR[cl.table]+' :',pt:'Mesa '+(cl.table+1)+':'},{fr:'« Bonjour !',pt:'Bom dia!'},
+    ...cl.order.map((o,i)=>({fr:barOrderFr(o)+(i<cl.order.length-1?' et':','),pt:BAR_ITEMS[o.id].pt+(o.mod?' ('+o.mod+')':'')})),
+    {fr:"s'il vous plaît ! »",pt:'por favor!'});
+  const say=(cl.pre&&!cl.pre.done?'Avant de servir la table '+TABLE_FR[cl.table]+', débarrasse la table '+TABLE_FR[cl.pre.table]+'. ':'')
+    +'Table '+TABLE_FR[cl.table]+' : Bonjour ! '+listFr+", s'il vous plaît !";
+  wtBanner(segs,say,'Pega os itens no balcão e leva à mesa certa. Clicar na mesa relembra o pedido.');
 }
 function barPick(id){
   if(!WORK.active||WORK.finishing||WORK.career!=='bar') return;
-  const c=WORK.cafe;
-  if(!c) return;
+  const cafe=WORK.cafe;
+  if(!cafe) return;
   if(id==='chiffon'){
-    if(c.phase==='clean'){ WORK.tool='chiffon'; toast('🧻 Pegaste o chiffon. Agora a mesa.'); blip(700); }
+    if(barActive().some(c=>c.phase==='clean')){ WORK.tool='chiffon'; toast('🧻 Pegaste o chiffon. Agora a mesa suja.'); blip(700); }
     else toast('🧻 O pano é pra depois, quando a mesa sujar.');
     return;
   }
-  if(c.phase!=='order'){ wtErr('✋ Agora não é hora de pegar comida.'); return; }
-  const need=c.order.filter(x=>x===id).length;
-  const has=c.tray.filter(x=>x===id).length;
-  if(has>=need){ wtErr('❌ '+BAR_ITEMS[id].fr+' ? Non… escuta o pedido de novo no 🔊.'); return; }
-  c.tray.push(id);
+  /* qual cliente ainda precisa deste item? */
+  const trayCount=k=>cafe.tray.filter(o=>barOrderKey(o)===k).length;
+  let needEntry=null;
+  for(const c of barActive()){
+    if(c.phase!=='order') continue;
+    for(const o of c.order){
+      const k=barOrderKey(o);
+      const needed=c.order.filter(x=>barOrderKey(x)===k).length;
+      if(o.id===id&&trayCount(k)<needed){ needEntry=o; break; }
+    }
+    if(needEntry) break;
+  }
+  if(!needEntry){ wtErr('❌ '+BAR_ITEMS[id].fr+' ? Non… escuta os pedidos de novo (🔊 ou clica na mesa).'); return; }
+  if(needEntry.mod){
+    /* v7: modificação — pergunta como preparar */
+    const mods=BAR_MODS[id]||[];
+    const opts=[...new Set([needEntry.mod,...mods])].sort(()=>Math.random()-0.5);
+    wtModal(BAR_ITEMS[id].em+' Comment ?','<div style="font-size:13px;font-weight:800;text-align:center;margin-bottom:10px">'+BAR_ITEMS[id].fr+'… comment le préparer ?</div>',(q,area,fb)=>{
+      let done=false;
+      opts.forEach(m=>{
+        const b=document.createElement('button');
+        b.className='rev-opt'; b.textContent=BAR_ITEMS[id].fr+' '+m;
+        b.addEventListener('click',()=>{
+          if(done) return; done=true;
+          const ok=(m===needEntry.mod);
+          b.classList.add(ok?'good':'bad');
+          fb.className=ok?'ok':'no';
+          fb.textContent=ok?'✅ C\'est ça !':'✏️ O pedido era « '+barOrderFr(needEntry)+' ».';
+          if(!ok) WORK.taskErr=true;
+          setTimeout(()=>{
+            wtModalClose();
+            if(ok){
+              cafe.tray.push({id,mod:needEntry.mod});
+              blip(720); barTrayRender(); barCheckTrayReady();
+            }
+          },ok?700:2200);
+        });
+        area.appendChild(b);
+      });
+    });
+    return;
+  }
+  cafe.tray.push({id,mod:null});
   blip(720);
   burst(player.g.position.x,1.2,player.g.position.z,0xf3c94e,8,0.4,1.1);
   barTrayRender();
-  if(c.tray.length===c.order.length){
-    c.phase='deliver';
-    wtBanner([{fr:'Apporte le plateau',pt:'Leva a bandeja'},{fr:'à la table '+TABLE_FR[c.table]+'.',pt:'até a mesa '+(c.table+1)+'.'}],
-      'Apporte le plateau à la table '+TABLE_FR[c.table]+'.','O cliente está sentado nela.');
+  barCheckTrayReady();
+}
+function barTrayMatches(cl){
+  /* o plateau CONTÉM o pedido completo desta mesa? (pode carregar dos 2 clientes juntos) */
+  const have={};
+  for(const o of WORK.cafe.tray) have[barOrderKey(o)]=(have[barOrderKey(o)]||0)+1;
+  for(const o of cl.order){
+    const k=barOrderKey(o);
+    if(!have[k]) return false;
+    have[k]--;
+  }
+  return true;
+}
+function barTrayTake(cl){
+  /* remove do plateau só o que é desta mesa */
+  for(const o of cl.order){
+    const k=barOrderKey(o);
+    const ix=WORK.cafe.tray.findIndex(t=>barOrderKey(t)===k);
+    if(ix>=0) WORK.cafe.tray.splice(ix,1);
+  }
+}
+function barCheckTrayReady(){
+  const ready=barActive().find(c=>c.phase==='order'&&barTrayMatches(c));
+  if(ready){
+    wtBanner([{fr:'Apporte le plateau',pt:'Leva a bandeja'},{fr:'à la table '+TABLE_FR[ready.table]+'.',pt:'até a mesa '+(ready.table+1)+'.'}],
+      'Apporte le plateau à la table '+TABLE_FR[ready.table]+'.',ready.pre&&!ready.pre.done?'Mas ANTES: débarrasse la table '+(ready.pre.table+1)+'.':'O cliente está sentado nela.',{noAudio:true});
   }
 }
 function barTable(i){
   if(!WORK.active||WORK.finishing||WORK.career!=='bar') return;
-  const c=WORK.cafe, env=WORK.env;
-  if(!c) return;
-  if(c.phase==='deliver'){
-    if(i!==c.table){ wtErr("❌ Ce n'est pas la bonne table !"); return; }
-    c.tray=[]; barTrayRender();
+  const cafe=WORK.cafe, env=WORK.env;
+  if(!cafe) return;
+  /* 1) débarrasser pendente nesta mesa? (instrução composta) */
+  const preCl=barActive().find(c=>c.pre&&!c.pre.done&&c.pre.table===i);
+  if(preCl){
+    preCl.pre.done=true;
+    env.tables[i].dirt.visible=false;
+    burst(env.tables[i].x,0.9,env.tables[i].z,0x8ab0e0,10,0.4,1.1);
+    blip(760);
+    toast('✅ <b>Table '+TABLE_FR[i]+' débarrassée.</b> Agora sim, serve a mesa '+(preCl.table+1)+'.',2800);
+    exposedBump('débarrasser','tirar a mesa');
+    return;
+  }
+  const cl=barActive().find(c=>c.table===i&&c.phase!=='done');
+  if(!cl){ wtErr('✋ Ninguém nessa mesa agora.'); return; }
+  if(cl.phase==='order'){
+    if(cl.pre&&!cl.pre.done){ wtErr('❌ Avant, débarrasse la table '+TABLE_FR[cl.pre.table]+' !'); return; }
+    if(!cafe.tray.length){
+      /* a mesa LEMBRA o pedido */
+      toast('🗒️ La table '+TABLE_FR[i]+' attend : <b>'+cl.order.map(barOrderFr).join(' et ')+'</b>',3800);
+      speak(cl.order.map(barOrderFr).join(' et '));
+      return;
+    }
+    if(!barTrayMatches(cl)){ wtErr('❌ Le plateau ne correspond pas… essa mesa pediu: '+cl.order.map(barOrderFr).join(' et ')+'.'); return; }
+    barTrayTake(cl); barTrayRender();
+    cl.phase='pay';
+    cl.model.bub.material.opacity=0;
     burst(env.tables[i].x,0.9,env.tables[i].z,0xffd9a0,12,0.5,1.2);
     const fim=wtTask(true);
     if(fim) return;
-    c.phase='pay';
-    wtBanner([{fr:'Encaisse à la caisse.',pt:'Cobra no caixa.'},{fr:"C'est combien ?",pt:'Quanto deu?'}],
-      "Encaisse à la caisse. C'est combien ?",'Clica no caixa e escolhe o valor certo em francês.');
-  }else if(c.phase==='clean'){
+    wtBanner([{fr:'Encaisse la table '+TABLE_FR[i],pt:'Cobra a mesa '+(i+1)},{fr:'à la caisse.',pt:'no caixa.'},{fr:"L'addition !",pt:'A conta!'}],
+      "Encaisse la table "+TABLE_FR[i]+" à la caisse. L'addition !",'Clica no caixa e escolhe o valor certo em francês.');
+  }else if(cl.phase==='clean'){
     if(WORK.tool!=='chiffon'){ wtErr('🧻 Sem o chiffon não dá. Ele está no balcão.'); return; }
-    if(i!==c.table){ wtErr('❌ A mesa suja é a '+(c.table+1)+'.'); return; }
     env.tables[i].dirt.visible=false;
     WORK.tool=null;
+    cl.phase='done';
     burst(env.tables[i].x,0.9,env.tables[i].z,0x8ab0e0,12,0.5,1.2);
     const fim=wtTask(true);
-    if(!fim) barNewClient();
+    if(fim) return;
+    barSpawn();
+    const nxt=barActive().find(c=>c.phase==='order');
+    if(nxt&&!WORK.cafe.tray.length) barAnnounce(nxt);
+  }else if(cl.phase==='pay'){
+    toast('💶 Essa mesa espera a conta — vai à caisse.');
   }else wtErr('✋ Segue a instrução lá em cima.');
 }
 function barPay(){
   if(!WORK.active||WORK.finishing||WORK.career!=='bar') return;
-  const c=WORK.cafe;
-  if(!c) return;
-  if(c.phase!=='pay'){ toast('💶 Nada pra cobrar agora.'); return; }
-  const total=c.order.reduce((a,id)=>a+BAR_ITEMS[id].price,0);
+  const cafe=WORK.cafe;
+  if(!cafe) return;
+  const cl=barActive().find(c=>c.phase==='pay');
+  if(!cl){ toast('💶 Nada pra cobrar agora.'); return; }
+  const total=cl.order.reduce((a,o)=>a+BAR_ITEMS[o.id].price,0);
   const wrong=new Set();
   let guard=0;
   while(wrong.size<2&&guard++<30){
@@ -6967,7 +7316,7 @@ function barPay(){
     if(d>0&&d!==total) wrong.add(d);
   }
   const opts=[total,...wrong].sort(()=>Math.random()-0.5);
-  wtModal('💶 La caisse','<div style="font-size:13px;font-weight:800;text-align:center;margin-bottom:10px">Le client demande : « Ça fait combien ? »</div>',(q,area,fb)=>{
+  wtModal('💶 La caisse','<div style="font-size:13px;font-weight:800;text-align:center;margin-bottom:10px">Table '+TABLE_FR[cl.table]+' : « L\'addition, s\'il vous plaît ! Ça fait combien ? »</div>',(q,area,fb)=>{
     let done=false;
     opts.forEach(v=>{
       const b=document.createElement('button');
@@ -6978,17 +7327,18 @@ function barPay(){
         b.classList.add(ok?'good':'bad');
         if(!ok) [...area.children].forEach(x=>{ if(x.textContent===frNum(total)+' euros') x.classList.add('good'); });
         fb.className=ok?'ok':'no';
-        fb.textContent=ok?'✅ Merci !':'✏️ Era '+frNum(total)+' euros ('+total+'€).';
+        fb.textContent=ok?'✅ Merci ! (e olha a gorjeta: le pourboire!)':'✏️ Era '+frNum(total)+' euros ('+total+'€).';
+        if(ok&&S.career.level>=2){ payMoney(1); exposedBump('le pourboire','a gorjeta'); }
         setTimeout(()=>{
           wtModalClose();
           const env=WORK.env;
-          env.client.g.visible=false;
-          env.tables[c.table].dirt.visible=true;
+          cl.model.g.visible=false;
+          env.tables[cl.table].dirt.visible=true;
+          cl.phase='clean';
           const fim=wtTask(ok);
           if(fim) return;
-          c.phase='clean';
-          wtBanner([{fr:'Nettoie la table '+TABLE_FR[c.table],pt:'Limpa a mesa '+(c.table+1)},{fr:'avec le chiffon.',pt:'com o pano.'}],
-            'Nettoie la table '+TABLE_FR[c.table]+' avec le chiffon.','O pano está no balcão.');
+          wtBanner([{fr:'Nettoie la table '+TABLE_FR[cl.table],pt:'Limpa a mesa '+(cl.table+1)},{fr:'avec le chiffon.',pt:'com o pano.'}],
+            'Nettoie la table '+TABLE_FR[cl.table]+' avec le chiffon.','O pano está no balcão.');
         },ok?900:2100);
       });
       area.appendChild(b);
@@ -6997,28 +7347,62 @@ function barPay(){
 }
 /* ---- 2. LIMPEZA (carreira menage) ---- */
 const MN_TOOL_FR={balai:'le balai',sac:'le sac poubelle',chiffon:'le chiffon',eponge:"l'éponge"};
+/* v7: ordens em formato de PASSOS — nível 2 traz produto certo por superfície e ordens compostas,
+   nível 3 traz a mancha teimosa (2 produtos em sequência) */
 const MN_ORDERS=[
-  {key:'poubelle_fen',tool:'sac',fr:'Vide la poubelle près de la fenêtre.',
+  {lvl:1,steps:[{key:'poubelle_fen',tool:'sac'}],fr:'Vide la poubelle près de la fenêtre.',
    segs:[{fr:'Vide la poubelle',pt:'Esvazia a lixeira'},{fr:'près de la fenêtre.',pt:'perto da janela.'}],
    words:[{fr:'la poubelle',pt:'a lixeira'},{fr:'la fenêtre',pt:'a janela'}]},
-  {key:'poubelle_porte',tool:'sac',fr:'Vide la poubelle près de la porte.',
+  {lvl:1,steps:[{key:'poubelle_porte',tool:'sac'}],fr:'Vide la poubelle près de la porte.',
    segs:[{fr:'Vide la poubelle',pt:'Esvazia a lixeira'},{fr:'près de la porte.',pt:'perto da porta.'}],
    words:[{fr:'la porte',pt:'a porta'},{fr:'vider',pt:'esvaziar'}]},
-  {key:'fenetre',tool:'chiffon',fr:'Nettoie la fenêtre avec le chiffon.',
+  {lvl:1,steps:[{key:'fenetre',tool:'chiffon'}],fr:'Nettoie la fenêtre avec le chiffon.',
    segs:[{fr:'Nettoie la fenêtre',pt:'Limpa a janela'},{fr:'avec le chiffon.',pt:'com o pano.'}],
    words:[{fr:'le chiffon',pt:'o pano'},{fr:'nettoyer',pt:'limpar'}]},
-  {key:'tache_centre',tool:'eponge',fr:"Frotte la tache au centre de la salle avec l'éponge.",
+  {lvl:1,steps:[{key:'tache_centre',tool:'eponge'}],fr:"Frotte la tache au centre de la salle avec l'éponge.",
    segs:[{fr:'Frotte la tache',pt:'Esfrega a mancha'},{fr:'au centre de la salle',pt:'no centro da sala'},{fr:"avec l'éponge.",pt:'com a esponja.'}],
    words:[{fr:'une tache',pt:'uma mancha'},{fr:"l'éponge",pt:'a esponja'}]},
-  {key:'tache_bureau',tool:'eponge',fr:'Frotte la tache près du bureau de gauche.',
+  {lvl:1,steps:[{key:'tache_bureau',tool:'eponge'}],fr:'Frotte la tache près du bureau de gauche.',
    segs:[{fr:'Frotte la tache',pt:'Esfrega a mancha'},{fr:'près du bureau de gauche.',pt:'perto da mesa da esquerda.'}],
    words:[{fr:'le bureau',pt:'a escrivaninha'},{fr:'à gauche',pt:'à esquerda'}]},
-  {key:'papiers',tool:'balai',fr:'Balaie les papiers près du bureau de gauche.',
+  {lvl:1,steps:[{key:'papiers',tool:'balai'}],fr:'Balaie les papiers près du bureau de gauche.',
    segs:[{fr:'Balaie les papiers',pt:'Varre os papéis'},{fr:'près du bureau de gauche.',pt:'perto da mesa da esquerda.'}],
    words:[{fr:'le balai',pt:'a vassoura'},{fr:'les papiers',pt:'os papéis'}]},
-  {key:'bureau2',tool:'chiffon',fr:'Essuie le bureau de droite avec le chiffon.',
+  {lvl:1,steps:[{key:'bureau2',tool:'chiffon'}],fr:'Essuie le bureau de droite avec le chiffon.',
    segs:[{fr:'Essuie le bureau',pt:'Passa pano na mesa'},{fr:'de droite',pt:'da direita'},{fr:'avec le chiffon.',pt:'com o pano.'}],
-   words:[{fr:'essuyer',pt:'passar pano'},{fr:'à droite',pt:'à direita'}]}
+   words:[{fr:'essuyer',pt:'passar pano'},{fr:'à droite',pt:'à direita'}]},
+  /* nível 2: produto certo por superfície */
+  {lvl:2,steps:[{key:'fenetre',tool:'chiffon'}],fr:'La vitre est sale : nettoie-la avec le chiffon, pas autre chose !',
+   segs:[{fr:'La vitre est sale :',pt:'A vidraça está suja:'},{fr:'nettoie-la avec le chiffon,',pt:'limpa com o pano,'},{fr:'pas autre chose !',pt:'nada de outro produto!'}],
+   words:[{fr:'la vitre',pt:'a vidraça'},{fr:'le chiffon',pt:'o pano'}]},
+  {lvl:2,steps:[{key:'papiers',tool:'balai'}],fr:'Le sol est en désordre : balaie près du bureau de gauche.',
+   segs:[{fr:'Le sol est en désordre :',pt:'O chão está bagunçado:'},{fr:'balaie',pt:'varre'},{fr:'près du bureau de gauche.',pt:'perto da mesa da esquerda.'}],
+   words:[{fr:'le sol',pt:'o chão'},{fr:'balayer',pt:'varrer'}]},
+  {lvl:2,steps:[{key:'bureau2',tool:'eponge'}],fr:"Le bureau de droite est collant : passe l'éponge.",
+   segs:[{fr:'Le bureau de droite',pt:'A mesa da direita'},{fr:'est collant :',pt:'está grudenta:'},{fr:"passe l'éponge.",pt:'passa a esponja.'}],
+   words:[{fr:"l'éponge",pt:'a esponja'},{fr:'collant',pt:'grudento'}]},
+  /* nível 2: ordens COMPOSTAS — duas ações na ordem certa */
+  {lvl:2,steps:[{key:'poubelle_porte',tool:'sac'},{key:'fenetre',tool:'chiffon'}],
+   fr:'Avant de nettoyer la fenêtre, vide la poubelle près de la porte.',
+   segs:[{fr:'Avant de nettoyer la fenêtre,',pt:'Antes de limpar a janela,'},{fr:'vide la poubelle',pt:'esvazia a lixeira'},{fr:'près de la porte.',pt:'perto da porta.'}],
+   words:[{fr:'avant de',pt:'antes de'},{fr:'la poubelle',pt:'a lixeira'}]},
+  {lvl:2,steps:[{key:'papiers',tool:'balai'},{key:'bureau2',tool:'eponge'}],
+   fr:"D'abord balaie les papiers, ensuite essuie le bureau de droite avec l'éponge.",
+   segs:[{fr:"D'abord balaie les papiers,",pt:'Primeiro varre os papéis,'},{fr:'ensuite essuie le bureau de droite',pt:'depois limpa a mesa da direita'},{fr:"avec l'éponge.",pt:'com a esponja.'}],
+   words:[{fr:"d'abord",pt:'primeiro'},{fr:'ensuite',pt:'em seguida'}]},
+  {lvl:2,steps:[{key:'poubelle_fen',tool:'sac'},{key:'tache_centre',tool:'eponge'}],
+   fr:'Vide la poubelle de la fenêtre, puis frotte la tache au centre.',
+   segs:[{fr:'Vide la poubelle de la fenêtre,',pt:'Esvazia a lixeira da janela,'},{fr:'puis frotte la tache au centre.',pt:'depois esfrega a mancha do centro.'}],
+   words:[{fr:'puis',pt:'depois'},{fr:'frotter',pt:'esfregar'}]},
+  /* nível 3: mancha teimosa — 2 produtos em SEQUÊNCIA no mesmo lugar */
+  {lvl:3,steps:[{key:'tache_centre',tool:'eponge',keep:true},{key:'tache_centre',tool:'balai'}],
+   fr:"Une tache tenace au centre ! Frotte avec l'éponge, puis balaie les restes.",
+   segs:[{fr:'Une tache tenace au centre !',pt:'Uma mancha teimosa no centro!'},{fr:"Frotte avec l'éponge,",pt:'Esfrega com a esponja,'},{fr:'puis balaie les restes.',pt:'depois varre os restos.'}],
+   words:[{fr:'tenace',pt:'teimosa, resistente'},{fr:'les restes',pt:'os restos'}]},
+  {lvl:3,steps:[{key:'tache_bureau',tool:'eponge',keep:true},{key:'tache_bureau',tool:'chiffon'}],
+   fr:"La tache près du bureau résiste : l'éponge d'abord, le chiffon pour finir.",
+   segs:[{fr:'La tache près du bureau résiste :',pt:'A mancha perto da mesa resiste:'},{fr:"l'éponge d'abord,",pt:'a esponja primeiro,'},{fr:'le chiffon pour finir.',pt:'o pano pra terminar.'}],
+   words:[{fr:'résister',pt:'resistir'},{fr:'pour finir',pt:'pra terminar'}]}
 ];
 function mnDeskMess(env,x,z){
   const g=new THREE.Group();
@@ -7123,13 +7507,35 @@ function buildMenage(){
   return env;
 }
 function mnStart(){
-  WORK.clean={orders:[...MN_ORDERS].sort(()=>Math.random()-0.5).slice(0,WORK.total),i:0};
+  const lv=S.career.level;
+  const pool=MN_ORDERS.filter(o=>o.lvl<=lv);
+  /* v7: com repetição controlada, pra encher 10-12 tarefas */
+  const orders=[];
+  while(orders.length<WORK.total){
+    const batch=[...pool].sort(()=>Math.random()-0.5);
+    for(const o of batch){ if(orders.length<WORK.total) orders.push(o); }
+  }
+  WORK.clean={orders,i:0,step:0};
   WORK.tool=null;
   mnNext();
 }
+function mnShowTargets(o){
+  for(const st of o.steps){
+    const m=WORK.env.mn.targets[st.key];
+    if(!m) continue;
+    m.visible=true;
+    if(m.material&&m.material.transparent){
+      if(m.userData.baseOp===undefined) m.userData.baseOp=m.material.opacity;
+      m.material.opacity=m.userData.baseOp;
+    }
+  }
+}
 function mnNext(){
   const o=WORK.clean.orders[WORK.clean.i];
-  wtBanner(o.segs,o.fr,'Pega o utensílio certo no carrinho e vai ao lugar certo.');
+  if(!o) return;
+  WORK.clean.step=0;
+  mnShowTargets(o);
+  wtBanner(o.segs,o.fr,'Pega o utensílio certo no carrinho e vai ao lugar certo.'+(o.steps.length>1?' (2 ações, na ordem!)':''));
   WORK.words.push(...(o.words||[]));
 }
 function mnTool(id){
@@ -7140,17 +7546,53 @@ function mnTool(id){
 }
 function mnTarget(key){
   if(!WORK.active||WORK.finishing||WORK.career!=='menage'||!WORK.clean) return;
+  /* v7: surpresa — mancha teimosa fora de hora */
+  if(WORK.surprise&&WORK.surprise.type==='tache'){
+    if(key!==WORK.surprise.key){ wtErr('❌ A emergência é a mancha! Vai lá primeiro.'); return; }
+    const seqTool=WORK.surprise.tools[WORK.surprise.step];
+    if(!WORK.tool){ wtErr('🧰 Pega um utensílio no carrinho.'); return; }
+    if(WORK.tool!==seqTool){ wtErr('❌ Pas avec ça… agora é <b>'+MN_TOOL_FR[seqTool]+'</b>.'); return; }
+    WORK.tool=null; WORK.surprise.step++;
+    const mesh=WORK.env.mn.targets[key];
+    if(WORK.surprise.step>=WORK.surprise.tools.length){
+      if(mesh) mesh.visible=false;
+      workSurpriseWin('✅ Tache tenace vaincue ! Deux produtos, na ordem certa.');
+    }else{
+      if(mesh&&mesh.material&&mesh.material.transparent) mesh.material.opacity=(mesh.userData.baseOp||0.7)*0.45;
+      blip(760);
+      toast('✅ Agora o segundo produto: <b>'+MN_TOOL_FR[WORK.surprise.tools[WORK.surprise.step]]+'</b>.',2800);
+    }
+    return;
+  }
   const o=WORK.clean.orders[WORK.clean.i];
   if(!o) return;
+  const st=o.steps[WORK.clean.step];
+  if(!st) return;
   const alvo=WORK.env.mn.targets[key];
-  if(alvo&&!alvo.visible){ toast('✨ Ali já está limpo.'); return; }
-  if(key!==o.key){ wtErr("❌ Ce n'est pas là. Escuta a ordem de novo no 🔊."); return; }
+  if(alvo&&!alvo.visible&&key!==st.key){ toast('✨ Ali já está limpo.'); return; }
+  if(key!==st.key){
+    /* errar a ORDEM da composta também conta erro */
+    if(o.steps.some((s,ix)=>ix>WORK.clean.step&&s.key===key)) wtErr("❌ Pas encore ! Respecte l'ordre de l'instruction.");
+    else wtErr("❌ Ce n'est pas là. Escuta a ordem de novo no 🔊.");
+    return;
+  }
   if(!WORK.tool){ wtErr('🧰 Primeiro pega um utensílio no carrinho.'); return; }
-  if(WORK.tool!==o.tool){ wtErr('❌ Pas avec ça… il te faut <b>'+MN_TOOL_FR[o.tool]+'</b>.'); return; }
+  if(WORK.tool!==st.tool){ wtErr('❌ Pas avec ça… il te faut <b>'+MN_TOOL_FR[st.tool]+'</b>.'); return; }
   const mesh=WORK.env.mn.targets[key];
-  if(mesh) mesh.visible=false;
+  if(mesh){
+    if(st.keep&&mesh.material&&mesh.material.transparent){
+      if(mesh.userData.baseOp===undefined) mesh.userData.baseOp=mesh.material.opacity;
+      mesh.material.opacity=mesh.userData.baseOp*0.45; /* meio limpa: falta o 2º produto */
+    }else mesh.visible=false;
+  }
   WORK.tool=null;
   burst(player.g.position.x,1.0,player.g.position.z,0x8ab0e0,12,0.5,1.2);
+  WORK.clean.step++;
+  if(WORK.clean.step<o.steps.length){
+    blip(760);
+    toast('✅ Une de faite ! Agora: <b>'+MN_TOOL_FR[o.steps[WORK.clean.step].tool]+'</b>.',2600);
+    return;
+  }
   WORK.clean.i++;
   const fim=wtTask(true);
   if(!fim) mnNext();
@@ -7203,15 +7645,21 @@ function buildCompta(){
 }
 function coRing(){ blip(1180,0.16,'sine',0.05); setTimeout(()=>blip(1180,0.16,'sine',0.05),260); }
 function coStart(){
-  const kinds=['tel','dossier','facture','tel','dossier','facture','tel'];
-  WORK.compta={tasks:kinds.sort(()=>Math.random()-0.5).map(k=>({k})),i:0};
+  const base=['tel','dossier','facture'];
+  const kinds=Array.from({length:WORK.total},(_,i)=>base[i%3]).sort(()=>Math.random()-0.5);
+  WORK.compta={tasks:kinds.map(k=>({k})),i:0};
   coNext();
 }
 function coCur(){ return WORK.compta&&WORK.compta.tasks[WORK.compta.i]; }
 function coNext(){
   const t=coCur(); if(!t) return;
+  const lv=S.career.level;
   if(t.k==='tel'){
-    t.n=Math.floor(rand(21,100));
+    /* v7: Confirmé+ ouve valores 100-1000 COM decimais ("deux cent quarante-cinq euros cinquante") */
+    if(lv>=2){
+      t.n=Math.floor(rand(100,1000));
+      t.c=(Math.random()<0.65)?[25,50,75,10,90][Math.floor(Math.random()*5)]:0;
+    }else{ t.n=Math.floor(rand(21,100)); t.c=0; }
     wtBanner([{fr:'Le téléphone sonne !',pt:'O telefone toca!'},{fr:'Réponds et note le montant.',pt:'Atende e anota o valor.'}],
       'Le téléphone sonne ! Réponds et note le montant.','Clica no telefone da tua mesa.');
     coRing(); setTimeout(coRing,1600);
@@ -7235,26 +7683,30 @@ function coPhone(){
   if(!WORK.active||WORK.finishing||WORK.career!=='compta') return;
   const t=coCur();
   if(!t||t.k!=='tel'||typeof t.n!=='number'){ toast('📞 O telefone está quieto agora.'); return; }
-  const w=frNum(t.n)+' euros';
-  wtModal('📞 Au téléphone','<div style="font-size:10.5px;font-weight:800;letter-spacing:1.2px;color:var(--ink2);text-transform:uppercase;text-align:center">note le montant</div><div style="font-family:Fraunces,serif;font-size:20px;font-weight:700;color:var(--paris);text-align:center;margin-top:6px">« '+w+' »</div>',(q,area,fb)=>{
+  const cents=t.c||0;
+  const w=frNum(t.n)+' euros'+(cents?' '+frNum(cents):'');
+  const target=t.n+cents/100;
+  const targetTxt=cents?(t.n+','+String(cents).padStart(2,'0')):String(t.n);
+  wtModal('📞 Au téléphone','<div style="font-size:10.5px;font-weight:800;letter-spacing:1.2px;color:var(--ink2);text-transform:uppercase;text-align:center">note le montant'+(cents?' (com centavos!)':'')+'</div><div style="font-family:Fraunces,serif;font-size:20px;font-weight:700;color:var(--paris);text-align:center;margin-top:6px">« '+w+' »</div>',(q,area,fb)=>{
     const spk=document.createElement('button');
     spk.className='defi-spk'; spk.textContent='🔊'; spk.style.display='block'; spk.style.margin='6px auto';
     spk.addEventListener('click',()=>{ speak(w); blip(700); });
     q.appendChild(spk);
     speak(w);
     const inp=document.createElement('input');
-    inp.type='number'; inp.className='defi-in'; inp.placeholder='escreve o número…';
+    inp.type='text'; inp.inputMode='decimal'; inp.className='defi-in';
+    inp.placeholder=cents?'ex.: 245,50':'escreve o número…';
     const go=document.createElement('button');
     go.id='defi-check'; go.textContent='Valider';
     let done=false;
     const val=()=>{
       if(done) return;
-      const v=parseInt(inp.value,10);
+      const v=parseFloat(String(inp.value).replace(',','.'));
       if(isNaN(v)) return;
       done=true;
-      const ok=(v===t.n);
+      const ok=Math.abs(v-target)<0.005;
       fb.className=ok?'ok':'no';
-      fb.textContent=ok?'✅ '+t.n+' € anotado.':'✏️ « '+w+' » = '+t.n+' €.';
+      fb.textContent=ok?'✅ '+targetTxt+' € anotado.':'✏️ « '+w+' » = '+targetTxt+' €.';
       setTimeout(()=>{ wtModalClose(); coAdvance(ok); },ok?900:2200);
     };
     go.addEventListener('click',val);
@@ -7265,6 +7717,12 @@ function coPhone(){
 }
 function coFolder(n){
   if(!WORK.active||WORK.finishing||WORK.career!=='compta') return;
+  /* v7: surpresa da auditoria tem prioridade */
+  if(WORK.surprise&&WORK.surprise.type==='audit'){
+    if(n===WORK.surprise.n) workSurpriseWin("✅ L'audit a son dossier. Ouf !");
+    else{ wtErr('❌ Pas celui-là ! L\'audit demande le dossier '+frNum(WORK.surprise.n)+'.'); }
+    return;
+  }
   const t=coCur();
   if(!t||t.k!=='dossier'||typeof t.n!=='number'){ toast('🗂️ Ninguém pediu pasta agora.'); return; }
   if(n!==t.n){ wtErr("❌ Ce n'est pas le bon dossier. Ouve o número de novo."); return; }
@@ -7282,14 +7740,29 @@ async function coPrinter(){
     if(nrm&&nrm.kind==='choice') task=nrm;
   }catch(e){}
   if(!task){
-    const q=Math.floor(rand(2,5)), p=Math.floor(rand(2,6));
-    const right=q*p, shown=right+(Math.random()<0.5?-1:1)*Math.floor(rand(1,4));
-    task={
-      segs:[{fr:'La facture dit :',pt:'A fatura diz:'},{fr:frNum(q)+' cafés à '+frNum(p)+' euros,',pt:q+' cafés a '+p+' €,'},{fr:'total '+frNum(shown)+' euros.',pt:'total '+shown+' €.'},{fr:"C'est correct ?",pt:'Está certo?'}],
-      prompt_fr:'La facture dit : '+q+' cafés à '+p+' euros, total '+shown+' euros. C\'est correct ?',
-      opts:[{label:"Non, c'est "+right+' €',ok:true},{label:"Oui, c'est bon",ok:false},{label:"Non, c'est "+(right+7)+' €',ok:false}].sort(()=>Math.random()-0.5),
-      why_pt:q+' × '+p+' = '+right+' €, mas a fatura mostrava '+shown+' €.'
-    };
+    if(S.career.level>=2){
+      /* v7: Confirmé+ confere faturas com DECIMAIS e valores grandes */
+      const q=Math.floor(rand(3,9)), p=Math.floor(rand(20,120))+(Math.random()<0.6?0.5:0);
+      const right=Math.round(q*p*100)/100;
+      const shown=Math.round((right+(Math.random()<0.5?-1:1)*Math.floor(rand(1,15)))*100)/100;
+      const fmt=v=>String(v.toFixed(2)).replace('.',',')+' €';
+      const sayShown=frNum(Math.floor(shown))+' euros'+(Math.round(shown%1*100)?' '+frNum(Math.round(shown%1*100)):'');
+      task={
+        segs:[{fr:'La facture dit :',pt:'A fatura diz:'},{fr:frNum(q)+' articles à '+frNum(Math.floor(p))+' euros'+(p%1?' cinquante':'')+',',pt:q+' itens a '+fmt(p).replace(' €','')+' €,'},{fr:'total '+sayShown+'.',pt:'total '+fmt(shown)+'.'},{fr:"C'est correct ?",pt:'Está certo?'}],
+        prompt_fr:'La facture dit : '+q+' articles à '+fmt(p)+', total '+fmt(shown)+". C'est correct ?",
+        opts:[{label:"Non, c'est "+fmt(right),ok:true},{label:"Oui, c'est bon",ok:false},{label:"Non, c'est "+fmt(Math.round((right+7.5)*100)/100),ok:false}].sort(()=>Math.random()-0.5),
+        why_pt:q+' × '+fmt(p)+' = '+fmt(right)+', mas a fatura mostrava '+fmt(shown)+'.'
+      };
+    }else{
+      const q=Math.floor(rand(2,5)), p=Math.floor(rand(2,6));
+      const right=q*p, shown=right+(Math.random()<0.5?-1:1)*Math.floor(rand(1,4));
+      task={
+        segs:[{fr:'La facture dit :',pt:'A fatura diz:'},{fr:frNum(q)+' cafés à '+frNum(p)+' euros,',pt:q+' cafés a '+p+' €,'},{fr:'total '+frNum(shown)+' euros.',pt:'total '+shown+' €.'},{fr:"C'est correct ?",pt:'Está certo?'}],
+        prompt_fr:'La facture dit : '+q+' cafés à '+p+' euros, total '+shown+' euros. C\'est correct ?',
+        opts:[{label:"Non, c'est "+right+' €',ok:true},{label:"Oui, c'est bon",ok:false},{label:"Non, c'est "+(right+7)+' €',ok:false}].sort(()=>Math.random()-0.5),
+        why_pt:q+' × '+p+' = '+right+' €, mas a fatura mostrava '+shown+' €.'
+      };
+    }
   }
   if(!WORK.active||WORK.finishing) return;
   wtModal('🧾 La facture','',(q,area,fb)=>{
@@ -7398,7 +7871,18 @@ function devLayoutNotes(){
   }
 }
 function devStart(){
-  const kinds=['ticket','kanban','collegue','ticket','kanban','collegue','ticket'];
+  let kinds;
+  if(S.career.level===1) kinds=['ticket','kanban','collegue','ticket','kanban','collegue','ticket'];
+  else{
+    /* v7: mais tickets (com 2 passos) e conversas; kanban avulso limitado (só há 4 post-its) */
+    kinds=[]; let kb=0;
+    const cyc=['ticket','collegue','ticket','kanban','collegue','ticket'];
+    for(let i=0;kinds.length<WORK.total;i++){
+      const k=cyc[i%cyc.length];
+      if(k==='kanban'){ if(kb>=2){ kinds.push('ticket'); continue; } kb++; }
+      kinds.push(k);
+    }
+  }
   WORK.dev={tasks:kinds.sort(()=>Math.random()-0.5).map(k=>({k})),i:0};
   devNext();
 }
@@ -7463,9 +7947,23 @@ async function devPC(){
         const ok=!!o.ok;
         b.classList.add(ok?'good':'bad');
         if(!ok) [...area.children].forEach(x=>{ if(task.opts.some(oo=>oo.ok&&oo.label===x.textContent)) x.classList.add('good'); });
+        /* v7: Confirmé+ — ticket tem 2 PASSOS: responder E mover o post-it correspondente */
+        const env2=WORK.env;
+        const todo=env2.dev.notes.filter(n=>n.col==='todo');
+        const twoStep=ok&&S.career.level>=2&&todo.length>0;
         fb.className=ok?'ok':'no';
-        fb.textContent=ok?'✅ Ticket fermé !':'✏️ '+(o.why||task.why_pt||'Quase.');
-        setTimeout(()=>{ wtModalClose(); devAdvance(ok); },ok?900:2400);
+        fb.textContent=ok?(twoStep?'✅ Bien répondu ! 2º passo: o quadro.':'✅ Ticket fermé !'):'✏️ '+(o.why||task.why_pt||'Quase.');
+        setTimeout(()=>{
+          wtModalClose();
+          if(twoStep){
+            const pick=todo[Math.floor(Math.random()*todo.length)];
+            t.k='kanban'; t.note=pick.i; t.two=true;
+            wtBanner([{fr:'Ticket répondu !',pt:'Chamado respondido!'},{fr:'Maintenant, déplace « '+pick.label+' »',pt:'Agora move « '+pick.label+' »'},{fr:'à « Terminé ».',pt:'para "Concluído".'}],
+              'Ticket répondu ! Maintenant, déplace « '+pick.label+' » à « Terminé ».','O quadro kanban está na parede da direita.',{noAudio:true});
+            return;
+          }
+          devAdvance(ok);
+        },ok?900:2400);
       });
       area.appendChild(b);
     });
@@ -7911,9 +8409,15 @@ function lingeTick(){
       save();
     }
   }else if(L.state==='drying'&&gameNow()>=L.doneAt){
-    L.state='dry';
-    toast('🌬️ <b>Le linge est sec !</b> Recolhe no varal da varanda.',3800);
-    save();
+    /* v7: com chuva (real ou do jogo), o varal NÃO seca */
+    if(EV.rainUntil>gameNow()){
+      L.doneAt=gameNow()+120;
+      if(!lingeTick.rainWarned){ lingeTick.rainWarned=true; toast('🌧️ <i>Il pleut…</i> o linge no varal não seca com chuva. Paciência.',3800); }
+    }else{
+      L.state='dry'; lingeTick.rainWarned=false;
+      toast('🌬️ <b>Le linge est sec !</b> Recolhe no varal da varanda.',3800);
+      save();
+    }
   }
   updateHomeVisuals();
 }
@@ -8154,8 +8658,9 @@ function openFrigo(){
     const rows=[];
     if(S.stock>0) rows.push(['🥐','Croissants',S.stock]);
     for(const [id,em,fr] of FOOD_DEFS){ if(S.pantry[id]>0) rows.push([em,fr,S.pantry[id]]); }
+    if(S.delivery) for(const id of S.delivery.stock){ const d=DELIV_MENU[id]; if(d) rows.push([d.em,d.fr+' (livré)',1]); }
     if(!rows.length){
-      q.innerHTML='<div style="text-align:center;font-style:italic;color:var(--ink2)">Frigo vide… <b>faire les courses</b> no Marché (pelo laptop).</div>';
+      q.innerHTML='<div style="text-align:center;font-style:italic;color:var(--ink2)">Frigo vide… <b>faire les courses</b> no Marché (pelo laptop) OU pedir no app <b>Livraison 🛵</b> do celular.</div>';
       return;
     }
     q.innerHTML='<div style="font-size:11px;font-weight:800;color:var(--ink2);text-align:center;margin-bottom:8px">o teu estoque</div>';
@@ -8211,6 +8716,7 @@ function cookBanner(){
   segSpans($('wt-instr'),[{fr:st.fr,pt:st.pt}],st.fr);
   $('wt-sub').textContent='';
   $('wt-quit').textContent='Parar';
+  $('wt-spk').textContent='🔊 Écouter';
   WORK.say=st.fr;
   $('wt-banner').classList.add('on');
   exposeFromText(st.fr);
@@ -8288,16 +8794,9 @@ function cookDone(){
     area.appendChild(b1);
     const b2=document.createElement('button');
     b2.className='mk-buy'; b2.style.cssText='display:block;margin:8px auto 0;padding:9px 22px;background:linear-gradient(135deg,var(--paris),var(--paris2))';
-    b2.textContent='💬 Inviter Camille à dîner';
-    if(!camHome) b2.disabled=true;
-    else b2.addEventListener('click',()=>{ wtModalClose(); dinerCamille(r); });
+    b2.textContent='💬 Inviter à dîner'; /* v7: escolher convidados */
+    b2.addEventListener('click',()=>{ wtModalClose(); openDinnerInvite(r); });
     area.appendChild(b2);
-    if(!camHome){
-      const d=document.createElement('div');
-      d.style.cssText='font-size:10.5px;color:var(--ink2);font-style:italic;text-align:center;margin-top:6px';
-      d.textContent='Camille não está por perto — o jantar a dois fica pra próxima.';
-      area.appendChild(d);
-    }
   });
   save(); updateHUD();
 }
@@ -8316,6 +8815,680 @@ function dinerCamille(r){
   save();
 }
 
+/* ================================================================
+   v7 · BLOCO 2 — LEXIQUE DU MÉTIER + surpresas + mini-conversa
+   ================================================================ */
+const LEXIQUE={
+  bar:[
+    ["l'addition",'a conta',1],['le plateau','a bandeja',1],['le comptoir','o balcão',1],['la carte','o cardápio',1],
+    ['sur place','pra comer aqui',1],['à emporter','pra viagem',1],['le serveur','o garçom',1],['le client','o cliente',1],
+    ['le pourboire','a gorjeta',2],['la terrasse','o terraço, a calçada',2],['en terrasse','na mesa de fora',2],
+    ['la monnaie','o troco',2],['sans sucre','sem açúcar',2],['la commande','o pedido',2],['débarrasser','tirar a mesa',2],
+    ['une crêpe','uma crepe',2],['la carafe','a jarra de água',2],['le sucre','o açúcar',2],
+    ['le zinc','o balcão (gíria)',3],['un demi','um chope pequeno',3],["l'ardoise",'a lousa do menu',3],
+    ['le service','o expediente, o serviço',3],['le couvert','o talher, o lugar na mesa',3],
+    ['la mise en place','a arrumação antes do serviço',3],['le coup de feu','o horário de pico',3],['le comptoir en zinc','o balcão de zinco',3]
+  ],
+  menage:[
+    ['le balai','a vassoura',1],['le chiffon','o pano',1],["l'éponge",'a esponja',1],['la poubelle','a lixeira',1],
+    ['la poussière','a poeira',1],['la tache','a mancha',1],['le sol','o chão',1],['la vitre','a vidraça',1],
+    ["l'aspirateur",'o aspirador',2],['la serpillière','o pano de chão',2],["l'eau de javel",'a água sanitária',2],
+    ['le seau','o balde',2],['les gants','as luvas',2],['le produit','o produto de limpeza',2],['frotter','esfregar',2],
+    ['essuyer','passar pano',2],['balayer','varrer',2],['la lessive','o sabão de roupa',2],
+    ['le détachant','o tira-manchas',3],['la cire','a cera',3],['le désinfectant','o desinfetante',3],
+    ['faire briller','deixar brilhando',3],['récurer','esfregar pesado',3],['le torchon','o pano de prato',3],
+    ['la moquette','o carpete',3],["l'entretien",'a manutenção',3]
+  ],
+  compta:[
+    ['la facture','a fatura',1],['le total','o total',1],['le montant','o valor',1],['un dossier','uma pasta',1],
+    ['le reçu','o recibo',1],['payer','pagar',1],['la caisse','o caixa',1],['le client','o cliente',1],
+    ['le devis','o orçamento',2],['la TVA','o imposto (IVA)',2],['le paiement','o pagamento',2],
+    ['le virement','a transferência',2],['le budget','o orçamento (verba)',2],['la dépense','a despesa',2],
+    ['la recette','a receita (entrada)',2],['le chèque','o cheque',2],['la banque','o banco',2],['les centimes','os centavos',2],
+    ['le bilan','o balanço',3],["l'échéance",'o vencimento',3],['le fournisseur','o fornecedor',3],
+    ['la relance','a cobrança',3],["l'acompte",'a entrada, o sinal',3],['la comptabilité','a contabilidade',3],
+    ["l'audit",'a auditoria',3],['le trimestre','o trimestre',3]
+  ],
+  dev:[
+    ['le clavier','o teclado',1],["l'écran",'a tela',1],['la souris','o mouse',1],['le mot de passe','a senha',1],
+    ['le site','o site',1],['le bouton','o botão',1],['la page','a página',1],['un ticket','um chamado',1],
+    ['la panne','a pane, a falha',2],['la mise à jour','a atualização',2],['le lien','o link',2],
+    ['le fichier','o arquivo',2],['le serveur','o servidor',2],['le code','o código',2],['le bug','o bug',2],
+    ['télécharger','baixar',2],['installer','instalar',2],['la sauvegarde','o backup',2],
+    ['la base de données','o banco de dados',3],['le déploiement','o deploy',3],['en production','em produção',3],
+    ['la maintenance','a manutenção',3],['le navigateur','o navegador',3],["l'hébergement",'a hospedagem',3],
+    ['la version','a versão',3],['le correctif','a correção, o patch',3]
+  ]
+};
+function lexPool(career){
+  const id=career||S.career.id;
+  return (id&&LEXIQUE[id])?LEXIQUE[id]:[];
+}
+function lexCount(){
+  const pool=lexPool();
+  return pool.filter(t=>S.career.lex&&S.career.lex[t[0]]).length;
+}
+function lexLearn(term){
+  if(!S.career.lex) S.career.lex={};
+  if(S.career.lex[term[0]]) return false;
+  S.career.lex[term[0]]=1;
+  exposedBump(term[0],term[1]);
+  return true;
+}
+function lexScan(text){
+  if(!WORK.active||!text) return;
+  let news=0;
+  for(const t of lexPool(WORK.career)){
+    if(t[2]<=S.career.level&&textHasWord(text,t[0])&&lexLearn(t)) news++;
+  }
+  if(news) toast('📒 +'+news+' mot'+(news>1?'s':'')+' du métier no Lexique (celular).',2200);
+}
+function lexDrop(){
+  if(!WORK.active||WORK.lexDrops>=2) return;
+  const cand=lexPool(WORK.career).filter(t=>t[2]<=S.career.level&&!(S.career.lex&&S.career.lex[t[0]]));
+  if(!cand.length) return;
+  const t=cand[Math.floor(Math.random()*cand.length)];
+  lexLearn(t);
+  WORK.lexDrops++;
+  WORK.words.push({fr:t[0],pt:t[1]});
+  toast('📒 Mot du métier : <b>'+t[0]+'</b> — '+t[1]+' · entrou no Lexique',3400);
+  speak(t[0]);
+}
+function promoReqText(){
+  const lv=S.career.level, n=lexCount();
+  if(S.career.exam) return '🎓 Próximo turno é a PROVA de Expert: nota ≥ 80%.';
+  if(lv===1) return 'Confirmé exige: média ≥70% (5 turnos) + 10 mots du métier ('+n+'/10)';
+  if(lv===2) return 'Expert exige: média ≥70% + 20 mots ('+n+'/20) + turno-prova ≥80%';
+  return 'Nível máximo. Chapeau !';
+}
+function openLexique(){
+  const box=$('pn-lex');
+  $('pn-threads').style.display='none';
+  $('pn-career').style.display='none';
+  $('pn-thread').classList.remove('on');
+  box.style.display='flex';
+  $('pn-back').style.display='';
+  $('pn-title').textContent='Lexique · '+CAREERS[S.career.id].fr;
+  box.innerHTML='';
+  const pool=lexPool();
+  const n=lexCount();
+  const head=document.createElement('div'); head.className='lex-head';
+  head.textContent=Math.round(n/Math.max(1,pool.length)*100)+'% descoberto · '+n+'/'+pool.length+' mots';
+  box.appendChild(head);
+  const bar=document.createElement('div'); bar.className='lex-bar';
+  const fill=document.createElement('div'); fill.className='lex-fill'; fill.style.width=Math.round(n/Math.max(1,pool.length)*100)+'%';
+  bar.appendChild(fill); box.appendChild(bar);
+  const note=document.createElement('div');
+  note.style.cssText='font-size:9.5px;color:var(--ink2);font-weight:700;text-align:center;margin-bottom:4px';
+  note.textContent=promoReqText();
+  box.appendChild(note);
+  for(const t of pool){
+    const known=!!(S.career.lex&&S.career.lex[t[0]]);
+    const locked=t[2]>S.career.level;
+    const row=document.createElement('div');
+    row.className='lex-row'+(known?'':' off');
+    const sp=document.createElement('button'); sp.textContent='🔊';
+    sp.addEventListener('click',()=>{ speak(t[0]); blip(700); });
+    const fr=document.createElement('span'); fr.className='lfr';
+    fr.textContent=known?t[0]:(locked?'🔒 ？？？':'？？？');
+    const lvB=document.createElement('span'); lvB.className='lex-lvl'; lvB.textContent=JOB_LEVELS[t[2]-1].slice(0,3);
+    const pt=document.createElement('span'); pt.className='lpt'; pt.textContent=known?t[1]:(locked?'sobe de nível pra ver':'aparece nos turnos');
+    if(known) row.appendChild(sp);
+    row.appendChild(fr); row.appendChild(lvB); row.appendChild(pt);
+    box.appendChild(row);
+  }
+}
+/* ---- mini-conversa no trabalho (Expert): um NPC puxa papo pelo chat normal ---- */
+let workChatCtx=null;
+function workMiniChat(){
+  if(!WORK.active||WORK.finishing||chatOpen) return;
+  const npc=(WORK.career==='bar')?'hugo':['lea','patron'][Math.floor(Math.random()*2)];
+  WORK.chatPending=true;
+  workChatCtx='au travail ('+CAREERS[WORK.career].fr+', '+JOB_LEVELS[S.career.level-1]+') : pause rapide, une personne discute avec le joueur';
+  toast('💬 <b>'+NPCS[npc].name+'</b> puxa papo no meio do turno. Responde em francês!',3600);
+  blip(760);
+  setNpc(npc);
+  chatOpen=true;
+  closeRadial(); clearHover();
+  $('chat').classList.add('open');
+  setTimeout(()=>$('chat-input').focus(),450);
+  sendToCamille('(événement: tu croises le joueur pendant son travail de '+CAREERS[WORK.career].fr+'. Pose-lui UNE question simple et amicale sur sa journée de travail)',true);
+}
+/* ---- eventos-surpresa no meio do turno (Expert) ---- */
+function workSurpriseWin(msg){
+  WORK.surprise=null;
+  if(WORK.surpTimer){ clearTimeout(WORK.surpTimer); WORK.surpTimer=null; }
+  chime();
+  gainXP(6);
+  toast(msg+' <b>+6 XP</b>',3600);
+  setTimeout(wtBannerRestore,1200);
+}
+function workSurpriseFail(msg){
+  WORK.surprise=null;
+  if(WORK.surpTimer){ clearTimeout(WORK.surpTimer); WORK.surpTimer=null; }
+  thud();
+  toast(msg,3600);
+  setTimeout(wtBannerRestore,1200);
+}
+function runWorkSurprise(){
+  if(!WORK.active||WORK.finishing||WORK.surprise) return;
+  const c=WORK.career;
+  if(c==='bar'){
+    /* cliente reclama: escolher a resposta educada */
+    const cases=[
+      {q:'Mon café est froid !',qpt:'Meu café está frio!',opts:[
+        {fr:'Toutes mes excuses ! Je vous en refais un tout de suite.',ok:true},
+        {fr:"C'est l'hiver, tout est froid.",ok:false},{fr:'Buvez plus vite la prochaine fois.',ok:false}],
+       why:'Pedir desculpas e refazer na hora: atendimento de verdade.'},
+      {q:"J'attends depuis dix minutes !",qpt:'Estou esperando faz dez minutos!',opts:[
+        {fr:'Désolé pour l\'attente, j\'arrive tout de suite !',ok:true},
+        {fr:'Moi aussi, la vie est longue.',ok:false},{fr:'Dix minutes, ce n\'est rien.',ok:false}],
+       why:'Reconhece a espera e resolve — sem debochar.'}
+    ];
+    const p=cases[Math.floor(Math.random()*cases.length)];
+    wtModal('😤 Un client se plaint !','',(q,area,fb)=>{
+      const bx=document.createElement('div');
+      bx.style.cssText='font-size:14px;line-height:1.55;padding:12px 14px;border-radius:12px;background:rgba(255,255,255,.62);border:1px solid rgba(255,255,255,.7);margin-bottom:10px';
+      const sp=document.createElement('span'); sp.className='seg'; sp.textContent=p.q;
+      sp.dataset.fr=p.q; sp.dataset.pt=p.qpt;
+      sp.addEventListener('mouseenter',()=>showSegtip(sp)); sp.addEventListener('mouseleave',hideSegtip);
+      bx.appendChild(sp); q.appendChild(bx);
+      speak(p.q);
+      let done=false;
+      [...p.opts].sort(()=>Math.random()-0.5).forEach(o=>{
+        const b=document.createElement('button');
+        b.className='rev-opt'; b.textContent=o.fr;
+        b.addEventListener('click',()=>{
+          if(done) return; done=true;
+          b.classList.add(o.ok?'good':'bad');
+          fb.className=o.ok?'ok':'no';
+          fb.textContent=o.ok?'✅ Le client sourit à nouveau.':'✏️ '+p.why;
+          setTimeout(()=>{ wtModalClose(); o.ok?workSurpriseWin('😌 Réclamation resolvida com classe.'):workSurpriseFail('😬 O cliente saiu bravo. '+p.why); },o.ok?900:2400);
+        });
+        area.appendChild(b);
+      });
+    });
+  }else if(c==='compta'){
+    const n=CO_NUMS[Math.floor(Math.random()*CO_NUMS.length)];
+    WORK.surprise={type:'audit',n};
+    wtBanner([{fr:"L'audit débarque !",pt:'A auditoria chegou!'},{fr:'Vite, apporte le dossier '+frNum(n),pt:'Rápido, traz a pasta (número em francês)'},{fr:"de l'année dernière !",pt:'do ano passado!'}],
+      "L'audit débarque ! Vite, apporte le dossier "+frNum(n)+" de l'année dernière !",'25 segundos! O arquivo está na parede da direita.',{noAudio:true});
+    WORK.surpTimer=setTimeout(()=>{ if(WORK.surprise) workSurpriseFail("⏰ Trop tard… l'audit anotou. Fica pra próxima."); },25000);
+  }else if(c==='menage'){
+    WORK.surprise={type:'tache',key:'tache_centre',tools:['eponge','balai'],step:0};
+    const m=WORK.env.mn.targets.tache_centre;
+    if(m){ m.visible=true; if(m.material&&m.material.transparent){ if(m.userData.baseOp===undefined) m.userData.baseOp=m.material.opacity; m.material.opacity=m.userData.baseOp; } }
+    wtBanner([{fr:'Catastrophe : une tache tenace !',pt:'Catástrofe: uma mancha teimosa!'},{fr:"L'éponge d'abord,",pt:'A esponja primeiro,'},{fr:'puis le balai.',pt:'depois a vassoura.'}],
+      "Catastrophe : une tache tenace au centre ! L'éponge d'abord, puis le balai.",'Dois produtos, na sequência certa.',{noAudio:true});
+  }else{
+    /* dev: bug urgente com timer curto */
+    let left=15, done=false;
+    const opts=[
+      {fr:'Je regarde les logs et je corrige tout de suite.',ok:true},
+      {fr:'Je pars déjeuner, ça attendra.',ok:false},
+      {fr:"Je supprime le site, problème réglé.",ok:false}
+    ].sort(()=>Math.random()-0.5);
+    wtModal('🚨 Bug urgent — en production !','<div style="font-size:13px;font-weight:800;text-align:center;margin-bottom:6px">« Le site est cassé, les clients ne peuvent plus payer ! »</div><div id="wt-surp-timer" style="text-align:center;font-family:Fraunces,serif;font-size:22px;font-weight:900;color:var(--terra)">15s</div>',(q,area,fb)=>{
+      speak('Le site est cassé, les clients ne peuvent plus payer !');
+      const iv=setInterval(()=>{
+        left--;
+        const el=document.getElementById('wt-surp-timer');
+        if(el) el.textContent=Math.max(0,left)+'s';
+        if(left<=0&&!done){ done=true; clearInterval(iv); wtModalClose(); workSurpriseFail('⏰ Trop tard ! Em produção, cada segundo conta.'); }
+      },1000);
+      opts.forEach(o=>{
+        const b=document.createElement('button');
+        b.className='rev-opt'; b.textContent=o.fr;
+        b.addEventListener('click',()=>{
+          if(done) return; done=true; clearInterval(iv);
+          b.classList.add(o.ok?'good':'bad');
+          fb.className=o.ok?'ok':'no';
+          fb.textContent=o.ok?'✅ Corrigé ! La production respire.':'✏️ Em emergência: olhar os logs e corrigir já.';
+          setTimeout(()=>{ wtModalClose(); o.ok?workSurpriseWin('🚑 Bug de production corrigido a tempo.'):workSurpriseFail('😬 O site ficou fora do ar mais tempo que devia.'); },o.ok?900:2200);
+        });
+        area.appendChild(b);
+      });
+    });
+    exposedBump('en production','em produção (no ar)');
+  }
+}
+
+/* ================================================================
+   v7 · BLOCO 3 — VISTA DA JANELA + CLIMA REAL DE PARIS
+   ================================================================ */
+/* camadas extras do panorama + luzes que acendem ao anoitecer */
+let vistaBuilt=false, cityLights=null;
+function buildVistaExtra(){
+  if(vistaBuilt) return;
+  vistaBuilt=true;
+  /* fileira extra de telhados ao fundo */
+  const far=[[-9,-12.6,2.6,1.7,1.9],[-5.6,-12.9,2.2,2.1,1.8],[6.8,-12.7,2.8,1.6,2.0],[9.6,-12.4,2.4,2.0,1.8],[0.8,-13.0,2.0,1.5,1.7]];
+  for(const [x,z,w,h,d] of far) roofBlock(x,z,w,h,d,matZinc2); /* já se adiciona ao grupo paris */
+  /* luzes das janelas (pontinhos quentes que acendem à noite) */
+  const n=120;
+  const geo=new THREE.BufferGeometry();
+  const pos=new Float32Array(n*3);
+  for(let i=0;i<n;i++){
+    pos[i*3]=rand(-13,13);
+    pos[i*3+1]=rand(0.4,2.6);
+    pos[i*3+2]=rand(-13.2,-8.6);
+  }
+  geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  const mat=new THREE.PointsMaterial({color:0xffc27a,size:0.09,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false});
+  cityLights=new THREE.Points(geo,mat);
+  paris.add(cityLights);
+}
+function cityLightsTick(){
+  if(!cityLights) return;
+  const h=S.min/60;
+  const night=(h>=19||h<6)?1:(h>=17.5?(h-17.5)/1.5:0);
+  cityLights.material.opacity=0.75*night*(0.35+0.65*vieCur);
+}
+/* clima real: Open-Meteo, cache 30 min, fallback = clima do jogo */
+const REALWX={code:null,temp:null,at:0,fr:'',emoji:'',cond:'',rainToast:false};
+function wxDecode(code){
+  if(code===0) return {cond:'clear',emoji:'☀️',fr:'Ciel dégagé'};
+  if(code<=2) return {cond:'clear',emoji:'🌤️',fr:'Quelques nuages'};
+  if(code===3) return {cond:'cloud',emoji:'☁️',fr:'Ciel couvert'};
+  if(code===45||code===48) return {cond:'fog',emoji:'🌫️',fr:'Brouillard'};
+  if(code>=51&&code<=67) return {cond:'rain',emoji:'🌧️',fr:'Il pleut'};
+  if(code>=71&&code<=77) return {cond:'snow',emoji:'❄️',fr:'Il neige'};
+  if(code>=80&&code<=82) return {cond:'rain',emoji:'🌦️',fr:'Averses'};
+  if(code>=95) return {cond:'storm',emoji:'⛈️',fr:'Orage'};
+  return {cond:'cloud',emoji:'🌥️',fr:'Temps couvert'};
+}
+async function fetchRealWx(force){
+  if(!force&&Date.now()-REALWX.at<30*60*1000) return; /* cache 30 min */
+  if(force&&Date.now()-REALWX.at<5*60*1000){ vistaRefresh(); return; }
+  try{
+    const ctl=new AbortController();
+    const to=setTimeout(()=>ctl.abort(),8000);
+    const r=await fetch('https://api.open-meteo.com/v1/forecast?latitude=48.85&longitude=2.35&current=temperature_2m,weather_code',{signal:ctl.signal});
+    clearTimeout(to);
+    if(!r.ok) throw new Error('http');
+    const d=await r.json();
+    const cur=d&&d.current;
+    if(!cur||typeof cur.weather_code!=='number') throw new Error('bad');
+    REALWX.code=cur.weather_code;
+    REALWX.temp=cur.temperature_2m;
+    REALWX.at=Date.now();
+    const w=wxDecode(REALWX.code);
+    REALWX.cond=w.cond; REALWX.emoji=w.emoji; REALWX.fr=w.fr;
+    applyRealWx();
+  }catch(e){ /* sem rede: fica no clima do jogo */ }
+  vistaRefresh();
+}
+function applyRealWx(){
+  /* se chove em Paris DE VERDADE, chove no jogo (aciona o evento existente, sem duplicar) */
+  if((REALWX.cond==='rain'||REALWX.cond==='storm')&&S.seen){
+    if(EV.rainUntil<=gameNow()){
+      EV.rainUntil=gameNow()+90;
+      if(!WORK.active){ EV.rainGrp.visible=true; rainSoundStart(); }
+      if(!REALWX.rainToast){
+        REALWX.rainToast=true;
+        toast('🌧️ <b>Il pleut sur Paris — agora, de verdade.</b> O jogo acompanha o céu real.',4600);
+      }
+    }else EV.rainUntil=Math.max(EV.rainUntil,gameNow()+90);
+  }else REALWX.rainToast=false;
+}
+setInterval(()=>fetchRealWx(false),5*60*1000);
+/* frases do momento, por clima e hora — com hover-chunks */
+const VISTA_PHRASES={
+  rain:[
+    [[{fr:'Il pleut sur les toits de Paris…',pt:'Chove sobre os telhados de Paris…'},{fr:'la ville brille quand même.',pt:'a cidade brilha mesmo assim.'}]],
+    [[{fr:'La pluie tombe doucement',pt:'A chuva cai devagar'},{fr:'sur les toits de zinc.',pt:'sobre os telhados de zinco.'}]]
+  ],
+  snow:[
+    [[{fr:'Il neige !',pt:'Está nevando!'},{fr:'Paris met son manteau blanc.',pt:'Paris veste seu casaco branco.'}]]
+  ],
+  storm:[
+    [[{fr:"L'orage gronde au loin…",pt:'A tempestade ronca ao longe…'},{fr:'reste bien au chaud.',pt:'fica quentinho aqui dentro.'}]]
+  ],
+  fog:[
+    [[{fr:'Le brouillard efface la tour Eiffel…',pt:'A névoa apaga a Torre Eiffel…'},{fr:'presque.',pt:'quase.'}]]
+  ],
+  cloud:[
+    [[{fr:'Le ciel est gris,',pt:'O céu está cinza,'},{fr:'mais Paris ne boude jamais longtemps.',pt:'mas Paris nunca fica de mau humor por muito tempo.'}]]
+  ],
+  clear_matin:[
+    [[{fr:"Paris s'éveille sous un ciel clair.",pt:'Paris desperta sob um céu limpo.'},{fr:'Quelle belle journée !',pt:'Que dia bonito!'}]]
+  ],
+  clear_soir:[
+    [[{fr:'Le soir dore les toits…',pt:'O entardecer doura os telhados…'},{fr:'et la tour Eiffel scintille bientôt.',pt:'e a Torre Eiffel logo vai cintilar.'}]]
+  ],
+  clear:[
+    [[{fr:'Le soleil se promène',pt:'O sol passeia'},{fr:'sur les toits de zinc.',pt:'pelos telhados de zinco.'}]]
+  ]
+};
+let vistaSay='';
+function vistaRefresh(){
+  if(!vistaView) return;
+  const hasReal=REALWX.at>0;
+  /* fallback: clima do jogo */
+  const gameRain=EV.rainUntil>gameNow();
+  const cond=hasReal?REALWX.cond:(gameRain?'rain':'clear');
+  const h=S.min/60;
+  let key=cond;
+  if(cond==='clear') key=(h<12)?'clear_matin':(h>=17)?'clear_soir':'clear';
+  const pool=VISTA_PHRASES[key]||VISTA_PHRASES.clear;
+  const segs=pool[Math.floor(Math.random()*pool.length)][0];
+  vistaSay=segs.map(s=>s.fr).join(' ');
+  $('vista-ico').textContent=hasReal?REALWX.emoji:(gameRain?'🌧️':'🗼');
+  $('vista-temp').textContent=hasReal&&typeof REALWX.temp==='number'?Math.round(REALWX.temp)+'°C':'';
+  $('vista-cond').textContent=hasReal?REALWX.fr:(gameRain?'Il pleut (no jogo)':'');
+  $('vista-src').textContent=hasReal?'météo réelle · Paris':'météo du jeu';
+  segSpans($('vista-fr'),segs,vistaSay);
+  exposeFromText(vistaSay);
+}
+function openVista(){
+  if(vistaView) return;
+  buildVistaExtra();
+  closeRadial(); clearHover(); hideMarker();
+  move.walking=false; move.path=null;
+  vistaView={x:0,y:1.6,z:-12.6,dist:7.0,yaw:0,pitch:0.05,sy:cam.yaw,sp:cam.pitch};
+  $('vista').classList.add('on');
+  vistaRefresh();
+  if(vistaSay) setTimeout(()=>speak(vistaSay),900);
+  fetchRealWx(true);
+  blip(700,0.14,'sine',0.07);
+}
+function closeVista(){
+  $('vista').classList.remove('on');
+  if(vistaView){ cam.yaw=vistaView.sy; cam.pitch=vistaView.sp; }
+  vistaView=null;
+  camPanned=false;
+  camFollow=true; /* volta a enquadrar o player suavemente */
+  blip(480);
+}
+$('vista-close').addEventListener('click',closeVista);
+$('vista-spk').addEventListener('click',()=>{ if(vistaSay) speak(vistaSay); blip(700); });
+setTimeout(()=>fetchRealWx(false),4000); /* primeira leitura do céu real */
+
+/* ================================================================
+   v7 · BLOCO 4 — LIVRAISON 🛵 (app do celular)
+   ================================================================ */
+const DELIV_MENU={
+  pizza:{fr:'une pizza margherita',pt:'uma pizza margherita',em:'🍕',price:10},
+  sushis:{fr:'des sushis',pt:'sushis',em:'🍣',price:14},
+  burger:{fr:'un burger frites',pt:'um burger com fritas',em:'🍔',price:9},
+  couscous:{fr:'un couscous royal',pt:'um couscous royal',em:'🥘',price:12},
+  poulet:{fr:'un poulet rôti',pt:'um frango assado',em:'🍗',price:11}
+};
+let delivWaiting=false;
+function openLivraison(){
+  curThread=null;
+  $('pn-back').style.display='';
+  $('pn-face').style.display='none';
+  $('pn-title').textContent='Livraison 🛵';
+  $('pn-career').style.display='none';
+  $('pn-lex').style.display='none';
+  $('pn-thread').classList.remove('on');
+  const box=$('pn-threads'); box.style.display=''; box.innerHTML='';
+  const head=document.createElement('div');
+  head.style.cssText='font-size:10.5px;font-weight:800;color:var(--ink2);text-align:center;padding:6px 8px';
+  head.textContent=S.delivery.at?'🛵 Ta commande arrive em ~1 h de jogo. Fica perto da porta!':'Escolhe um prato — o entregador toca a porta em ~1 h de jogo.';
+  box.appendChild(head);
+  for(const id of Object.keys(DELIV_MENU)){
+    const d=DELIV_MENU[id];
+    const b=document.createElement('button');
+    b.className='thr';
+    const tf=document.createElement('span'); tf.className='tf'; tf.textContent=d.em;
+    const mid=document.createElement('div');
+    const tn=document.createElement('div'); tn.className='tn'; tn.textContent=d.fr;
+    const tp=document.createElement('div'); tp.className='tp'; tp.textContent=d.pt+' · '+d.price+'€';
+    mid.appendChild(tn); mid.appendChild(tp);
+    b.appendChild(tf); b.appendChild(mid);
+    if(S.delivery.at||S.argent<d.price) b.style.opacity='.45';
+    b.addEventListener('click',()=>{
+      if(S.delivery.at){ toast('🛵 Já tem um pedido a caminho. Um de cada vez!'); return; }
+      if(S.argent<d.price){ toast('💶 Faltam euros pra esse. Um turno de boulot resolve.'); return; }
+      payMoney(-d.price);
+      S.delivery.at=gameNow()+60; S.delivery.item=id;
+      exposedBump('la livraison','a entrega'); exposedBump(d.fr,d.pt);
+      chime();
+      toast('🛵 <b>Commande passée !</b> '+d.em+' '+d.fr+' · o entregador chega em ~1 h de jogo.',4200);
+      save();
+      openLivraison();
+    });
+    box.appendChild(b);
+  }
+}
+function delivTick(){
+  if(!S.delivery||!S.delivery.at||delivWaiting) return;
+  if(gameNow()<S.delivery.at) return;
+  if(WORK.active||inCafe) { S.delivery.at=gameNow()+15; return; } /* espera você estar em casa */
+  delivWaiting=true;
+  thud(); setTimeout(thud,280); setTimeout(thud,560);
+  toast('🚪 <i>Toc toc…</i> <b>Le livreur est là !</b> Clica na porta pra receber.',5200);
+  speak('Livraison ! Bonjour, il y a quelqu\'un ?');
+}
+function delivDoor(){
+  if(!delivWaiting) return;
+  const id=S.delivery.item, d=DELIV_MENU[id];
+  if(!d){ delivWaiting=false; S.delivery={at:0,item:null,stock:S.delivery.stock||[]}; return; }
+  const canTip=S.argent>=1;
+  wtModal('🛵 À la porte','',(q,area)=>{
+    const bx=document.createElement('div');
+    bx.style.cssText='font-size:14px;line-height:1.6;padding:12px 14px;border-radius:12px;background:rgba(255,255,255,.62);border:1px solid rgba(255,255,255,.7);margin-bottom:10px';
+    const segs=[
+      {fr:'Bonsoir !',pt:'Boa noite!'},
+      {fr:'Votre '+d.fr.replace(/^une |^un |^des /,'')+',',pt:'Seu pedido,'},
+      {fr:'ça fait '+frNum(d.price)+' euros —',pt:'deu '+d.price+' euros —'},
+      {fr:'déjà réglé en ligne.',pt:'já pago pelo app.'},
+      {fr:'Vérifiez la commande !',pt:'Confere o pedido!'}
+    ];
+    segSpans(bx,segs,'');
+    q.appendChild(bx);
+    speak('Bonsoir ! Votre commande, ça fait '+frNum(d.price)+' euros, déjà réglé en ligne. Vérifiez la commande !');
+    const fin=(tip)=>{
+      wtModalClose();
+      delivWaiting=false;
+      if(tip){ payMoney(-1); bump('humeur',4); exposedBump('Gardez la monnaie !','Pode ficar com o troco!'); toast('😊 « Merci, bonne soirée ! » · +1€ de pourboire dado'); }
+      S.delivery.stock=[...(S.delivery.stock||[]),id].slice(0,6);
+      S.delivery.at=0; S.delivery.item=null;
+      const wp=new THREE.Vector3(); frigo.getWorldPosition(wp);
+      burst(wp.x-0.4,1.2,wp.z,0xf3c94e,14,0.5,1.3);
+      chime();
+      toast(d.em+' <b>'+d.fr+'</b> foi pra geladeira — refeição pronta (+Faim forte).',4200);
+      gainXP(4);
+      exposedBump('le livreur','o entregador');
+      save();
+    };
+    const b1=document.createElement('button');
+    b1.className='rev-opt'; b1.textContent='✅ Merci ! C\'est bien ça. Bonne soirée !';
+    b1.title='Obrigado! É isso mesmo. Boa noite!';
+    b1.addEventListener('click',()=>fin(false));
+    area.appendChild(b1);
+    if(canTip){
+      const b2=document.createElement('button');
+      b2.className='rev-opt'; b2.textContent='💶 Gardez la monnaie ! (+1€ de gorjeta)';
+      b2.title='Pode ficar com o troco!';
+      b2.addEventListener('click',()=>fin(true));
+      area.appendChild(b2);
+    }
+  });
+}
+function delivEat(){
+  const st=S.delivery&&S.delivery.stock;
+  if(!st||!st.length){ toast('🧊 Nenhuma refeição entregue na geladeira.'); return; }
+  const id=st.shift();
+  const d=DELIV_MENU[id]||{fr:'le plat',em:'🍽️'};
+  bump('faim',70); bump('humeur',8);
+  const wp=new THREE.Vector3(); frigo.getWorldPosition(wp);
+  burst(wp.x-0.5,1.1,wp.z,0xf3c94e,12,0.5,1.4);
+  blip(720);
+  gainXP(3);
+  toast(d.em+' <b>Délicieux !</b> '+d.fr+' matou a fome de verdade.');
+  save();
+}
+
+/* ================================================================
+   v7 · BLOCO 5 — DÎNER À 3 OU 4 (convidados à mesa)
+   ================================================================ */
+const DINNER={on:false,guests:[],i:0,hist:[],plate:null};
+let guestModels=null;
+function ensureGuestModels(){
+  if(guestModels) return;
+  guestModels={
+    lea:makeHuman({skin:0xf0d0a8,shirt:0xd9a441,pants:0x7b9e8e,hair:0xd8b878}),
+    hugo:makeHuman({skin:0xe0b088,shirt:0x4a6fa5,pants:0x33363f,hair:0x2a1e14})
+  };
+  for(const k of Object.keys(guestModels)){
+    guestModels[k].g.visible=false;
+    room.add(guestModels[k].g);
+  }
+}
+function guestSit(model,x,z){
+  const g=model;
+  g.g.visible=true;
+  g.g.position.set(x,0.12,z);
+  g.g.rotation.y=Math.atan2(1.5-x,1.7-z); /* olha pro centro da mesa */
+  g.lLeg.rotation.x=-1.35; g.rLeg.rotation.x=-1.35;
+  g.lArm.rotation.x=-0.5; g.rArm.rotation.x=-0.5;
+}
+function openDinnerInvite(r){
+  const h=S.min/60;
+  const avail={
+    camille:{ok:!camR.away&&camR.pose!=='sleep',why:"Camille n'est pas là — elle est sortie."},
+    lea:{ok:h>=12&&h<=21.5&&Math.random()<0.78,why:'« Merci pour l\'invitation, mais ce soir je ne peux pas. Une prochaine fois, promis ! »'},
+    hugo:{ok:(h>=18.5&&h<=22.5)&&Math.random()<0.65,why:'« C\'est gentil ! Mais je ferme le café ce soir. Garde-moi une part ! »'}
+  };
+  const sel=new Set();
+  wtModal('🕯️ Inviter à dîner','<div style="font-size:12px;font-weight:800;text-align:center;margin-bottom:8px">'+r.em+' '+r.fr+' está na mesa. Quem você chama?</div>',(q,area)=>{
+    const mk=(id,name,face)=>{
+      const b=document.createElement('button');
+      b.className='rev-opt';
+      b.textContent=face+' '+name;
+      b.addEventListener('click',()=>{
+        if(sel.has(id)){ sel.delete(id); b.style.outline=''; }
+        else{ sel.add(id); b.style.outline='3px solid var(--gold)'; }
+        blip(620);
+      });
+      area.appendChild(b);
+      return b;
+    };
+    mk('camille','Camille','👩‍🦰'); mk('lea','Léa','👱‍♀️'); mk('hugo','Hugo','🧑‍🍳');
+    const all=document.createElement('button');
+    all.className='rev-opt'; all.textContent='✨ Inviter tout le monde !';
+    all.addEventListener('click',()=>{ ['camille','lea','hugo'].forEach(x=>sel.add(x)); [...area.querySelectorAll('button')].slice(0,3).forEach(x=>x.style.outline='3px solid var(--gold)'); blip(700); });
+    area.appendChild(all);
+    const go=document.createElement('button');
+    go.className='mk-buy'; go.style.cssText='display:block;margin:10px auto 0;padding:9px 26px';
+    go.textContent='À table !';
+    go.addEventListener('click',()=>{
+      wtModalClose();
+      if(!sel.size){ bump('faim',r.faim); toast('🍽️ Jantar solo também vale. <i>Bon appétit !</i>'); save(); return; }
+      const accepted=[], refused=[];
+      for(const id of sel){ (avail[id].ok?accepted:refused).push(id); }
+      /* recusas educadas em FR valem chunks */
+      const showRefusals=(k)=>{
+        if(k>=refused.length){ if(accepted.length) startDinner(r,accepted); else{ bump('faim',r.faim); toast('😅 Ninguém pôde vir hoje. O jantar continua gostoso.'); save(); } return; }
+        const id=refused[k];
+        const fr=avail[id].why;
+        showPhrase('📵 '+(NPCS[id]?NPCS[id].name:id)+' ne peut pas venir',fr,(id==='camille'?'Camille não está em casa.':'recusa educada — repara nas fórmulas'),'Dommage !',()=>{ exposeFromText(fr); showRefusals(k+1); });
+      };
+      showRefusals(0);
+    });
+    area.appendChild(go);
+  });
+}
+function startDinner(r,guests){
+  ensureGuestModels();
+  DINNER.on=true; DINNER.guests=guests; DINNER.i=0; DINNER.hist=[]; DINNER.plate=r;
+  /* todo mundo à mesa */
+  sitAt(0.58,2.54,Math.atan2(1.5-0.58,1.7-2.54),0.12);
+  if(guests.includes('camille')){
+    camWake(); camPose('sit');
+    camille.g.position.set(2.53,0.18,2.41);
+    camille.g.rotation.y=Math.atan2(1.5-2.53,1.7-2.41);
+    camR.phase='paused'; camR.path=null;
+  }
+  if(guests.includes('lea')) guestSit(guestModels.lea,0.47,0.99);
+  if(guests.includes('hugo')) guestSit(guestModels.hugo,2.53,0.99);
+  for(const g2 of guests) bump('social',14);
+  bump('faim',r.faim); bump('humeur',14);
+  gainXP(6+guests.length*2);
+  const names=guests.map(g2=>NPCS[g2].name).join(', ');
+  dinerCtx='dîner à '+(guests.length+1)+' : '+r.fr+' avec '+names;
+  const first=guests.includes('camille')?'camille':guests[0];
+  setNpc(first);
+  chatOpen=true;
+  closeRadial(); clearHover();
+  $('chat').classList.add('open');
+  $('npc-sub').textContent='à table · dîner à '+(guests.length+1);
+  setTimeout(()=>$('chat-input').focus(),450);
+  sendToCamille('(événement: le joueur a cuisiné '+r.fr+' et vous êtes '+(guests.length+1)+' à table : '+names+' et le joueur. Réagis avec joie, goûte le plat, lance la conversation du dîner)',true);
+  toast('🕯️ <b>Dîner à '+(guests.length+1)+' !</b> +Social forte por convidado. Fecha o chat pra encerrar o jantar.',4600);
+  save();
+}
+function endDinner(){
+  DINNER.on=false; DINNER.hist=[]; DINNER.i=0;
+  if(guestModels) for(const k of Object.keys(guestModels)){
+    const m=guestModels[k];
+    m.g.visible=false; m.g.position.y=0;
+    m.lLeg.rotation.x=0; m.rLeg.rotation.x=0; m.lArm.rotation.x=0; m.rArm.rotation.x=0;
+  }
+  DINNER.guests=[];
+  toast('🕯️ Fin du dîner. <i>Merci pour ce moment !</i>');
+}
+
+/* ================================================================
+   v7 · BLOCO 6 — L'ARMOIRE (roupa e cabelo do player)
+   ================================================================ */
+const OUTFIT_PAL={
+  shirt:[0xe0603f,0x4a6fa5,0x7fae6a,0xd9a441,0xc0576b,0xf0e6d2],
+  pants:[0x3f5f8a,0x4a4a55,0x8a5f3c,0x5f8f4e,0x2e3138,0x7a5a3c],
+  hair:[0x33241a,0x5c4030,0x1a1a1a,0x6b4226,0x8a8f9a,0xb08a4e]
+};
+const OUTFIT_DEF={shirt:0xe0603f,pants:0x3f5f8a,hair:0x33241a};
+function applyOutfit(){
+  if(!S.outfit) return;
+  for(const k of ['shirt','pants','hair']){
+    const v=(typeof S.outfit[k]==='number')?S.outfit[k]:OUTFIT_DEF[k];
+    player.mats[k].color.setHex(v);
+  }
+}
+function openArmoire(){
+  const clean=!(S.laundry&&S.laundry.dirty>=80);
+  const secs=[
+    ['shirt','👕 La chemise','a camisa'],
+    ['pants','👖 Le pantalon','a calça'],
+    ['hair','💇 Les cheveux','o cabelo']
+  ];
+  wtModal("👗 L'armoire",clean?'':'<div style="font-size:12px;font-weight:800;color:var(--terra);text-align:center;margin-bottom:6px">🧺 « Tout est au sale ! » — roupa suja demais: só 2 opções. Faz a lessive!</div>',(q,area)=>{
+    for(const [k,titleFr,titlePt] of secs){
+      const h=document.createElement('div'); h.className='arm-sec'; h.textContent=titleFr+' · '+titlePt;
+      area.appendChild(h);
+      const row=document.createElement('div'); row.className='arm-row';
+      OUTFIT_PAL[k].forEach((hex,i)=>{
+        const b=document.createElement('button');
+        b.className='arm-sw';
+        b.style.background='#'+hex.toString(16).padStart(6,'0');
+        const cur=(typeof S.outfit[k]==='number')?S.outfit[k]:OUTFIT_DEF[k];
+        if(cur===hex) b.classList.add('cur');
+        if(k!=='hair'&&!clean&&i>=2) b.disabled=true; /* sem roupa limpa: só 2 opções */
+        b.addEventListener('click',()=>{
+          S.outfit[k]=hex;
+          applyOutfit(); /* preview ao vivo no personagem */
+          row.querySelectorAll('.arm-sw').forEach(x=>x.classList.remove('cur'));
+          b.classList.add('cur');
+          blip(700);
+          burst(player.g.position.x,1.3,player.g.position.z,hex,10,0.4,1.2);
+          save();
+        });
+        row.appendChild(b);
+      });
+      area.appendChild(row);
+    }
+    const note=document.createElement('div');
+    note.style.cssText='font-size:10.5px;color:var(--ink2);font-style:italic;text-align:center;margin-top:10px';
+    note.textContent=clean?'O espelho do banheiro também abre o guarda-roupa.':'Depois da lessive completa, todas as cores voltam.';
+    area.appendChild(note);
+    exposedBump("l'armoire",'o guarda-roupa'); exposedBump('la chemise','a camisa'); exposedBump('le pantalon','a calça');
+  });
+  blip(660);
+}
+
 /* ========== loop principal ========== */
 const clock3=new THREE.Clock();
 function loop(){
@@ -8326,6 +9499,18 @@ function loop(){
     /* rotação Q/E */
     if(keys['q']) cam.yaw+=dt*1.8;
     if(keys['e']) cam.yaw-=dt*1.8;
+    /* v7: setas = pan contínuo · W/S = inclinação · A/D = rotação */
+    if(!certView&&!vistaView){
+      const ps=camDistCur*0.55*dt;
+      if(keys['arrowleft'])  camPanScreen(-ps,0);
+      if(keys['arrowright']) camPanScreen(ps,0);
+      if(keys['arrowup'])    camPanScreen(0,ps);
+      if(keys['arrowdown'])  camPanScreen(0,-ps);
+      if(keys['w']) cam.pitch=clamp(cam.pitch+dt*0.9,0.35,1.35);
+      if(keys['s']) cam.pitch=clamp(cam.pitch-dt*0.9,0.35,1.35);
+      if(keys['a']) cam.yaw+=dt*1.8;
+      if(keys['d']) cam.yaw-=dt*1.8;
+    }
     tickPlayer(t,dt);
     if(!WORK.active){ /* v5: o apê pausa enquanto você está no trabalho */
       tickCamille(t,dt);
@@ -8362,6 +9547,7 @@ function loop(){
     if(S.pos.x<-7.7||S.pos.x>7.7||S.pos.z<-7.4||S.pos.z>5.7||isBlocked(c0.cx,c0.cz)) S.pos={x:-1.8,z:-1.2};
   }
   player.g.position.set(S.pos.x,0,S.pos.z);
+  applyOutfit(); /* v7: roupa e cabelo salvos */
   for(const lv of S.certs) spawnCert(lv);
   $('tvtab-cine').style.display=S.certs.includes('A1')?'':'none';
   if(awayLong&&S.introDone) setTimeout(()=>phoneArrive('camille','absence'),9000);
